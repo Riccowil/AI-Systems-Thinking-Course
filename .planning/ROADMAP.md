@@ -63,13 +63,14 @@ Plans:
   4. MCP tool `analyze_agent_feedback_loops` accepts AgentComponent + AgentLink inputs, internally transforms to CausalLink format, reuses existing `score_reinforcing_loops`, and returns loop classifications (R1, R2, B1, B2) with severity scores
   5. Claude skill `agent-feedback-analyzer.skill` guides a multi-step analysis workflow and is functional in Claude Desktop/CLI
   6. Cubelet markdown has all 6 faces (WHAT/WHY/HOW/WHERE/WHEN/APPLY) and scores >= 42/60 on quality gate
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- MCP tool: AgentComponent/AgentLink models and analyze_agent_feedback_loops tool
-- [ ] 08-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP
+- [x] 08-01-PLAN.md -- MCP tool: AgentComponent/AgentLink models and analyze_agent_feedback_loops tool
+- [x] 08-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP
 - [x] 08-03-PLAN.md -- Interactive artifact: shape-coded nodes, canvas, DFS loop detection, worked example, primer panel (complete: da81154)
-- [ ] 08-04-PLAN.md -- Interactive artifact: progressive disclosure, tabbed right panel, prediction comparison, interventions
+- [x] 08-04-PLAN.md -- Interactive artifact: progressive disclosure, tabbed right panel, prediction comparison, interventions (complete: b9b2090)
+- [ ] 08-05-PLAN.md -- Gap closure: compress artifact to sandbox size limit, fix stale closure and alert() bugs
 
 ### Phase 9: ST-005 Tool Orchestration
 **Goal**: Students can input MCP tools and their dependencies, see a dependency graph with redundancy/coupling/blast radius analysis, and score interventions using Meadows hierarchy -- delivered as a complete three-layer stack
@@ -186,7 +187,7 @@ Phase 9   Phase 10
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 7. Content Foundations | v1.1 | 2/2 | COMPLETE | 2026-03-21 |
-| 8. ST-004 Pathfinder | v1.1 | 3/4 | In progress | - |
+| 8. ST-004 Pathfinder | v1.1 | 4/5 | In progress | - |
 | 9. ST-005 Tool Orchestration | v1.1 | 0/TBD | Not started | - |
 | 10. ST-006 Automation Debt | v1.1 | 0/TBD | Not started | - |
 | 11. Integration + Deployment | v1.1 | 0/TBD | Not started | - |
