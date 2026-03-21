@@ -85,12 +85,13 @@ Plans:
   4. MCP tool `analyze_tool_orchestration` accepts tool list + dependencies + interventions, internally reuses existing `compare_interventions` via composition, and returns health scores with refactor recommendations
   5. Claude skill `tool-stack-analyzer.skill` guides a multi-step audit workflow and is functional in Claude Desktop/CLI
   6. Cubelet markdown has all 6 faces and scores >= 42/60 on quality gate
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
-- [ ] 09-03: TBD
+- [ ] 09-01-PLAN.md -- MCP tool: MCPTool/ToolDependency models and analyze_tool_orchestration tool with composition
+- [ ] 09-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP (tool-stack-analyzer)
+- [ ] 09-03-PLAN.md -- Interactive artifact core: graph rendering, Build/Analyze modes, worked example, health scoring, tabbed right panel
+- [ ] 09-04-PLAN.md -- Interactive artifact enhancement: failure simulation, blast radius, redundancy viz, intervention scoring with progressive disclosure
 
 ### Phase 10: ST-006 Automation Debt
 **Goal**: Students can play a 12-round scenario-based decision game that reveals automation debt through the shifting-the-burden archetype, with post-game diagnosis and MCP-powered debt detection -- delivered as a complete three-layer stack
@@ -188,7 +189,7 @@ Phase 9   Phase 10
 |-------|-----------|----------------|--------|-----------|
 | 7. Content Foundations | v1.1 | 2/2 | COMPLETE | 2026-03-21 |
 | 8. ST-004 Pathfinder | v1.1 | 4/5 | In progress | - |
-| 9. ST-005 Tool Orchestration | v1.1 | 0/TBD | Not started | - |
+| 9. ST-005 Tool Orchestration | v1.1 | 0/4 | Planned | - |
 | 10. ST-006 Automation Debt | v1.1 | 0/TBD | Not started | - |
 | 11. Integration + Deployment | v1.1 | 0/TBD | Not started | - |
 
