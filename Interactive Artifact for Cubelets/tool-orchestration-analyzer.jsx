@@ -45,6 +45,15 @@ const S = {
   btnLabel: { fontSize: '12px', fontWeight: '500' },
 };
 
+// Meadows level mapping
+const MEADOWS_MAP = {
+  'Add tool': { level: 1, name: 'L1: Constants/Parameters' },
+  'Remove tool': { level: 2, name: 'L2: Buffer/Stock Sizes' },
+  'Add cache/fallback': { level: 5, name: 'L5: Feedback Delays' },
+  'Refactor dependency': { level: 6, name: 'L6: Feedback Structure' },
+  'Change system goals': { level: 10, name: 'L10: System Goals' },
+};
+
 // Worked example: 9-tool course stack with create_causal_loop pre-failed
 const WORKED_EXAMPLE = {
   tools: [
@@ -72,11 +81,6 @@ const WORKED_EXAMPLE = {
     { from: 'analyze_system', to: 'detect_burden_shift', type: 'optional', data: ['system_context'] },
     { from: 'score_reinforcing_loops', to: 'detect_burden_shift', type: 'enhances', data: ['loop_data'] },
   ],
-  interventions: [
-    { level: 'L1', action: 'Increase timeout on create_causal_loop', type: 'parameter' },
-    { level: 'L6', action: 'Add caching layer between CLD creation and consumers', type: 'feedback' },
-    { level: 'L10', action: 'Redesign so each tool is self-contained', type: 'goals' },
-  ],
 };
 
 export default function ToolOrchestrationAnalyzer() {
@@ -96,6 +100,11 @@ export default function ToolOrchestrationAnalyzer() {
   const [isExample, setIsExample] = useState(false);
   const [draggedNode, setDraggedNode] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [cascadeStatus, setCascadeStatus] = useState(new Map());
+  const [blastRadius, setBlastRadius] = useState(new Map());
+  const [redundantPairs, setRedundantPairs] = useState([]);
+  const [interventions, setInterventions] = useState([]);
+  const [showInterventionForm, setShowInterventionForm] = useState(false);
 
   const svgRef = useRef(null);
 
@@ -107,6 +116,40 @@ export default function ToolOrchestrationAnalyzer() {
     setIsExample(true);
     setMode('analyze');
   }, []);
+
+  // Compute cascade when failures change
+  useEffect(() => {
+    if (failedTools.size === 0) {
+      setCascadeStatus(new Map());
+      return;
+    }
+
+    const cascade = new Map();
+    const queue = Array.from(failedTools).map(id => ({ id, status: 'broken' }));
+    const visited = new Set(failedTools);
+
+    while (queue.length > 0) {
+      const { id, status } = queue.shift();
+      if (!cascade.has(id)) cascade.set(id, status);
+
+      const outgoing = edges.filter(e => e.from === id);
+      outgoing.forEach(e => {
+        if (!visited.has(e.to)) {
+          visited.add(e.to);
+          let newStatus = 'unaffected';
+          if (e.type === 'required' && (status === 'broken' || status === 'degraded')) newStatus = 'broken';
+          else if (e.type === 'optional' && status === 'broken') newStatus = 'degraded';
+          else if (e.type === 'enhances') newStatus = 'unaffected';
+          if (newStatus !== 'unaffected') {
+            cascade.set(e.to, newStatus);
+            queue.push({ id: e.to, status: newStatus });
+          }
+        }
+      });
+    }
+
+    setCascadeStatus(cascade);
+  }, [failedTools, edges]);
 
   // Calculate health scores
   useEffect(() => {
@@ -120,20 +163,13 @@ export default function ToolOrchestrationAnalyzer() {
 
     const complexity = Math.min(100, edges.length + cycles.length * 10);
 
-    let redundancyCount = 0;
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const n1 = nodes[i], n2 = nodes[j];
-        const inIntersect = n1.inputs?.filter(x => n2.inputs?.includes(x)) || [];
-        const outIntersect = n1.outputs?.filter(x => n2.outputs?.includes(x)) || [];
-        if (inIntersect.length > 0 && outIntersect.length > 0) redundancyCount++;
-      }
-    }
-    const redundancy = Math.min(100, redundancyCount * 20);
+    const redundant = detectRedundancy();
+    setRedundantPairs(redundant);
+    const redundancy = Math.min(100, redundant.length * 20);
 
     let maxDepth = 0;
     nodes.forEach(n => {
-      const depth = computeBlastRadius(n.id);
+      const depth = computeBlastRadiusDepth(n.id);
       if (depth > maxDepth) maxDepth = depth;
     });
     const brittleness = Math.min(100, maxDepth * 20);
@@ -142,6 +178,33 @@ export default function ToolOrchestrationAnalyzer() {
 
     setHealthScores({ complexity, redundancy, brittleness, aggregate });
   }, [nodes, edges]);
+
+  // Compute blast radius when tool selected
+  useEffect(() => {
+    if (!selectedTool || mode !== 'analyze') {
+      setBlastRadius(new Map());
+      return;
+    }
+
+    const radiusMap = new Map();
+    const queue = [{ id: selectedTool, depth: 0 }];
+    const visited = new Set([selectedTool]);
+
+    while (queue.length > 0) {
+      const { id, depth } = queue.shift();
+      if (id !== selectedTool) radiusMap.set(id, depth);
+
+      const outgoing = edges.filter(e => e.from === id);
+      outgoing.forEach(e => {
+        if (!visited.has(e.to)) {
+          visited.add(e.to);
+          queue.push({ id: e.to, depth: depth + 1 });
+        }
+      });
+    }
+
+    setBlastRadius(radiusMap);
+  }, [selectedTool, mode, edges]);
 
   function findCycles() {
     const cycles = [];
@@ -172,7 +235,7 @@ export default function ToolOrchestrationAnalyzer() {
     return cycles;
   }
 
-  function computeBlastRadius(toolId) {
+  function computeBlastRadiusDepth(toolId) {
     const queue = [{ id: toolId, depth: 0 }];
     const visited = new Set([toolId]);
     let maxDepth = 0;
@@ -191,6 +254,21 @@ export default function ToolOrchestrationAnalyzer() {
     }
 
     return maxDepth;
+  }
+
+  function detectRedundancy() {
+    const pairs = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const n1 = nodes[i], n2 = nodes[j];
+        const inIntersect = (n1.inputs || []).filter(x => (n2.inputs || []).includes(x));
+        const outIntersect = (n1.outputs || []).filter(x => (n2.outputs || []).includes(x));
+        if (inIntersect.length > 0 && outIntersect.length > 0) {
+          pairs.push([n1.id, n2.id]);
+        }
+      }
+    }
+    return pairs;
   }
 
   function getTier(score) {
@@ -282,6 +360,20 @@ export default function ToolOrchestrationAnalyzer() {
     }
   }
 
+  function handleToggleFailure(nodeId, e) {
+    e.stopPropagation();
+    setFailedTools(prev => {
+      const next = new Set(prev);
+      if (next.has(nodeId)) next.delete(nodeId);
+      else next.add(nodeId);
+      return next;
+    });
+  }
+
+  function handleResetFailures() {
+    setFailedTools(new Set());
+  }
+
   function handleStartFresh() {
     setNodes([]);
     setEdges([]);
@@ -289,6 +381,43 @@ export default function ToolOrchestrationAnalyzer() {
     setIsExample(false);
     setMode('build');
     setShowAnnotations(false);
+    setInterventions([]);
+  }
+
+  function handleAddIntervention(data) {
+    const newInt = {
+      id: Date.now(),
+      target: selectedTool,
+      actionType: data.actionType,
+      description: data.description,
+      actualLevel: MEADOWS_MAP[data.actionType],
+      prediction: null,
+      revealed: false,
+    };
+    setInterventions(prev => [...prev, newInt]);
+    setShowInterventionForm(false);
+  }
+
+  function handlePredictLevel(intId, level) {
+    setInterventions(prev => prev.map(int => int.id === intId ? { ...int, prediction: level } : int));
+  }
+
+  function handleReveal(intId) {
+    setInterventions(prev => prev.map(int => int.id === intId ? { ...int, revealed: true } : int));
+  }
+
+  function computeProjectedHealth(intervention) {
+    let projected = { ...healthScores };
+    if (intervention.actionType === 'Remove tool') {
+      projected.complexity = Math.max(0, projected.complexity - 10);
+      projected.brittleness = Math.max(0, projected.brittleness - 15);
+    } else if (intervention.actionType === 'Add cache/fallback') {
+      projected.brittleness = Math.max(0, projected.brittleness - 20);
+    } else if (intervention.actionType === 'Refactor dependency') {
+      projected.complexity = Math.max(0, projected.complexity - 15);
+    }
+    projected.aggregate = Math.round((projected.complexity + projected.redundancy + projected.brittleness) / 3);
+    return projected;
   }
 
   function getEdgePath(from, to) {
@@ -303,16 +432,52 @@ export default function ToolOrchestrationAnalyzer() {
   function renderNode(n) {
     const isSelected = selectedTool === n.id;
     const isFailed = failedTools.has(n.id);
+    const cascadeState = cascadeStatus.get(n.id);
+    const blastDepth = blastRadius.get(n.id);
     const isIsolated = !edges.some(e => e.from === n.id || e.to === n.id);
     const critColor = n.criticality === 'high' ? C.accentDanger : n.criticality === 'medium' ? C.accentWarm : C.accent;
 
+    let fillColor = C.canvas;
+    let strokeColor = C.panelBorder;
+    let nodeOpacity = 1;
+
+    if (isFailed) {
+      fillColor = `${C.accentDanger}33`;
+      strokeColor = C.accentDanger;
+    } else if (cascadeState === 'broken') {
+      fillColor = `${C.accentDanger}33`;
+      strokeColor = C.accentDanger;
+    } else if (cascadeState === 'degraded') {
+      fillColor = `${C.accentWarm}33`;
+      strokeColor = C.accentWarm;
+    } else if (cascadeState === 'unaffected') {
+      fillColor = `${C.accent}11`;
+      strokeColor = C.accent;
+    }
+
+    if (blastDepth !== undefined) {
+      const intensity = Math.max(0.3, 1 / blastDepth);
+      strokeColor = C.accentDanger;
+      nodeOpacity = blastDepth === 1 ? 1 : intensity;
+    } else if (selectedTool && blastRadius.size > 0 && !blastRadius.has(n.id) && n.id !== selectedTool) {
+      nodeOpacity = 0.4;
+    }
+
+    if (isSelected) strokeColor = C.accent;
+
     return (
-      <g key={n.id} transform={`translate(${n.x}, ${n.y})`} onMouseDown={(e) => handleNodeMouseDown(n, e)} onClick={() => handleNodeClick(n)} style={{ cursor: 'pointer' }}>
-        <rect x={-60} y={-20} width={120} height={40} rx={8} fill={isFailed ? `${C.accentDanger}33` : C.canvas} stroke={isSelected ? C.accent : isFailed ? C.accentDanger : C.panelBorder} strokeWidth={isSelected ? 2 : 1} strokeDasharray={n.planned ? '4 2' : ''} opacity={isIsolated ? 0.5 : 1} />
+      <g key={n.id} transform={`translate(${n.x}, ${n.y})`} onMouseDown={(e) => handleNodeMouseDown(n, e)} onClick={() => handleNodeClick(n)} style={{ cursor: 'pointer' }} opacity={isIsolated ? 0.5 : nodeOpacity}>
+        <rect x={-60} y={-20} width={120} height={40} rx={8} fill={fillColor} stroke={strokeColor} strokeWidth={isSelected ? 2 : 1} strokeDasharray={n.planned ? '4 2' : ''} />
         <text x={0} y={0} textAnchor="middle" fill={C.textPrimary} fontSize={11} fontWeight="500" dominantBaseline="middle">{n.name.length > 18 ? n.name.slice(0, 16) + '...' : n.name}</text>
         <circle cx={50} cy={-10} r={3} fill={critColor} />
         {n.planned && <text x={0} y={15} textAnchor="middle" fill={C.textMuted} fontSize={8}>planned</text>}
         {isIsolated && <text x={0} y={15} textAnchor="middle" fill={C.textMuted} fontSize={8}>isolated</text>}
+        {mode === 'analyze' && (
+          <g onClick={(e) => handleToggleFailure(n.id, e)}>
+            <circle cx={-50} cy={-10} r={6} fill={isFailed ? C.accentDanger : C.panel} stroke={C.textMuted} strokeWidth={1} />
+            <text x={-50} y={-9} textAnchor="middle" fill={C.textPrimary} fontSize={9}>×</text>
+          </g>
+        )}
       </g>
     );
   }
@@ -348,6 +513,22 @@ export default function ToolOrchestrationAnalyzer() {
     );
   }
 
+  function renderIntervention(int) {
+    const projected = computeProjectedHealth(int);
+    const isClose = int.prediction && Math.abs(int.prediction - int.actualLevel.level) <= 2;
+    const delta = projected.brittleness - healthScores.brittleness;
+    return (
+      <div key={int.id} style={{ ...S.cardBase, marginBottom: '8px', borderColor: C.accent }}>
+        <div style={{ fontSize: '11px', fontWeight: '600', color: C.accent }}>{int.actionType}</div>
+        <div style={{ fontSize: '12px', color: C.textPrimary, marginTop: '4px' }}>{int.description}</div>
+        <div style={{ fontSize: '10px', color: C.textMuted, marginTop: '4px' }}>Target: {nodes.find(n => n.id === int.target)?.name}</div>
+        {!int.revealed && !int.prediction && <div style={{ marginTop: '8px' }}><div style={S.labelSm}>Predict Meadows Level</div><select onChange={(e) => handlePredictLevel(int.id, parseInt(e.target.value))} style={S.selectInput}><option value="">Select L1-L12...</option>{[1,2,3,4,5,6,7,8,9,10,11,12].map(l => <option key={l} value={l}>L{l}</option>)}</select></div>}
+        {int.prediction && !int.revealed && <button onClick={() => handleReveal(int.id)} style={{ ...S.toolbarBtn(false), marginTop: '8px', width: '100%' }}>Reveal</button>}
+        {int.revealed && <div style={{ marginTop: '8px', padding: '8px', background: C.canvas, borderRadius: '4px' }}><div style={{ ...S.flexRow, justifyContent: 'space-between' }}><div><div style={{ fontSize: '10px', color: C.textMuted }}>Your Prediction</div><div style={{ fontSize: '12px', color: C.textPrimary }}>L{int.prediction}</div></div><div style={{ fontSize: '18px', color: isClose ? C.accent : C.accentDanger }}>{isClose ? '✓' : '✗'}</div><div><div style={{ fontSize: '10px', color: C.textMuted }}>Actual</div><div style={{ fontSize: '12px', color: C.accent }}>{int.actualLevel.name}</div></div></div><div style={{ marginTop: '8px' }}><div style={{ fontSize: '10px', color: C.textMuted, marginBottom: '4px' }}>Health Impact</div><div style={{ fontSize: '11px', color: C.textSecondary }}>Brittleness: {healthScores.brittleness} → {projected.brittleness} <span style={{ color: delta < 0 ? C.accent : C.accentDanger }}>({delta > 0 ? '+' : ''}{delta})</span></div></div></div>}
+      </div>
+    );
+  }
+
   const serverGroups = {};
   nodes.forEach(n => {
     if (!serverGroups[n.server]) serverGroups[n.server] = [];
@@ -365,14 +546,8 @@ export default function ToolOrchestrationAnalyzer() {
         <button onClick={() => setMode('build')} style={S.toolbarBtn(mode === 'build')} title="Build Mode">Build</button>
         <button onClick={() => setMode('analyze')} style={S.toolbarBtn(mode === 'analyze')} title="Analyze Mode">Analyze</button>
         <div style={S.divider} />
-        {mode === 'build' && (
-          <>
-            <button onClick={() => setShowAddForm(!showAddForm)} style={S.toolbarBtn(showAddForm)} title="Add Tool">+ Tool</button>
-            <button onClick={() => setEdgeType('required')} style={S.toolbarBtn(edgeType === 'required')} title="Required Dependency">Req</button>
-            <button onClick={() => setEdgeType('optional')} style={S.toolbarBtn(edgeType === 'optional')} title="Optional Dependency">Opt</button>
-            <button onClick={() => setEdgeType('enhances')} style={S.toolbarBtn(edgeType === 'enhances')} title="Enhances Dependency">Enh</button>
-          </>
-        )}
+        {mode === 'build' && <><button onClick={() => setShowAddForm(!showAddForm)} style={S.toolbarBtn(showAddForm)} title="Add Tool">+ Tool</button><button onClick={() => setEdgeType('required')} style={S.toolbarBtn(edgeType === 'required')} title="Required Dependency">Req</button><button onClick={() => setEdgeType('optional')} style={S.toolbarBtn(edgeType === 'optional')} title="Optional Dependency">Opt</button><button onClick={() => setEdgeType('enhances')} style={S.toolbarBtn(edgeType === 'enhances')} title="Enhances Dependency">Enh</button></>}
+        {mode === 'analyze' && <button onClick={handleResetFailures} style={{ ...S.toolbarBtn(false), fontSize: '10px' }} title="Reset Failures">Reset</button>}
         <div style={S.divider} />
         <button onClick={handleAutoLayout} style={{ ...S.toolbarBtn(false), fontSize: '10px' }} title="Auto Layout">Layout</button>
         <button onClick={handleStartFresh} style={{ ...S.toolbarBtn(false), fontSize: '10px' }} title="Start Fresh">Fresh</button>
@@ -381,44 +556,20 @@ export default function ToolOrchestrationAnalyzer() {
       {/* Central SVG canvas */}
       <div style={{ flex: 1, background: C.canvas, position: 'relative', overflow: 'hidden' }}>
         <svg ref={svgRef} width="100%" height="100%" onMouseMove={handleSvgMouseMove} onMouseUp={handleSvgMouseUp}>
-          {Object.entries(serverGroups).map(([server, tools]) => {
-            const xs = tools.map(t => t.x);
-            const ys = tools.map(t => t.y);
-            const minX = Math.min(...xs) - 80, maxX = Math.max(...xs) + 80;
-            const minY = Math.min(...ys) - 40, maxY = Math.max(...ys) + 40;
-            return <rect key={server} x={minX} y={minY} width={maxX - minX} height={maxY - minY} fill="#1e2230" opacity={0.4} rx={8} />;
-          })}
+          {Object.entries(serverGroups).map(([server, tools]) => { const xs = tools.map(t => t.x), ys = tools.map(t => t.y), minX = Math.min(...xs) - 80, maxX = Math.max(...xs) + 80, minY = Math.min(...ys) - 40, maxY = Math.max(...ys) + 40; return <rect key={server} x={minX} y={minY} width={maxX - minX} height={maxY - minY} fill="#1e2230" opacity={0.4} rx={8} />; })}
+          {redundantPairs.map((pair, idx) => { const n1 = nodes.find(n => n.id === pair[0]), n2 = nodes.find(n => n.id === pair[1]); if (!n1 || !n2) return null; const minX = Math.min(n1.x, n2.x) - 70, minY = Math.min(n1.y, n2.y) - 30, w = Math.abs(n1.x - n2.x) + 140, h = Math.abs(n1.y - n2.y) + 60; return <g key={idx}><rect x={minX} y={minY} width={w} height={h} fill="none" stroke={C.accentDanger} strokeWidth={1} strokeDasharray="4 2" rx={8} opacity={0.5} /><text x={minX + w / 2} y={minY - 5} textAnchor="middle" fill={C.accentDanger} fontSize={9}>redundant</text></g>; })}
           {edges.map(renderEdge)}
           {nodes.map(renderNode)}
-          {showAnnotations && isExample && (
-            <g>
-              <circle cx={200} cy={50} r={12} fill={C.accentDanger} opacity={0.8} />
-              <text x={200} y={55} textAnchor="middle" fill="white" fontSize={10} fontWeight="600">1</text>
-            </g>
-          )}
+          {showAnnotations && isExample && <g><circle cx={200} cy={50} r={12} fill={C.accentDanger} opacity={0.8} /><text x={200} y={55} textAnchor="middle" fill="white" fontSize={10} fontWeight="600">1</text></g>}
         </svg>
-        {showAnnotations && isExample && (
-          <div style={{ position: 'absolute', top: '10px', right: '300px', background: C.panel, border: `1px solid ${C.accentDanger}`, borderRadius: '6px', padding: '8px 12px', fontSize: '11px', maxWidth: '200px' }}>
-            <button onClick={() => setShowAnnotations(false)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', color: C.textMuted, cursor: 'pointer' }}>×</button>
-            <strong style={{ color: C.accentDanger }}>Annotation 1:</strong> create_causal_loop pre-failed. See cascade in Health tab.
-          </div>
-        )}
+        {showAnnotations && isExample && <div style={{ position: 'absolute', top: '10px', right: '300px', background: C.panel, border: `1px solid ${C.accentDanger}`, borderRadius: '6px', padding: '8px 12px', fontSize: '11px', maxWidth: '200px' }}><button onClick={() => setShowAnnotations(false)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', color: C.textMuted, cursor: 'pointer' }}>×</button><strong style={{ color: C.accentDanger }}>Annotation 1:</strong> create_causal_loop pre-failed. Click break icons to simulate more failures.</div>}
       </div>
 
       {/* Right panel */}
       <div style={{ ...S.flexCol, width: '280px', background: C.panel, borderLeft: `1px solid ${C.panelBorder}`, overflowY: 'auto' }}>
-        {/* Primer panel */}
         <div style={{ ...S.cardBase, margin: '12px', borderColor: C.accent }}>
-          <div onClick={() => setPrimerCollapsed(!primerCollapsed)} style={{ ...S.flexRow, justifyContent: 'space-between', cursor: 'pointer' }}>
-            <span style={{ fontSize: '12px', fontWeight: '600', color: C.accent }}>Primer: Tool Orchestration</span>
-            <span style={{ color: C.textMuted }}>{primerCollapsed ? '▼' : '▲'}</span>
-          </div>
-          {!primerCollapsed && (
-            <div style={{ fontSize: '11px', color: C.textSecondary, marginTop: '8px', lineHeight: '1.4' }}>
-              <p>Tool dependencies create feedback loops. <strong>Required</strong> edges (solid) are critical paths. <strong>Optional</strong> (dashed) add resilience. <strong>Enhances</strong> (dotted) improve quality.</p>
-              <p style={{ marginTop: '6px' }}>Health metrics reveal systemic fragility. High brittleness = deep cascades. See <strong>ST-002</strong> for Meadows leverage hierarchy (L1-L12).</p>
-            </div>
-          )}
+          <div onClick={() => setPrimerCollapsed(!primerCollapsed)} style={{ ...S.flexRow, justifyContent: 'space-between', cursor: 'pointer' }}><span style={{ fontSize: '12px', fontWeight: '600', color: C.accent }}>Primer: Tool Orchestration</span><span style={{ color: C.textMuted }}>{primerCollapsed ? '▼' : '▲'}</span></div>
+          {!primerCollapsed && <div style={{ fontSize: '11px', color: C.textSecondary, marginTop: '8px', lineHeight: '1.4' }}><p>Tool dependencies create feedback loops. <strong>Required</strong> edges (solid) are critical paths. <strong>Optional</strong> (dashed) add resilience. <strong>Enhances</strong> (dotted) improve quality.</p><p style={{ marginTop: '6px' }}>Health metrics reveal systemic fragility. High brittleness = deep cascades. See <strong>ST-002</strong> for Meadows leverage hierarchy (L1-L12).</p></div>}
         </div>
 
         {/* Tab bar */}
@@ -430,49 +581,11 @@ export default function ToolOrchestrationAnalyzer() {
 
         {/* Tab content */}
         <div style={{ padding: '12px' }}>
-          {activeTab === 'topology' && (
-            <div>
-              <div style={S.labelSm}>Graph Stats</div>
-              <div style={{ fontSize: '13px', color: C.textPrimary, marginBottom: '8px' }}>
-                <div>Tools: {nodes.length}</div>
-                <div>Edges: {edges.length}</div>
-                <div>Cycles: {detectedCycles.length}</div>
-                <div>Isolated: {isolatedCount}</div>
-              </div>
-              <div style={S.divider} />
-              <div style={S.labelSm}>Server Breakdown</div>
-              {Object.entries(serverGroups).map(([server, tools]) => (
-                <div key={server} style={{ fontSize: '12px', color: C.textSecondary, marginBottom: '4px' }}>
-                  {server}: {tools.length} tools
-                </div>
-              ))}
-            </div>
-          )}
+          {activeTab === 'topology' && <div><div style={S.labelSm}>Graph Stats</div><div style={{ fontSize: '13px', color: C.textPrimary, marginBottom: '8px' }}><div>Tools: {nodes.length}</div><div>Edges: {edges.length}</div><div>Cycles: {detectedCycles.length}</div><div>Isolated: {isolatedCount}</div><div>Redundant Pairs: {redundantPairs.length}</div></div><div style={S.divider} /><div style={S.labelSm}>Server Breakdown</div>{Object.entries(serverGroups).map(([server, tools]) => <div key={server} style={{ fontSize: '12px', color: C.textSecondary, marginBottom: '4px' }}>{server}: {tools.length} tools</div>)}</div>}
 
-          {activeTab === 'health' && (
-            <div>
-              <div style={S.labelSm}>Health Scores (0-100)</div>
-              {renderHealthBar('Complexity', healthScores.complexity)}
-              {renderHealthBar('Redundancy', healthScores.redundancy)}
-              {renderHealthBar('Brittleness', healthScores.brittleness)}
-              <div style={S.divider} />
-              {renderHealthBar('Aggregate Health', healthScores.aggregate)}
-            </div>
-          )}
+          {activeTab === 'health' && <div><div style={S.labelSm}>Health Scores (0-100)</div>{renderHealthBar('Complexity', healthScores.complexity)}{renderHealthBar('Redundancy', healthScores.redundancy)}{renderHealthBar('Brittleness', healthScores.brittleness)}<div style={S.divider} />{renderHealthBar('Aggregate Health', healthScores.aggregate)}{selectedTool && blastRadius.size > 0 && <><div style={S.divider} /><div style={S.labelSm}>Blast Radius: {nodes.find(n => n.id === selectedTool)?.name}</div><div style={{ fontSize: '12px', color: C.textSecondary }}>Downstream tools affected: {blastRadius.size}</div><div style={{ fontSize: '11px', color: C.textMuted, marginTop: '4px' }}>{Array.from(blastRadius.entries()).map(([id, depth]) => <div key={id}>• {nodes.find(n => n.id === id)?.name} (depth {depth})</div>)}</div></>}</div>}
 
-          {activeTab === 'interventions' && (
-            <div>
-              <div style={S.labelSm}>Pre-Annotated Interventions</div>
-              {isExample && WORKED_EXAMPLE.interventions.map((int, idx) => (
-                <div key={idx} style={{ ...S.cardBase, marginBottom: '8px', borderColor: C.accent }}>
-                  <div style={{ fontSize: '11px', fontWeight: '600', color: C.accent }}>{int.level}</div>
-                  <div style={{ fontSize: '12px', color: C.textPrimary, marginTop: '4px' }}>{int.action}</div>
-                  <div style={{ fontSize: '10px', color: C.textMuted, marginTop: '4px' }}>Type: {int.type}</div>
-                </div>
-              ))}
-              {!isExample && <div style={{ fontSize: '12px', color: C.textMuted }}>Load worked example to see interventions.</div>}
-            </div>
-          )}
+          {activeTab === 'interventions' && <div><div style={S.labelSm}>Interventions</div>{selectedTool && !showInterventionForm && <button onClick={() => setShowInterventionForm(true)} style={{ ...S.toolbarBtn(false), width: '100%', marginBottom: '8px' }}>Add Intervention</button>}{showInterventionForm && <div style={{ ...S.cardBase, marginBottom: '12px' }}><div style={S.labelSm}>New Intervention</div><form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); handleAddIntervention({ actionType: fd.get('actionType'), description: fd.get('description') }); }}><select name="actionType" required style={{ ...S.selectInput, width: '100%', marginBottom: '8px' }}><option value="">Select action...</option><option value="Add tool">Add tool</option><option value="Remove tool">Remove tool</option><option value="Add cache/fallback">Add cache/fallback</option><option value="Refactor dependency">Refactor dependency</option><option value="Change system goals">Change system goals</option></select><input name="description" placeholder="Description..." required style={{ ...S.selectInput, width: '100%', marginBottom: '8px' }} /><div style={{ ...S.flexRow, gap: '8px' }}><button type="submit" style={{ ...S.toolbarBtn(true), flex: 1 }}>Add</button><button type="button" onClick={() => setShowInterventionForm(false)} style={{ ...S.toolbarBtn(false), flex: 1 }}>Cancel</button></div></form></div>}{interventions.map(renderIntervention)}{interventions.length === 0 && !showInterventionForm && <div style={{ fontSize: '12px', color: C.textMuted }}>No interventions yet. Select a tool and click Add Intervention.</div>}</div>}
         </div>
       </div>
     </div>
