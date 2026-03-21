@@ -308,6 +308,9 @@ export default function AgentFeedbackLoopBuilder() {
   const [nodeCounter, setNodeCounter] = useState(0);
   const [exampleMode, setExampleMode] = useState(false);
   const [primerCollapsed, setPrimerCollapsed] = useState(true);
+  const [activeTab, setActiveTab] = useState('loops');
+  const [predictions, setPredictions] = useState({});
+  const [allPredicted, setAllPredicted] = useState(false);
   const svgRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -331,6 +334,14 @@ export default function AgentFeedbackLoopBuilder() {
         unique.push(loop);
       }
     });
+
+    // Reset predictions when graph structure changes
+    const prevLoopCount = detectedLoops.length;
+    if (unique.length !== prevLoopCount) {
+      setPredictions({});
+      setAllPredicted(false);
+    }
+
     setDetectedLoops(unique);
     if (unique.length > 0) {
       setPulseActive(true);
@@ -505,6 +516,8 @@ export default function AgentFeedbackLoopBuilder() {
     setSelectedNode(null);
     setNodeCounter(0);
     setExampleMode(false);
+    setPredictions({});
+    setAllPredicted(false);
   };
 
   const autoArrange = () => {
@@ -525,6 +538,42 @@ export default function AgentFeedbackLoopBuilder() {
   const balancingCount = detectedLoops.filter(
     (l) => l.type === "balancing"
   ).length;
+
+  // Helper to get loop ID
+  const getLoopId = (loop, i) => {
+    return loop.type === "reinforcing"
+      ? `R${detectedLoops.slice(0, i + 1).filter((l) => l.type === "reinforcing").length}`
+      : `B${detectedLoops.slice(0, i + 1).filter((l) => l.type === "balancing").length}`;
+  };
+
+  // Check if all predictions are filled
+  const allPredictionsFilled = detectedLoops.every((loop, i) => {
+    const loopId = getLoopId(loop, i);
+    const pred = predictions[loopId];
+    return pred && pred.type && pred.behavior;
+  });
+
+  // Submit predictions handler
+  const handleSubmitPredictions = () => {
+    if (allPredictionsFilled) {
+      setAllPredicted(true);
+      setActiveTab('predictions');
+    }
+  };
+
+  // Reset predictions handler
+  const handleResetPredictions = () => {
+    setPredictions({});
+    setAllPredicted(false);
+  };
+
+  // Update prediction
+  const updatePrediction = (loopId, field, value) => {
+    setPredictions(prev => ({
+      ...prev,
+      [loopId]: { ...prev[loopId], [field]: value }
+    }));
+  };
 
   const nodeTypeButtons = [
     { key: "agent", icon: "⬡", label: "Agent" },
@@ -1446,22 +1495,37 @@ export default function AgentFeedbackLoopBuilder() {
             )}
           </div>
 
-          {/* Loop Detection */}
-          <div>
-            <div
-              style={{
-                fontSize: 9,
-                fontWeight: 600,
-                letterSpacing: "0.12em",
-                color: COLORS.textMuted,
-                textTransform: "uppercase",
-                marginBottom: 10,
-              }}
-            >
-              Loop Detection
-            </div>
+          {/* Tab Bar */}
+          <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${COLORS.panelBorder}` }}>
+            {['loops', 'predictions', 'interventions'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  flex: 1,
+                  padding: '10px 8px',
+                  background: activeTab === tab ? `${COLORS.accent}12` : 'transparent',
+                  border: 'none',
+                  borderBottom: activeTab === tab ? `2px solid ${COLORS.accent}` : '2px solid transparent',
+                  color: activeTab === tab ? COLORS.accent : COLORS.textMuted,
+                  fontSize: 11,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 500,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
-            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          {/* Tab Content */}
+          {activeTab === 'loops' && (
+            <div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
               <div
                 style={{
                   flex: 1,
@@ -1525,24 +1589,14 @@ export default function AgentFeedbackLoopBuilder() {
             </div>
 
             {detectedLoops.map((loop, i) => {
-              const loopId =
-                loop.type === "reinforcing"
-                  ? `R${
-                      detectedLoops
-                        .slice(0, i + 1)
-                        .filter((l) => l.type === "reinforcing").length
-                    }`
-                  : `B${
-                      detectedLoops
-                        .slice(0, i + 1)
-                        .filter((l) => l.type === "balancing").length
-                    }`;
+              const loopId = getLoopId(loop, i);
               const severityColor =
                 loop.severity.label === "High"
                   ? COLORS.accentDanger
                   : loop.severity.label === "Medium"
                   ? COLORS.accentWarm
                   : COLORS.accent;
+              const hideAnalysis = !exampleMode && !allPredicted;
 
               return (
                 <div
@@ -1604,10 +1658,10 @@ export default function AgentFeedbackLoopBuilder() {
                         marginLeft: "auto",
                         fontSize: 9,
                         fontWeight: 600,
-                        color: severityColor,
+                        color: hideAnalysis ? COLORS.textMuted : severityColor,
                       }}
                     >
-                      {loop.severity.label}
+                      {hideAnalysis ? "?" : loop.severity.label}
                     </span>
                   </div>
                   <div
@@ -1643,7 +1697,7 @@ export default function AgentFeedbackLoopBuilder() {
                       fontFamily: "'JetBrains Mono', monospace",
                     }}
                   >
-                    Severity score: {loop.severity.score}/100
+                    {hideAnalysis ? "Submit predictions to reveal analysis" : `Severity score: ${loop.severity.score}/100`}
                   </div>
                 </div>
               );
@@ -1662,7 +1716,178 @@ export default function AgentFeedbackLoopBuilder() {
                 close a loop.
               </div>
             )}
-          </div>
+            </div>
+          )}
+
+          {/* Predictions Tab */}
+          {activeTab === 'predictions' && (
+            <div style={{ opacity: allPredicted ? 1 : 1, transition: 'opacity 0.3s' }}>
+              {!exampleMode ? (
+                <>
+                  {!allPredicted ? (
+                    <>
+                      {detectedLoops.map((loop, i) => {
+                        const loopId = getLoopId(loop, i);
+                        const pred = predictions[loopId] || {};
+                        return (
+                          <div key={i} style={{ marginBottom: 16, padding: 12, background: `${COLORS.panel}`, border: `1px solid ${COLORS.panelBorder}`, borderRadius: 6 }}>
+                            <div style={{ fontSize: 10, fontWeight: 600, color: COLORS.accent, marginBottom: 8 }}>{loopId}: {loop.nodes.slice(0, -1).map(nId => nodes.find(n => n.id === nId)?.label || nId).join(' → ')} →  ↻</div>
+                            <div style={{ marginBottom: 8 }}>
+                              <label style={{ fontSize: 9, color: COLORS.textMuted, display: 'block', marginBottom: 4 }}>Loop Type</label>
+                              <select
+                                value={pred.type || ''}
+                                onChange={(e) => updatePrediction(loopId, 'type', e.target.value)}
+                                style={{ width: '100%', padding: '6px 8px', background: COLORS.node, border: `1px solid ${COLORS.nodeBorder}`, borderRadius: 4, color: COLORS.textPrimary, fontSize: 11, fontFamily: 'inherit' }}
+                              >
+                                <option value="">Select...</option>
+                                <option value="reinforcing">Reinforcing</option>
+                                <option value="balancing">Balancing</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 9, color: COLORS.textMuted, display: 'block', marginBottom: 4 }}>Behavior</label>
+                              <select
+                                value={pred.behavior || ''}
+                                onChange={(e) => updatePrediction(loopId, 'behavior', e.target.value)}
+                                style={{ width: '100%', padding: '6px 8px', background: COLORS.node, border: `1px solid ${COLORS.nodeBorder}`, borderRadius: 4, color: COLORS.textPrimary, fontSize: 11, fontFamily: 'inherit' }}
+                              >
+                                <option value="">Select...</option>
+                                <option value="grows">Grows exponentially</option>
+                                <option value="stabilizes">Stabilizes</option>
+                                <option value="oscillates">Oscillates</option>
+                              </select>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <button
+                        onClick={handleSubmitPredictions}
+                        disabled={!allPredictionsFilled}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          background: allPredictionsFilled ? COLORS.accent : COLORS.textMuted,
+                          border: 'none',
+                          borderRadius: 6,
+                          color: '#fff',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: allPredictionsFilled ? 'pointer' : 'not-allowed',
+                          opacity: allPredictionsFilled ? 1 : 0.5,
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        Submit All Predictions
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {detectedLoops.map((loop, i) => {
+                        const loopId = getLoopId(loop, i);
+                        const pred = predictions[loopId] || {};
+                        const typeCorrect = pred.type === loop.type;
+                        const behaviorMapping = { reinforcing: 'grows', balancing: 'stabilizes' };
+                        const behaviorCorrect = pred.behavior === behaviorMapping[loop.type];
+                        return (
+                          <div key={i} style={{ marginBottom: 16, padding: 12, background: `${COLORS.panel}`, border: `1px solid ${COLORS.panelBorder}`, borderRadius: 6, opacity: 1, transform: 'translateY(0)', transition: 'opacity 0.3s, transform 0.3s' }}>
+                            <div style={{ fontSize: 10, fontWeight: 600, color: COLORS.accent, marginBottom: 10 }}>{loopId}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 10 }}>
+                              <span style={{ color: typeCorrect ? COLORS.accent : COLORS.accentDanger, fontSize: 14 }}>{typeCorrect ? '✓' : '✗'}</span>
+                              <div>
+                                <div style={{ color: COLORS.textSecondary }}>Your prediction: <strong style={{ color: COLORS.textPrimary }}>{pred.type || 'none'}</strong></div>
+                                <div style={{ color: COLORS.textSecondary }}>Actual: <strong style={{ color: COLORS.accent }}>{loop.type}</strong></div>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10 }}>
+                              <span style={{ color: behaviorCorrect ? COLORS.accent : COLORS.accentWarm, fontSize: 14 }}>{behaviorCorrect ? '✓' : '✗'}</span>
+                              <div>
+                                <div style={{ color: COLORS.textSecondary }}>Your behavior: <strong style={{ color: COLORS.textPrimary }}>{pred.behavior || 'none'}</strong></div>
+                                <div style={{ color: COLORS.textSecondary }}>Actual: <strong style={{ color: COLORS.accent }}>{behaviorMapping[loop.type]}</strong></div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div style={{ marginBottom: 12, padding: 10, background: `${COLORS.accent}12`, border: `1px solid ${COLORS.accent}33`, borderRadius: 6, fontSize: 10, color: COLORS.textPrimary }}>
+                        You got {detectedLoops.filter((loop, i) => predictions[getLoopId(loop, i)]?.type === loop.type).length}/{detectedLoops.length} loop types correct
+                      </div>
+                      <button
+                        onClick={handleResetPredictions}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          background: 'transparent',
+                          border: `1px solid ${COLORS.accent}`,
+                          borderRadius: 6,
+                          color: COLORS.accent,
+                          fontSize: 10,
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        Reset Predictions
+                      </button>
+                    </>
+                  )}
+                </>
+              ) : (
+                <div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>
+                  Predictions are for practice mode. Switch to practice to test yourself.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Interventions Tab */}
+          {activeTab === 'interventions' && (
+            <div style={{ opacity: (exampleMode || allPredicted) ? 1 : 0.5, transition: 'opacity 0.3s' }}>
+              {(!exampleMode && !allPredicted) ? (
+                <div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>
+                  Submit predictions to see interventions
+                </div>
+              ) : detectedLoops.length === 0 ? (
+                <div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>
+                  Build your agent diagram to detect loops
+                </div>
+              ) : (
+                detectedLoops.map((loop, i) => {
+                  const loopId = getLoopId(loop, i);
+                  const severityLabel = loop.severity.label;
+                  const highestLink = loop.cycle.reduce((max, step, idx) => {
+                    if (idx === loop.cycle.length - 1) return max;
+                    const edge = edges.find(e => e.from === step.node && e.to === loop.cycle[idx + 1].node);
+                    return (edge?.strength || 0) > (max.strength || 0) ? { from: nodes.find(n => n.id === step.node)?.label, to: nodes.find(n => n.id === loop.cycle[idx + 1].node)?.label, strength: edge?.strength || 0 } : max;
+                  }, { strength: 0 });
+
+                  return (
+                    <div key={i} style={{ marginBottom: 12, padding: 12, background: `${COLORS.panel}`, border: `1px solid ${COLORS.panelBorder}`, borderRadius: 6 }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: COLORS.accent, marginBottom: 8 }}>{loopId} - {severityLabel} Severity</div>
+                      {severityLabel === 'High' && (
+                        <>
+                          <div style={{ fontSize: 9, color: COLORS.textSecondary, marginBottom: 4 }}>
+                            Highest-gain link: <strong style={{ color: COLORS.accentWarm }}>{highestLink.from} → {highestLink.to}</strong> (strength: {highestLink.strength?.toFixed(2)})
+                          </div>
+                          <div style={{ fontSize: 9, color: COLORS.accentWarm, fontStyle: 'italic' }}>
+                            Consider adding rate limiting between {highestLink.from} and {highestLink.to} to reduce coupling
+                          </div>
+                        </>
+                      )}
+                      {severityLabel === 'Medium' && (
+                        <div style={{ fontSize: 9, color: COLORS.textSecondary }}>Monitor this loop — it may escalate under load</div>
+                      )}
+                      {severityLabel === 'Low' && (
+                        <div style={{ fontSize: 9, color: COLORS.textSecondary }}>This loop is within acceptable bounds</div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+
+          {/* Polarity Rule (moved below tabs) */}
+          <div>
 
           {/* Polarity Rule */}
           <div
