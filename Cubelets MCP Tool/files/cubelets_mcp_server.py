@@ -18,7 +18,7 @@ Course: Divergence Academy - Intelligent Automation Immersive
 """
 
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from typing import Optional, List, Dict, Any, Literal
 from enum import Enum
 import json
@@ -1051,6 +1051,425 @@ async def detect_burden_shift(params: DetectBurdenShiftInput) -> str:
     md.append("*Shifting the Burden is not procrastination — it's taking action, the wrong kind.*")
     md.append("*The pattern is self-concealing: each fix produces measurable improvement.*")
     md.append("*Check: Could we still implement the fundamental solution today? If it's getting harder, you're in the window.*")
+
+    return "\n".join(md)
+
+
+# ============================================================================
+# ST-005: Tool Orchestration Analysis
+# ============================================================================
+
+class MCPTool(BaseModel):
+    """A node representing an MCP tool in an orchestration graph."""
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    tool_id: str = Field(
+        ...,
+        description="Unique identifier for this tool",
+        min_length=1,
+        max_length=100
+    )
+    name: str = Field(
+        ...,
+        description="Display name for this tool",
+        min_length=1,
+        max_length=200
+    )
+    server: str = Field(
+        ...,
+        description="MCP server hosting this tool",
+        min_length=1,
+        max_length=100
+    )
+    description: str = Field(
+        default="",
+        description="What this tool does",
+        max_length=500
+    )
+    inputs: List[str] = Field(
+        default_factory=list,
+        description="Input parameter names"
+    )
+    outputs: List[str] = Field(
+        default_factory=list,
+        description="Output field names"
+    )
+    estimated_latency_ms: Optional[int] = Field(
+        default=None,
+        description="Estimated execution time in milliseconds",
+        ge=0
+    )
+    criticality: Optional[Literal["low", "medium", "high", "critical"]] = Field(
+        default=None,
+        description="How critical this tool is to the workflow"
+    )
+
+
+class ToolDependency(BaseModel):
+    """A directed dependency between two tools."""
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    from_tool: str = Field(
+        ...,
+        description="Tool ID that depends on another tool",
+        min_length=1,
+        max_length=100
+    )
+    to_tool: str = Field(
+        ...,
+        description="Tool ID that is depended upon",
+        min_length=1,
+        max_length=100
+    )
+    dependency_type: Literal["required", "optional", "enhances"] = Field(
+        ...,
+        description="Type of dependency relationship"
+    )
+    data_fields: List[str] = Field(
+        default_factory=list,
+        description="Specific data fields passed between tools"
+    )
+    description: str = Field(
+        default="",
+        description="Description of this dependency",
+        max_length=300
+    )
+
+    @model_validator(mode="after")
+    def validate_no_self_reference(self):
+        """Prevent self-referential dependencies."""
+        if self.from_tool == self.to_tool:
+            raise ValueError(f"Tool cannot depend on itself: {self.from_tool}")
+        return self
+
+
+class AnalyzeToolOrchestrationInput(BaseModel):
+    """Input for analyzing tool orchestration health and dependencies."""
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    tools: List[MCPTool] = Field(
+        ...,
+        description="List of MCP tools in the orchestration",
+        min_length=1,
+        max_length=50
+    )
+    dependencies: List[ToolDependency] = Field(
+        default_factory=list,
+        description="List of dependencies between tools"
+    )
+    interventions: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Optional interventions for Meadows scoring (action_type + target_tool pairs)"
+    )
+    response_format: ResponseFormat = Field(
+        default=ResponseFormat.MARKDOWN,
+        description="Output format: 'markdown' or 'json'"
+    )
+
+    @field_validator("dependencies")
+    @classmethod
+    def validate_dependencies_reference_tools(cls, v: List[ToolDependency], info) -> List[ToolDependency]:
+        """Validate that dependencies reference valid tool IDs."""
+        if "tools" in info.data:
+            tool_ids = {tool.tool_id for tool in info.data["tools"]}
+            for dep in v:
+                if dep.from_tool not in tool_ids:
+                    raise ValueError(f"from_tool '{dep.from_tool}' not in tools list")
+                if dep.to_tool not in tool_ids:
+                    raise ValueError(f"to_tool '{dep.to_tool}' not in tools list")
+        return v
+
+
+def _detect_cycles_in_tools(tools: List[MCPTool], dependencies: List[ToolDependency]) -> List[List[str]]:
+    """Detect cycles in tool dependency graph using DFS."""
+    # Build adjacency list
+    adj: Dict[str, List[str]] = {tool.tool_id: [] for tool in tools}
+    for dep in dependencies:
+        adj[dep.from_tool].append(dep.to_tool)
+
+    cycles = []
+    visited_starts = set()
+
+    def dfs(start, current, path, path_set):
+        for neighbor in adj.get(current, []):
+            if neighbor == start and len(path) >= 2:
+                cycles.append(path + [start])
+                continue
+            if neighbor not in path_set and neighbor not in visited_starts:
+                path_set.add(neighbor)
+                dfs(start, neighbor, path + [neighbor], path_set)
+                path_set.discard(neighbor)
+
+    for tool_id in adj.keys():
+        dfs(tool_id, tool_id, [tool_id], {tool_id})
+        visited_starts.add(tool_id)
+
+    # Deduplicate cycles
+    unique_cycles = []
+    seen = set()
+    for cycle in cycles:
+        key = tuple(sorted(cycle[:-1]))
+        if key not in seen:
+            seen.add(key)
+            unique_cycles.append(cycle)
+
+    return unique_cycles
+
+
+def _calculate_health_scores(
+    tools: List[MCPTool],
+    dependencies: List[ToolDependency],
+    cycles: List[List[str]]
+) -> Dict[str, int]:
+    """Calculate complexity, redundancy, brittleness, and aggregate scores."""
+    # Complexity: edge count + (cycle count * 10), clamped 0-100
+    edge_count = len(dependencies)
+    cycle_count = len(cycles)
+    complexity = min(100, edge_count + (cycle_count * 10))
+
+    # Redundancy: count tool pairs with matching inputs AND outputs overlap
+    redundancy_count = 0
+    for i, tool1 in enumerate(tools):
+        for tool2 in tools[i + 1:]:
+            input_overlap = set(tool1.inputs) & set(tool2.inputs)
+            output_overlap = set(tool1.outputs) & set(tool2.outputs)
+            if input_overlap and output_overlap:
+                redundancy_count += 1
+    redundancy = min(100, redundancy_count * 20)
+
+    # Brittleness: max blast radius depth via required-only edges
+    # Build adjacency list with only required dependencies
+    adj: Dict[str, List[str]] = {tool.tool_id: [] for tool in tools}
+    for dep in dependencies:
+        if dep.dependency_type == "required":
+            adj[dep.from_tool].append(dep.to_tool)
+
+    # BFS to find max depth from each tool
+    max_depth = 0
+    for tool_id in adj.keys():
+        visited = {tool_id}
+        queue = [(tool_id, 0)]
+        while queue:
+            current, depth = queue.pop(0)
+            max_depth = max(max_depth, depth)
+            for neighbor in adj[current]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append((neighbor, depth + 1))
+
+    brittleness = min(100, max_depth * 20)
+
+    # Aggregate: average of the three scores
+    aggregate = round((complexity + redundancy + brittleness) / 3)
+
+    return {
+        "complexity": complexity,
+        "redundancy": redundancy,
+        "brittleness": brittleness,
+        "aggregate": aggregate
+    }
+
+
+def _generate_refactor_recommendations(health_scores: Dict[str, int], cycles: List[List[str]]) -> List[str]:
+    """Generate refactor recommendations for Critical-tier metrics (67+)."""
+    recommendations = []
+
+    if health_scores["complexity"] >= 67:
+        if cycles:
+            recommendations.append(
+                f"COMPLEXITY CRITICAL: {len(cycles)} cycle(s) detected. "
+                "Break circular dependencies to reduce complexity."
+            )
+        else:
+            recommendations.append(
+                "COMPLEXITY CRITICAL: High edge count. "
+                "Consider introducing orchestration layers or reducing direct dependencies."
+            )
+
+    if health_scores["redundancy"] >= 67:
+        recommendations.append(
+            "REDUNDANCY CRITICAL: Multiple tools share inputs and outputs. "
+            "Consolidate overlapping functionality or create shared utility tools."
+        )
+
+    if health_scores["brittleness"] >= 67:
+        recommendations.append(
+            "BRITTLENESS CRITICAL: Deep required-dependency chains detected. "
+            "Add fallback paths or convert critical dependencies to optional where possible."
+        )
+
+    return recommendations
+
+
+@mcp.tool(
+    name="analyze_tool_orchestration",
+    annotations={
+        "title": "ST-005: Analyze Tool Orchestration Health",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    }
+)
+async def analyze_tool_orchestration(params: AnalyzeToolOrchestrationInput) -> str:
+    """Analyze MCP tool orchestration to detect health issues and recommend improvements.
+
+    This tool accepts a list of MCP tools and their dependencies, then calculates:
+    1. Complexity score (edges + cycle penalty)
+    2. Redundancy score (overlapping tool capabilities)
+    3. Brittleness score (required-dependency depth)
+    4. Aggregate health score (average of the three)
+
+    Health tiers:
+    - 0-33: Healthy (green zone)
+    - 34-66: At Risk (yellow zone - plan mitigation)
+    - 67-100: Critical (red zone - immediate action needed)
+
+    For Critical-tier metrics, the tool auto-generates refactor recommendations.
+
+    Optional: Provide interventions (action_type + target_tool) to compose with
+    compare_interventions for Meadows-ranked refactor analysis. Action types map to
+    Meadows levels:
+    - add_tool -> L1 (Constants/parameters)
+    - remove_tool -> L2 (Buffer sizes)
+    - add_cache/fallback -> L5 (Delays)
+    - refactor_dependency -> L6 (Feedback structure)
+
+    This implements ST-005: 'Tool orchestration health = complexity + redundancy + brittleness.
+    Cycles, overlaps, and deep required chains are the three failure modes.'
+
+    Use when designing multi-tool workflows, reviewing MCP server architectures, or
+    debugging orchestration issues.
+
+    Args:
+        params: Tools, dependencies, optional interventions, and output format.
+
+    Returns:
+        Health scores, cycle detection, refactor recommendations, and optional
+        Meadows-ranked intervention analysis.
+    """
+    # Detect cycles
+    cycles = _detect_cycles_in_tools(params.tools, params.dependencies)
+
+    # Calculate health scores
+    health_scores = _calculate_health_scores(params.tools, params.dependencies, cycles)
+
+    # Assign tier labels
+    def get_tier(score: int) -> str:
+        if score <= 33:
+            return "Healthy"
+        elif score <= 66:
+            return "At Risk"
+        else:
+            return "Critical"
+
+    # Generate recommendations for Critical scores
+    recommendations = _generate_refactor_recommendations(health_scores, cycles)
+
+    # Build basic result
+    result: Dict[str, Any] = {
+        "tools_analyzed": len(params.tools),
+        "dependencies_analyzed": len(params.dependencies),
+        "cycles_detected": len(cycles),
+        "health_scores": health_scores,
+        "tiers": {
+            "complexity": get_tier(health_scores["complexity"]),
+            "redundancy": get_tier(health_scores["redundancy"]),
+            "brittleness": get_tier(health_scores["brittleness"]),
+            "aggregate": get_tier(health_scores["aggregate"])
+        },
+        "recommendations": recommendations
+    }
+
+    # Add cycle details if present
+    if cycles:
+        result["cycle_paths"] = [" → ".join(cycle) for cycle in cycles]
+
+    # Compose with compare_interventions if interventions provided
+    if params.interventions:
+        # Map action types to Meadows levels
+        action_to_meadows = {
+            "add_tool": MeadowsLevel.CONSTANTS,
+            "remove_tool": MeadowsLevel.BUFFERS,
+            "add_cache": MeadowsLevel.DELAYS,
+            "add_fallback": MeadowsLevel.DELAYS,
+            "refactor_dependency": MeadowsLevel.FEEDBACK_STRUCTURE,
+        }
+
+        # Create Intervention objects
+        interventions_list = []
+        for intv_data in params.interventions:
+            action_type = intv_data.get("action_type", "")
+            target_tool = intv_data.get("target_tool", "")
+            meadows_level = action_to_meadows.get(action_type, MeadowsLevel.CONSTANTS)
+
+            intervention = Intervention(
+                target_variable=target_tool,
+                label=f"{action_type.replace('_', ' ').title()}",
+                description=intv_data.get("description", ""),
+                meadows_level=meadows_level,
+                estimated_impact=intv_data.get("estimated_impact")
+            )
+            interventions_list.append(intervention)
+
+        # Call compare_interventions
+        comparison_input = CompareInterventionsInput(
+            system_description="MCP tool orchestration",
+            interventions=interventions_list,
+            response_format=params.response_format
+        )
+        intervention_analysis = await compare_interventions(comparison_input)
+
+        if params.response_format == ResponseFormat.JSON:
+            result["intervention_analysis"] = json.loads(intervention_analysis)
+        else:
+            result["intervention_analysis"] = intervention_analysis
+
+    if params.response_format == ResponseFormat.JSON:
+        return json.dumps(result, indent=2)
+
+    # Markdown output
+    md = []
+    md.append("# Tool Orchestration Health Analysis (ST-005)")
+    md.append("")
+    md.append(f"**Tools analyzed:** {result['tools_analyzed']}")
+    md.append(f"**Dependencies:** {result['dependencies_analyzed']}")
+    md.append(f"**Cycles detected:** {result['cycles_detected']}")
+    md.append("")
+
+    md.append("## Health Scores")
+    md.append("")
+    md.append("| Metric | Score | Tier |")
+    md.append("|--------|-------|------|")
+    for metric in ["complexity", "redundancy", "brittleness", "aggregate"]:
+        score = health_scores[metric]
+        tier = result["tiers"][metric]
+        emoji = "🟢" if tier == "Healthy" else "🟡" if tier == "At Risk" else "🔴"
+        md.append(f"| {metric.title()} | {score}/100 | {tier} {emoji} |")
+    md.append("")
+
+    if cycles:
+        md.append("## Cycles Detected")
+        md.append("")
+        for i, cycle in enumerate(result["cycle_paths"], 1):
+            md.append(f"{i}. {cycle}")
+        md.append("")
+
+    if recommendations:
+        md.append("## Refactor Recommendations")
+        md.append("")
+        for rec in recommendations:
+            md.append(f"- {rec}")
+        md.append("")
+
+    if "intervention_analysis" in result and isinstance(result["intervention_analysis"], str):
+        md.append("## Intervention Analysis (Meadows-Ranked)")
+        md.append("")
+        md.append(result["intervention_analysis"])
+
+    md.append("---")
+    md.append("*Tool orchestration health = complexity + redundancy + brittleness.*")
+    md.append("*Cycles, overlaps, and deep required chains are the three failure modes.*")
 
     return "\n".join(md)
 
