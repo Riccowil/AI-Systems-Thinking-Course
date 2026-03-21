@@ -1,0 +1,388 @@
+{
+  "prerequisite_chain": {
+    "title": "Foundations of Systems Thinking + AI — Full Prerequisite Chain",
+    "author": "Ricco Wilson",
+    "organization": "Wilson Consulting Unlimited",
+    "generated": "2026-03-17",
+    "updated": "2026-03-21",
+    "cubelet_count": 9,
+    "chain": [
+      {
+        "cubelet_id": "W1-C1",
+        "concept_name": "Systems Thinking Fundamentals",
+        "domain": "Systems Thinking + AI (Foundations)",
+        "difficulty": "Foundational",
+        "time_to_absorb_minutes": 10,
+        "prerequisites": [],
+        "enables": ["W1-C2", "ST-001"],
+        "skills": [
+          "Define system boundaries",
+          "Identify stocks, flows, and feedback loops",
+          "Draw causal loop diagrams (CLDs)",
+          "Distinguish reinforcing from balancing loops",
+          "Identify delays in system behavior"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "practice_exercise",
+            "description": "Draw a CLD with 6+ variables, 1 reinforcing loop, 1 balancing loop, and 1 delay for a recurring business problem"
+          }
+        ],
+        "mcp_tools": [],
+        "assessment_aggregate": 53,
+        "quality_gate": "PASS"
+      },
+      {
+        "cubelet_id": "W1-C2",
+        "concept_name": "AI as a System Lever",
+        "domain": "Systems Thinking + AI (Foundations)",
+        "difficulty": "Foundational",
+        "time_to_absorb_minutes": 10,
+        "prerequisites": ["W1-C1"],
+        "enables": ["W1-C3"],
+        "skills": [
+          "Map AI touchpoints onto a business system",
+          "Classify AI leverage types: prediction, automation, decision support",
+          "Identify bottlenecks and high-leverage nodes for AI placement",
+          "Design human-in-the-loop controls and monitoring"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "practice_exercise",
+            "description": "Pick one business workflow, identify 3 AI leverage points, label each by type, and write a 1-sentence system impact hypothesis per point"
+          }
+        ],
+        "mcp_tools": [],
+        "assessment_aggregate": 53,
+        "quality_gate": "PASS"
+      },
+      {
+        "cubelet_id": "W1-C3",
+        "concept_name": "SMB AI Mindset Shift (Tool Buying to System Redesign)",
+        "domain": "Systems Thinking + AI (Foundations)",
+        "difficulty": "Foundational",
+        "time_to_absorb_minutes": 10,
+        "prerequisites": ["W1-C2"],
+        "enables": [],
+        "skills": [
+          "Diagnose tool-first vs system-first AI adoption",
+          "Redesign workflows AI-first (roles, approvals, controls)",
+          "Write AI-first SOPs with explicit human checkpoints",
+          "Define outcome metrics vs activity metrics",
+          "Build escalation paths and quality standards for automated workflows"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "practice_exercise",
+            "description": "Select one workflow, redesign it AI-first, and write a 10-bullet SOP including where AI acts, where humans check, and how exceptions escalate"
+          }
+        ],
+        "mcp_tools": [],
+        "assessment_aggregate": 52,
+        "quality_gate": "PASS"
+      },
+      {
+        "cubelet_id": "ST-001",
+        "concept_name": "Reinforcing Feedback Loops",
+        "domain": "AI for Systems Thinking",
+        "difficulty": "Intermediate",
+        "time_to_absorb_minutes": 8,
+        "prerequisites": ["W1-C1"],
+        "enables": ["ST-002", "ST-003", "ST-004"],
+        "skills": [
+          "Identify reinforcing loops in AI and business systems",
+          "Label causal links with polarity (+ / -)",
+          "Determine loop type by counting negative links",
+          "Calculate loop gain and cycle time",
+          "Identify highest-leverage link for intervention"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "practice_exercise",
+            "description": "Choose an AI system, identify one variable changing faster than expected, trace through 4+ variables, close the loop, and identify the highest-leverage intervention"
+          },
+          {
+            "type": "worked_example",
+            "description": "MCP server CLD for AI costs: Agent Complexity > Token Usage > AI Spend > Team/Scaling Pressure > Agent Complexity. Two-point intervention at Token Usage and AI Spend projected 55% cost reduction."
+          }
+        ],
+        "mcp_tools": [
+          {
+            "tool": "create_causal_loop",
+            "server": "systems-thinking",
+            "usage": "Build CLDs to map reinforcing loop structures"
+          },
+          {
+            "tool": "identify_feedback_loops",
+            "server": "systems-thinking",
+            "usage": "Detect and classify reinforcing vs balancing loops in a CLD"
+          }
+        ],
+        "assessment_aggregate": 53,
+        "quality_gate": "PASS"
+      },
+      {
+        "cubelet_id": "ST-002",
+        "concept_name": "Leverage Points in Complex Systems",
+        "domain": "AI for Systems Thinking",
+        "difficulty": "Intermediate",
+        "time_to_absorb_minutes": 8,
+        "prerequisites": ["ST-001"],
+        "enables": ["ST-003", "ST-005"],
+        "skills": [
+          "Score CLD nodes by loop count, position, and coupling",
+          "Rank intervention points using Meadows hierarchy (parameter vs structure vs goal)",
+          "Distinguish leverage from bottleneck",
+          "Perform accessibility checks on candidate leverage points",
+          "Design structural interventions vs parameter adjustments"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "practice_exercise",
+            "description": "Score your CLD from ST-001, design two interventions at the top node (one parameter change, one structural), and argue why structural outperforms"
+          },
+          {
+            "type": "worked_example",
+            "description": "AI operations CLD leverage scores: AI Spend (0.49), Team/Scaling Pressure (0.39), Token Usage (0.32), Agent Complexity (0.28). Budget cap (parameter) vs prompt caching + model tiering (structural) at same node."
+          }
+        ],
+        "mcp_tools": [
+          {
+            "tool": "find_leverage_points",
+            "server": "systems-thinking",
+            "usage": "Score and rank CLD nodes by leverage using loop count x average loop gain"
+          },
+          {
+            "tool": "run_scenario",
+            "server": "systems-thinking",
+            "usage": "Simulate perturbations at candidate leverage points to measure system output variance"
+          }
+        ],
+        "assessment_aggregate": 53,
+        "quality_gate": "PASS"
+      },
+      {
+        "cubelet_id": "ST-003",
+        "concept_name": "Shifting the Burden Archetype",
+        "domain": "AI for Systems Thinking",
+        "difficulty": "Intermediate",
+        "time_to_absorb_minutes": 9,
+        "prerequisites": ["ST-001", "ST-002"],
+        "enables": ["ST-006"],
+        "skills": [
+          "Recognize the Shifting the Burden archetype (B1, B2, R1 loop structure)",
+          "Classify fixes as symptomatic vs fundamental",
+          "Map erosion channels (architectural coupling, skill atrophy, resource diversion)",
+          "Design transition strategies that maintain symptomatic fix while building fundamental solution",
+          "Set concrete transition dates and measure fundamental solution viability over time"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "practice_exercise",
+            "description": "Find a temporary fix running > 1 month, map B1/B2/R1, rate fundamental solution viability now vs when fix was first applied, and write a transition strategy"
+          },
+          {
+            "type": "worked_example",
+            "description": "AI-powered EDI platform: human review queue as symptomatic fix, auto-generating training examples from corrections as fundamental solution bridge. Target: 50% queue reduction in 90 days."
+          }
+        ],
+        "mcp_tools": [
+          {
+            "tool": "create_causal_loop",
+            "server": "systems-thinking",
+            "usage": "Map the three-loop archetype structure (B1 symptomatic, B2 fundamental, R1 erosion)"
+          },
+          {
+            "tool": "export_cld_diagram",
+            "server": "systems-thinking",
+            "usage": "Export the archetype diagram for team review and retrospectives"
+          }
+        ],
+        "assessment_aggregate": 53,
+        "quality_gate": "PASS"
+      },
+      {
+        "cubelet_id": "ST-004",
+        "concept_name": "Agent Feedback Loops",
+        "domain": "AI for Systems Thinking (Agentic Systems Design)",
+        "difficulty": "Advanced",
+        "time_to_absorb_minutes": 8,
+        "prerequisites": ["ST-001"],
+        "enables": ["ST-005"],
+        "skills": [
+          "Map agent architectures as causal loop diagrams",
+          "Identify reinforcing and balancing feedback loops in agent systems",
+          "Score loop severity in agent control flows",
+          "Detect retry storms and runaway agent behavior patterns",
+          "Design interventions to break harmful agent feedback loops"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "worked_example",
+            "description": "Retry storm scenario: Agent routes request > Tool fails > Agent retries > Rate limit triggers > Timeout increases > Agent retries harder. Reinforcing loop with severity score and intervention recommendation."
+          },
+          {
+            "type": "practice_exercise",
+            "description": "Map your agent's feedback loops: Choose an AI agent system you use or are building. Map 3+ agent components as nodes, draw causal links, and identify at least one feedback loop."
+          }
+        ],
+        "mcp_tools": [
+          {
+            "tool": "analyze_agent_feedback_loops",
+            "server": "systems-thinking-cubelets",
+            "usage": "Accepts agent components + links, returns loop classification with severity scores"
+          }
+        ],
+        "assessment_aggregate": null,
+        "quality_gate": "PENDING"
+      },
+      {
+        "cubelet_id": "ST-005",
+        "concept_name": "Tool Orchestration as System Design",
+        "domain": "AI for Systems Thinking (Agentic Systems Design)",
+        "difficulty": "Advanced",
+        "time_to_absorb_minutes": 12,
+        "prerequisites": ["ST-002", "ST-004"],
+        "enables": [],
+        "skills": [
+          "Input MCP tools and dependencies to build dependency graphs",
+          "Identify redundancy, coupling, and blast radius in tool stacks",
+          "Score tool interventions using Meadows hierarchy",
+          "Analyze tool stack health (complexity, redundancy, brittleness)",
+          "Design refactoring strategies for healthier tool architectures"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "worked_example",
+            "description": "Realistic MCP tool stack with annotated leverage points: 5 interconnected tools showing redundancy in data-fetch tools, high coupling at the router, and blast radius analysis for the central orchestrator."
+          },
+          {
+            "type": "practice_exercise",
+            "description": "Audit your MCP tool stack: List 3-5 MCP tools you use, map their dependencies, identify the highest blast-radius tool, and score one intervention on the Meadows hierarchy."
+          }
+        ],
+        "mcp_tools": [
+          {
+            "tool": "analyze_tool_orchestration",
+            "server": "systems-thinking-cubelets",
+            "usage": "Accepts tool list + dependencies + interventions, returns health scores and refactor recommendations"
+          }
+        ],
+        "assessment_aggregate": null,
+        "quality_gate": "PENDING"
+      },
+      {
+        "cubelet_id": "ST-006",
+        "concept_name": "Shifting the Burden in Automation",
+        "domain": "AI for Systems Thinking (Agentic Systems Design)",
+        "difficulty": "Advanced",
+        "time_to_absorb_minutes": 10,
+        "prerequisites": ["ST-003"],
+        "enables": [],
+        "skills": [
+          "Recognize shifting-the-burden archetype in AI automation contexts",
+          "Play scenario-based decision games to experience automation debt accumulation",
+          "Classify automation fixes as quick-fix vs fundamental investment",
+          "Detect erosion channels in automation workflows",
+          "Design transition strategies from symptomatic to fundamental automation solutions"
+        ],
+        "interactive_artifacts": [
+          {
+            "type": "worked_example",
+            "description": "Three pre-loaded AI automation scenarios: (1) LLM low-confidence outputs routed to human review, (2) Agent edge-case failures handled by fallback scripts, (3) Tool call latency issues masked by caching layers."
+          },
+          {
+            "type": "practice_exercise",
+            "description": "Find automation debt in your workflow: Find one automation that started as a quick fix and is still running. Map the B1/B2/R1 loops and draft a transition strategy."
+          }
+        ],
+        "mcp_tools": [
+          {
+            "tool": "detect_automation_debt",
+            "server": "systems-thinking-cubelets",
+            "usage": "Accepts automation layers + fundamental solution, identifies burden shift patterns"
+          }
+        ],
+        "assessment_aggregate": null,
+        "quality_gate": "PENDING"
+      }
+    ],
+    "learning_paths": {
+      "foundations": {
+        "description": "Week 1 foundational track: from systems thinking basics through AI placement to AI-first operating model redesign",
+        "difficulty": "Foundational",
+        "total_time_minutes": 30,
+        "sequence": [
+          {"order": 1, "cubelet_id": "W1-C1", "concept_name": "Systems Thinking Fundamentals"},
+          {"order": 2, "cubelet_id": "W1-C2", "concept_name": "AI as a System Lever"},
+          {"order": 3, "cubelet_id": "W1-C3", "concept_name": "SMB AI Mindset Shift (Tool Buying to System Redesign)"}
+        ]
+      },
+      "systems_thinking_deep": {
+        "description": "Intermediate systems thinking track: from feedback loop mechanics through leverage analysis to system archetype recognition",
+        "difficulty": "Intermediate",
+        "total_time_minutes": 25,
+        "sequence": [
+          {"order": 1, "cubelet_id": "ST-001", "concept_name": "Reinforcing Feedback Loops"},
+          {"order": 2, "cubelet_id": "ST-002", "concept_name": "Leverage Points in Complex Systems"},
+          {"order": 3, "cubelet_id": "ST-003", "concept_name": "Shifting the Burden Archetype"}
+        ]
+      },
+      "agentic_systems_design": {
+        "description": "Week 3 advanced track: apply systems thinking frameworks to agent architectures, tool stacks, and automation debt",
+        "difficulty": "Advanced",
+        "total_time_minutes": 30,
+        "sequence": [
+          {"order": 1, "cubelet_id": "ST-004", "concept_name": "Agent Feedback Loops"},
+          {"order": 2, "cubelet_id": "ST-005", "concept_name": "Tool Orchestration as System Design"},
+          {"order": 3, "cubelet_id": "ST-006", "concept_name": "Shifting the Burden in Automation"}
+        ]
+      }
+    },
+    "cross_references": {
+      "description": "How the foundations track feeds into the systems thinking deep track and the agentic systems design track",
+      "bridges": [
+        {
+          "from": "W1-C1",
+          "to": ["W1-C2", "ST-001"],
+          "relationship": "W1-C1 (Systems Thinking Fundamentals) is the shared root. It enables W1-C2 in the foundations track and ST-001 in the deep track. Feedback loops, delays, and CLD concepts introduced in W1-C1 are prerequisite knowledge for both branches."
+        },
+        {
+          "from": "W1-C1",
+          "to": "ST-001",
+          "relationship": "ST-001 (Reinforcing Feedback Loops) deepens the feedback loop concepts introduced in W1-C1. W1-C1 covers reinforcing and balancing loops at the foundational level; ST-001 formalizes polarity analysis, loop gain, and cycle time at the intermediate level."
+        },
+        {
+          "from": "W1-C2",
+          "to": "ST-002",
+          "relationship": "W1-C2 introduces AI as a leverage point conceptually. ST-002 formalizes leverage point analysis with scoring, Meadows hierarchy, and sensitivity analysis. Learners who complete both tracks gain both intuitive and quantitative leverage thinking."
+        },
+        {
+          "from": "ST-001",
+          "to": "ST-004",
+          "relationship": "ST-004 extends feedback loop analysis from generic systems to agent-specific architectures. CLD skills from ST-001 are prerequisite."
+        },
+        {
+          "from": "ST-002",
+          "to": "ST-005",
+          "relationship": "ST-005 applies Meadows hierarchy from ST-002 to MCP tool stack interventions."
+        },
+        {
+          "from": "ST-003",
+          "to": "ST-006",
+          "relationship": "ST-006 applies shifting-the-burden archetype from ST-003 to AI automation debt."
+        },
+        {
+          "from": "ST-004",
+          "to": "ST-005",
+          "relationship": "ST-005 requires agent control flow understanding from ST-004 to analyze tool dependencies within agent architectures."
+        }
+      ],
+      "recommended_full_sequence": {
+        "description": "For learners completing all three tracks, the recommended order interleaves foundations, deep, and agentic content",
+        "sequence": ["W1-C1", "W1-C2", "ST-001", "W1-C3", "ST-002", "ST-003", "ST-004", "ST-005", "ST-006"],
+        "rationale": "Start with W1-C1 and W1-C2 to build foundational vocabulary, then ST-001 to deepen feedback loop mechanics before W1-C3 applies everything to SMB workflow redesign. ST-002 and ST-003 follow as the analytical capstone. ST-004/005/006 extend all three frameworks into the agentic AI domain."
+      }
+    }
+  }
+}

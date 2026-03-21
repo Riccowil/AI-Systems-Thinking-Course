@@ -1,0 +1,380 @@
+{
+  "course": {
+    "title": "AI + Systems Thinking for SMBs",
+    "author": "Ricco Wilson",
+    "organization": "Wilson Consulting / Divergence Academy",
+    "version": "1.1.0",
+    "date": "2026-03-17",
+    "updated": "2026-03-21",
+    "total_time_minutes": 85,
+    "total_cubelets": 9,
+    "total_deliverables": 27,
+    "deployment": {
+      "artifact_base_url": "https://preview-app-two.vercel.app",
+      "mcp_servers": [
+        "week1-foundations",
+        "systems-thinking-cubelets"
+      ]
+    },
+    "prerequisite_chain": {
+      "summary": "Linear progression within each module; Module 2 requires Module 1 completion; Module 3 requires specific Module 2 cubelets.",
+      "order": ["W1-C1", "W1-C2", "W1-C3", "ST-001", "ST-002", "ST-003", "ST-004", "ST-005", "ST-006"],
+      "rules": [
+        "W1-C1 has no prerequisites (entry point)",
+        "W1-C2 requires W1-C1",
+        "W1-C3 requires W1-C2",
+        "ST-001 requires W1-C3 (Module 1 complete)",
+        "ST-002 requires ST-001",
+        "ST-003 requires ST-002",
+        "ST-004 requires ST-001 (Module 2 feedback loop foundation)",
+        "ST-005 requires ST-002 and ST-004 (leverage points + agent control flow)",
+        "ST-006 requires ST-003 (shifting the burden foundation)"
+      ]
+    },
+    "quality_gate": {
+      "status": "PARTIAL",
+      "cubelets_passed": 6,
+      "cubelets_pending": 3,
+      "cubelets_failed": 0,
+      "details": "v1.0: All 6 cubelets pass quality gate. v1.1: 3 cubelets pending (ST-004, ST-005, ST-006)."
+    }
+  },
+  "modules": [
+    {
+      "module_id": "M1",
+      "title": "Foundations of Systems Thinking + AI",
+      "week": 1,
+      "difficulty": "Foundational",
+      "total_time_minutes": 30,
+      "lessons": [
+        {
+          "lesson_id": "1.1",
+          "cubelet_id": "W1-C1",
+          "title": "What Is Systems Thinking?",
+          "concept": "Systems Thinking Fundamentals",
+          "difficulty": "Foundational",
+          "time_minutes": 10,
+          "learning_objectives": [
+            "Identify the components, boundaries, and interconnections within a business system",
+            "Construct a basic system map using stocks, flows, and feedback loops",
+            "Analyze a real-world SaaS churn scenario to trace cause-and-effect relationships"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "systems-thinking-fundamentals.jsx",
+              "description": "System Explorer with diagram builder, simulation engine, and SaaS Churn example scenario",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "system-map-explorer",
+              "description": "Guides learners through building and interpreting system maps"
+            },
+            "mcp_tool": {
+              "server": "week1-foundations",
+              "description": "Provides foundational systems thinking prompts and validation"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can label at least 3 stocks and 3 flows in a given system",
+            "Learner can identify at least 1 feedback loop in the SaaS Churn example",
+            "Learner can explain how a change in one variable propagates through the system"
+          ],
+          "prerequisites": []
+        },
+        {
+          "lesson_id": "1.2",
+          "cubelet_id": "W1-C2",
+          "title": "Where AI Fits in Your Business System",
+          "concept": "AI as a System Lever",
+          "difficulty": "Foundational",
+          "time_minutes": 10,
+          "learning_objectives": [
+            "Distinguish between AI as a point tool and AI as a systemic lever within business operations",
+            "Map where AI interventions create the highest leverage in a system diagram",
+            "Apply drag-and-drop AI placement to a logistics workflow and evaluate impact"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "ai-system-lever.jsx",
+              "description": "AI Placement Workbench with drag-drop AI badges and logistics example scenario",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "ai-leverage-finder",
+              "description": "Helps learners identify optimal AI insertion points in their business systems"
+            },
+            "mcp_tool": {
+              "server": "week1-foundations",
+              "description": "Provides AI lever analysis and placement feedback"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can place AI badges on at least 2 high-leverage points in the logistics example",
+            "Learner can articulate why AI at a chosen point affects the broader system",
+            "Learner can compare tool-level vs. system-level AI adoption with a concrete example"
+          ],
+          "prerequisites": ["W1-C1"]
+        },
+        {
+          "lesson_id": "1.3",
+          "cubelet_id": "W1-C3",
+          "title": "The SMB AI Mindset Shift",
+          "concept": "SMB AI Mindset Shift (Tool Buying to System Redesign)",
+          "difficulty": "Foundational",
+          "time_minutes": 10,
+          "learning_objectives": [
+            "Contrast the tool-buying mindset with a system-redesign approach to AI adoption",
+            "Simulate a workflow before and after AI-driven redesign using side-by-side comparison",
+            "Evaluate the downstream effects of redesigning a workflow versus simply adding a tool"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "smb-mindset-shift.jsx",
+              "description": "Workflow Redesign Simulator with side-by-side comparison of before/after AI integration",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "workflow-redesigner",
+              "description": "Walks learners through redesigning a workflow with AI as a system change"
+            },
+            "mcp_tool": {
+              "server": "week1-foundations",
+              "description": "Provides workflow redesign prompts and validation"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can describe at least 2 differences between tool-buying and system-redesign mindsets",
+            "Learner can run the simulator and identify measurable improvements in the redesigned workflow",
+            "Learner can propose a system redesign for a given SMB scenario rather than a tool purchase"
+          ],
+          "prerequisites": ["W1-C2"]
+        }
+      ]
+    },
+    {
+      "module_id": "M2",
+      "title": "Systems Thinking Deep Dive",
+      "week": 2,
+      "difficulty": "Intermediate",
+      "total_time_minutes": 25,
+      "lessons": [
+        {
+          "lesson_id": "2.1",
+          "cubelet_id": "ST-001",
+          "title": "Reinforcing Feedback Loops",
+          "concept": "Reinforcing Feedback Loops",
+          "difficulty": "Intermediate",
+          "time_minutes": 8,
+          "learning_objectives": [
+            "Define reinforcing feedback loops and distinguish them from balancing loops",
+            "Build a causal loop diagram (CLD) that captures a reinforcing loop in a business context",
+            "Predict the exponential growth or collapse behavior driven by reinforcing loops"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "feedback-loop-builder.jsx",
+              "description": "Feedback Loop Builder with interactive CLD canvas for constructing and simulating loops",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "reinforcing-loop-mapper",
+              "description": "Guides learners through identifying and mapping reinforcing feedback loops"
+            },
+            "mcp_tool": {
+              "server": "systems-thinking-cubelets",
+              "description": "Provides CLD validation and reinforcing loop detection"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can draw a correct reinforcing loop with at least 3 variables on the CLD canvas",
+            "Learner can explain whether a given loop drives growth or decline",
+            "Learner can identify a reinforcing loop in a provided business case study"
+          ],
+          "prerequisites": ["W1-C3"]
+        },
+        {
+          "lesson_id": "2.2",
+          "cubelet_id": "ST-002",
+          "title": "Leverage Points in Complex Systems",
+          "concept": "Leverage Points in Complex Systems",
+          "difficulty": "Intermediate",
+          "time_minutes": 8,
+          "learning_objectives": [
+            "Explain Donella Meadows' 12 leverage points hierarchy and rank interventions by effectiveness",
+            "Score potential interventions in a system using the leverage point framework",
+            "Recommend high-leverage interventions for an SMB scenario based on systemic analysis"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "leverage-point-scorer.jsx",
+              "description": "Leverage Point Scorer with interactive Meadows hierarchy and intervention ranking",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "leverage-point-analyzer",
+              "description": "Helps learners evaluate and rank leverage points in their systems"
+            },
+            "mcp_tool": {
+              "server": "systems-thinking-cubelets",
+              "description": "Provides leverage point scoring and analysis"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can correctly rank at least 3 leverage points from the Meadows hierarchy",
+            "Learner can score a set of proposed interventions and justify the ranking",
+            "Learner can identify the highest-leverage intervention in a given SMB scenario"
+          ],
+          "prerequisites": ["ST-001"]
+        },
+        {
+          "lesson_id": "2.3",
+          "cubelet_id": "ST-003",
+          "title": "Shifting the Burden Archetype",
+          "concept": "Shifting the Burden Archetype",
+          "difficulty": "Intermediate",
+          "time_minutes": 9,
+          "learning_objectives": [
+            "Recognize the Shifting the Burden archetype and its symptomatic vs. fundamental solution structure",
+            "Simulate burden-shifting dynamics across three scenarios and observe long-term degradation",
+            "Design an intervention that addresses the fundamental solution rather than the symptomatic fix"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "burden-shift-simulator.jsx",
+              "description": "Burden Shift Simulator with 3 interactive scenarios demonstrating the archetype",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "burden-shift-detector",
+              "description": "Helps learners detect and diagnose shifting-the-burden patterns in organizations"
+            },
+            "mcp_tool": {
+              "server": "systems-thinking-cubelets",
+              "description": "Provides burden-shift pattern detection and scenario analysis"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can diagram the Shifting the Burden archetype with symptomatic and fundamental loops",
+            "Learner can run all 3 simulator scenarios and explain why the symptomatic fix fails long-term",
+            "Learner can propose a fundamental solution for a given burden-shifting case"
+          ],
+          "prerequisites": ["ST-002"]
+        }
+      ]
+    },
+    {
+      "module_id": "M3",
+      "title": "Systems Thinking for AI Agents",
+      "week": 3,
+      "difficulty": "Advanced",
+      "total_time_minutes": 30,
+      "lessons": [
+        {
+          "lesson_id": "3.1",
+          "cubelet_id": "ST-004",
+          "title": "Agent Feedback Loops",
+          "concept": "Agent Feedback Loops",
+          "difficulty": "Advanced",
+          "time_minutes": 8,
+          "learning_objectives": [
+            "Map an agent architecture as a causal loop diagram using agent-specific node vocabulary",
+            "Identify reinforcing and balancing feedback loops within agent control flows",
+            "Score loop severity and predict runaway behavior (retry storms, cost spirals)",
+            "Design interventions to break harmful agent feedback loops"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "agent-feedback-mapper.jsx",
+              "description": "Agent CLD Builder with agent-specific nodes, auto-detected feedback loops, and severity scoring",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "agent-feedback-analyzer",
+              "description": "Guides learners through mapping and analyzing agent architecture feedback loops"
+            },
+            "mcp_tool": {
+              "server": "systems-thinking-cubelets",
+              "description": "Accepts agent components and links, returns loop classification with severity scores"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can place at least 3 agent-specific nodes and connect them with causal links",
+            "Learner can identify at least 1 reinforcing loop in the retry storm worked example",
+            "Learner can predict loop behavior before revealing algorithmic analysis"
+          ],
+          "prerequisites": ["ST-001"]
+        },
+        {
+          "lesson_id": "3.2",
+          "cubelet_id": "ST-005",
+          "title": "Tool Orchestration as System Design",
+          "concept": "Tool Orchestration as System Design",
+          "difficulty": "Advanced",
+          "time_minutes": 12,
+          "learning_objectives": [
+            "Input MCP tools and their dependencies to build a tool stack dependency graph",
+            "Identify redundancy, coupling, and blast radius across a tool stack",
+            "Score tool interventions (add, remove, refactor) using Meadows hierarchy",
+            "Evaluate tool stack health using complexity, redundancy, and brittleness metrics"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "tool-orchestration-scorer.jsx",
+              "description": "Tool Stack Analyzer with dependency graph, health scoring, and Meadows-based intervention ranking",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "tool-stack-analyzer",
+              "description": "Guides learners through auditing and analyzing MCP tool stacks as systems"
+            },
+            "mcp_tool": {
+              "server": "systems-thinking-cubelets",
+              "description": "Accepts tool list, dependencies, and interventions, returns health scores and refactor recommendations"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can input at least 3 tools with dependencies and generate a dependency graph",
+            "Learner can identify the highest blast-radius tool in the worked example",
+            "Learner can score at least 2 interventions using Meadows hierarchy and justify the ranking"
+          ],
+          "prerequisites": ["ST-002", "ST-004"]
+        },
+        {
+          "lesson_id": "3.3",
+          "cubelet_id": "ST-006",
+          "title": "Shifting the Burden in Automation",
+          "concept": "Shifting the Burden in Automation",
+          "difficulty": "Advanced",
+          "time_minutes": 10,
+          "learning_objectives": [
+            "Recognize the shifting-the-burden archetype in AI automation contexts",
+            "Play a 12-round scenario-based decision game to experience automation debt accumulation",
+            "Classify automation responses as quick-fix, fundamental investment, or transition strategy",
+            "Design transition plans that maintain symptomatic fixes while building fundamental automation solutions"
+          ],
+          "deliverables": {
+            "artifact": {
+              "file": "automation-burden-detector.jsx",
+              "description": "Automation Debt Simulator with 3 AI scenarios, 12-round decision game, and post-game debt diagnosis",
+              "url": "https://preview-app-two.vercel.app"
+            },
+            "skill": {
+              "name": "automation-debt-detector",
+              "description": "Guides learners through detecting and diagnosing automation debt using shifting-the-burden archetype"
+            },
+            "mcp_tool": {
+              "server": "systems-thinking-cubelets",
+              "description": "Accepts automation layers and fundamental solution, identifies burden shift patterns with loop analysis"
+            }
+          },
+          "assessment_criteria": [
+            "Learner can complete at least 1 of the 3 scenarios and score B or higher",
+            "Learner can identify the erosion channel in their chosen scenario",
+            "Learner can design a transition strategy for a given automation debt case"
+          ],
+          "prerequisites": ["ST-003"]
+        }
+      ]
+    }
+  ]
+}
