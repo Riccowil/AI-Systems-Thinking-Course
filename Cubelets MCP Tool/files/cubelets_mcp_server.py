@@ -2,7 +2,7 @@
 Systems Thinking Cubelets MCP Server
 =====================================
 Extension tools for ST-001 (Reinforcing Feedback Loops), ST-002 (Leverage Points),
-and ST-003 (Shifting the Burden) cubelets.
+ST-003 (Shifting the Burden), and ST-004 (Agent Feedback Loops) cubelets.
 
 Designed to pair with the existing systems-thinking MCP server tools:
   - create_causal_loop
@@ -365,6 +365,214 @@ async def score_reinforcing_loops(params: ScoreReinforcingLoopInput) -> str:
     md.append("---")
     md.append("*Polarity Rule: Count negative links. Even (incl. zero) = Reinforcing. Odd = Balancing.*")
     md.append("*A reinforcing loop amplifies whatever direction the system is moving — growth OR decline.*")
+
+    return "\n".join(md)
+
+
+# ============================================================================
+# ST-004: Agent Feedback Loop Analyzer
+# ============================================================================
+
+@mcp.tool(
+    name="analyze_agent_feedback_loops",
+    annotations={
+        "title": "ST-004: Analyze Agent Feedback Loops",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    }
+)
+async def analyze_agent_feedback_loops(params: AnalyzeAgentFeedbackLoopsInput) -> str:
+    """Analyze feedback loops in agent architectures to detect potentially harmful patterns.
+
+    This tool accepts an agent architecture (components + links) and returns loop classifications
+    with severity scores. It identifies three critical patterns:
+    - Retry storms: Agent → Tool → Error → Agent loops that amplify under load
+    - Cost spirals: Agent → Complex Task → Higher Cost → More Agents reinforcing loops
+    - Capability snowballs: Agent → Success → More Complex Tasks → Better Agent reinforcing loops
+
+    For each closed loop found, this tool:
+    1. Transforms AgentLink to CausalLink via to_causal_link() composition
+    2. Reuses _find_all_cycles() for graph traversal (same algorithm as ST-001)
+    3. Classifies as reinforcing (even negative count) or balancing (odd negative count)
+    4. Computes severity score (0-100) from loop gain
+    5. Assigns loop IDs (R1, R2 for reinforcing; B1, B2 for balancing)
+    6. For high-severity loops (67+): auto-generates intervention suggestions
+
+    Severity scoring:
+    - Score = loop_gain * 100 (clamped to 0-100)
+    - Low: 0-33 (monitor)
+    - Medium: 34-66 (plan mitigation)
+    - High: 67-100 (immediate intervention recommended)
+
+    This implements the ST-004 pattern: 'Agent systems create feedback loops. Loops create
+    emergent behavior. Not all emergence is desirable.'
+
+    Use when a user describes an agent architecture with multiple components (agents, tools,
+    memory, evaluators, constraints) and wants to understand potential feedback dynamics.
+
+    Args:
+        params: Agent components, links between components, and output format preference.
+
+    Returns:
+        Loop analysis with severity scores, loop IDs, intervention recommendations, and
+        dominant dynamic classification.
+    """
+    # Build ID-to-name mapping for readable output
+    id_to_name = {comp.id: comp.name for comp in params.components}
+
+    # Extract component names as variables (for readable loop paths)
+    variables = [comp.name for comp in params.components]
+
+    # Transform AgentLinks to CausalLinks, mapping IDs to names
+    causal_links = []
+    for link in params.links:
+        causal_links.append(CausalLink(
+            from_var=id_to_name[link.from_component],
+            to_var=id_to_name[link.to_component],
+            polarity=link.polarity,
+            strength=link.strength
+        ))
+
+    # Reuse the existing cycle detection logic from ST-001
+    cycles = _find_all_cycles(variables, causal_links)
+
+    # Add severity scoring and loop IDs
+    reinforcing = []
+    balancing = []
+
+    for cycle in cycles:
+        # Severity score = loop_gain * 100 (clamped to 0-100)
+        severity_score = min(int(cycle["loop_gain"] * 100), 100)
+
+        # Severity label
+        if severity_score <= 33:
+            severity_label = "Low"
+        elif severity_score <= 66:
+            severity_label = "Medium"
+        else:
+            severity_label = "High"
+
+        # Add to appropriate list with enriched data
+        enriched_cycle = {
+            **cycle,
+            "severity_score": severity_score,
+            "severity_label": severity_label,
+        }
+
+        if cycle["loop_type"] == "reinforcing":
+            reinforcing.append(enriched_cycle)
+        else:
+            balancing.append(enriched_cycle)
+
+    # Assign loop IDs
+    for i, loop in enumerate(sorted(reinforcing, key=lambda c: c["loop_gain"], reverse=True), 1):
+        loop["loop_id"] = f"R{i}"
+
+    for i, loop in enumerate(sorted(balancing, key=lambda c: c["loop_gain"], reverse=True), 1):
+        loop["loop_id"] = f"B{i}"
+
+    # Generate intervention suggestions for high-severity loops
+    interventions = []
+    all_loops = reinforcing + balancing
+    high_severity_loops = [loop for loop in all_loops if loop["severity_score"] >= 67]
+
+    for loop in high_severity_loops:
+        # Find the link in the cycle with the highest strength
+        max_strength = 0.0
+        max_from = None
+        max_to = None
+
+        # Map path back to original links to find strengths
+        for link in params.links:
+            from_name = id_to_name[link.from_component]
+            to_name = id_to_name[link.to_component]
+            # Check if this link is part of the loop path
+            for j in range(len(loop["path"]) - 1):
+                if from_name == loop["path"][j] and to_name == loop["path"][j + 1]:
+                    if (link.strength or 1.0) > max_strength:
+                        max_strength = link.strength or 1.0
+                        max_from = from_name
+                        max_to = to_name
+
+        if max_from and max_to:
+            suggestion = (
+                f"Consider adding rate limiting between {max_from} and {max_to} "
+                f"to reduce coupling (current strength: {max_strength})"
+            )
+            interventions.append({
+                "loop_id": loop["loop_id"],
+                "severity": loop["severity_score"],
+                "suggestion": suggestion,
+            })
+
+    # Compute variable participation (same as ST-001)
+    participation = {v: {"reinforcing": 0, "balancing": 0, "total": 0} for v in variables}
+    for cycle in cycles:
+        for var in cycle["path"][:-1]:
+            participation[var][cycle["loop_type"]] += 1
+            participation[var]["total"] += 1
+
+    # Determine dominant dynamic
+    dominant_dynamic = (
+        "reinforcing" if len(reinforcing) > len(balancing)
+        else "balancing" if len(balancing) > len(reinforcing)
+        else "balanced"
+    )
+
+    result = {
+        "total_loops": len(cycles),
+        "reinforcing_count": len(reinforcing),
+        "balancing_count": len(balancing),
+        "loops": sorted(all_loops, key=lambda c: c["severity_score"], reverse=True),
+        "high_severity_count": len(high_severity_loops),
+        "interventions": interventions,
+        "variable_participation": participation,
+        "dominant_dynamic": dominant_dynamic,
+    }
+
+    if params.format == ResponseFormat.JSON:
+        return json.dumps(result, indent=2)
+
+    # Markdown output
+    md = []
+    md.append("# Agent Feedback Loop Analysis (ST-004)")
+    md.append("")
+    md.append(f"**Total loops found:** {result['total_loops']}")
+    md.append(f"**Reinforcing:** {result['reinforcing_count']} | **Balancing:** {result['balancing_count']}")
+    md.append(f"**High-severity loops:** {result['high_severity_count']}")
+    md.append(f"**Dominant dynamic:** {result['dominant_dynamic'].upper()}")
+    md.append("")
+
+    if result['loops']:
+        md.append("## Loop Analysis")
+        md.append("")
+        md.append("| Loop ID | Path | Type | Severity | Score |")
+        md.append("|---------|------|------|----------|-------|")
+        for loop in result['loops']:
+            path = " → ".join(loop["path"])
+            md.append(f"| {loop['loop_id']} | {path} | {loop['loop_type'].capitalize()} | {loop['severity_label']} | {loop['severity_score']}/100 |")
+        md.append("")
+
+    if interventions:
+        md.append("## Intervention Recommendations (High-Severity Loops)")
+        md.append("")
+        for intv in interventions:
+            md.append(f"**{intv['loop_id']}** (Severity: {intv['severity']}/100)")
+            md.append(f"- {intv['suggestion']}")
+            md.append("")
+
+    md.append("## Component Loop Participation")
+    for var in sorted(participation.keys(), key=lambda v: participation[v]["total"], reverse=True):
+        p = participation[var]
+        if p["total"] > 0:
+            md.append(f"- **{var}**: {p['total']} loops ({p['reinforcing']}R, {p['balancing']}B)")
+
+    md.append("")
+    md.append("---")
+    md.append("*Agent systems create feedback loops. Loops create emergent behavior. Not all emergence is desirable.*")
+    md.append("*High-severity reinforcing loops can produce retry storms, cost spirals, or capability snowballs.*")
 
     return "\n".join(md)
 
