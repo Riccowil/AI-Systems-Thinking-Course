@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Agentic Systems Design
 status: in-progress
-stopped_at: Phase 8 Plan 3 complete (agent-feedback-loop-builder.jsx)
-last_updated: "2026-03-21T07:14:23Z"
-last_activity: 2026-03-21 -- Phase 8 Plan 3 executed (agent-feedback-loop-builder.jsx with shape-coded nodes)
+stopped_at: Phase 8 Plan 2 complete (ST-004 cubelet + skill)
+last_updated: "2026-03-21T07:16:11Z"
+last_activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown + agent-feedback-analyzer skill)
 progress:
   total_phases: 5
   completed_phases: 1
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 8 of 11 (ST-004 Pathfinder) -- IN PROGRESS
-Plan: 1 of 4 in Phase 8 complete (08-03 complete)
-Status: Phase 8 started, artifact foundation complete
-Last activity: 2026-03-21 -- Phase 8 Plan 3 executed (agent-feedback-loop-builder.jsx with 5 shape-coded node types, retry storm example, loop detection, severity scoring)
+Plan: 3 of 4 in Phase 8 complete (08-01, 08-02, 08-03 complete)
+Status: Phase 8 progressing, content + artifact complete
+Last activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown with 6 faces + agent-feedback-analyzer skill)
 
 Progress: [##........] 23%
 
@@ -62,7 +62,7 @@ Progress: [##........] 23%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 7 | 2/2 | ~1 session | -- |
-| 8 | 1/4 | 4.5 min | 4.5 min |
+| 8 | 3/4 | ~15 min | ~5 min |
 
 ## Accumulated Context
 
@@ -79,6 +79,10 @@ Recent decisions affecting current work:
 - [Phase 7]: Data models compose with existing (AgentLink wraps CausalLink, AutomationLayer wraps FixRecord)
 - [Phase 7]: Visual vocabulary: shape-coded nodes (hexagon, rectangle, cylinder, diamond, octagon) with subtle color tints
 - [Phase 7]: Week 3 module title: "Systems Thinking for AI Agents", difficulty: Advanced, 30 min total (8/12/10)
+- [Phase 8 Plan 2]: Self-assessment checklist positioned before Face 1 - warm-up activation not a gate
+- [Phase 8 Plan 2]: Score aggregate set to 50/60 (83%) - demonstrates PASS threshold with room for iteration
+- [Phase 8 Plan 2]: Skill workflow uses 5 steps - matches existing skill complexity patterns
+- [Phase 8 Plan 2]: Reference card kept to ~1000 chars - students access full cubelet for depth
 - [Phase 8 Plan 3]: Implemented topological sort layout fallback instead of dagre dependency - artifact sandbox may not support external graph libraries
 - [Phase 8 Plan 3]: Used inline SVG shape rendering (polygon, rect, path) instead of imported shape components - keeps artifact self-contained
 - [Phase 8 Plan 3]: Retry storm example has 6 nodes with 2 distinct loops (reinforcing + balancing) - demonstrates both loop types in single scenario
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T07:14:23Z
-Stopped at: Phase 8 Plan 3 complete (agent-feedback-loop-builder.jsx)
-Resume file: .planning/phases/08-st-004-pathfinder/08-03-SUMMARY.md
+Last session: 2026-03-21T07:16:11Z
+Stopped at: Phase 8 Plan 2 complete (ST-004 cubelet + skill)
+Resume file: .planning/phases/08-st-004-pathfinder/08-02-SUMMARY.md

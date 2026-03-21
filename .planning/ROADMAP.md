@@ -186,7 +186,7 @@ Phase 9   Phase 10
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 7. Content Foundations | v1.1 | 2/2 | COMPLETE | 2026-03-21 |
-| 8. ST-004 Pathfinder | v1.1 | 0/4 | Not started | - |
+| 8. ST-004 Pathfinder | v1.1 | 3/4 | In progress | - |
 | 9. ST-005 Tool Orchestration | v1.1 | 0/TBD | Not started | - |
 | 10. ST-006 Automation Debt | v1.1 | 0/TBD | Not started | - |
 | 11. Integration + Deployment | v1.1 | 0/TBD | Not started | - |
