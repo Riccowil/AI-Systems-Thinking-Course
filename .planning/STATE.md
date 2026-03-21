@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Agentic Systems Design
-status: completed
-stopped_at: Phase 8 context gathered
-last_updated: "2026-03-21T05:54:33.049Z"
-last_activity: 2026-03-21 -- Phase 7 executed (prerequisite chain, data models, visual vocab, syllabus)
+status: in-progress
+stopped_at: Phase 8 Plan 3 complete (agent-feedback-loop-builder.jsx)
+last_updated: "2026-03-21T07:14:23Z"
+last_activity: 2026-03-21 -- Phase 8 Plan 3 executed (agent-feedback-loop-builder.jsx with shape-coded nodes)
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 20
+  total_plans: 13
+  completed_plans: 3
+  percent: 23
 ---
 
 # Project State
@@ -25,13 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 
 ## Current Position
 
-Phase: 7 of 11 (Content Foundations) -- COMPLETE
-Next: Phase 8 (ST-004 Pathfinder)
-Plan: 2 of 2 in Phase 7 (both complete)
-Status: Phase 7 complete, ready for Phase 8
-Last activity: 2026-03-21 -- Phase 7 executed (prerequisite chain, data models, visual vocab, syllabus)
+Phase: 8 of 11 (ST-004 Pathfinder) -- IN PROGRESS
+Plan: 1 of 4 in Phase 8 complete (08-03 complete)
+Status: Phase 8 started, artifact foundation complete
+Last activity: 2026-03-21 -- Phase 8 Plan 3 executed (agent-feedback-loop-builder.jsx with 5 shape-coded node types, retry storm example, loop detection, severity scoring)
 
-Progress: [##........] 20%
+Progress: [##........] 23%
 
 ## Milestones
 
@@ -54,15 +53,16 @@ Progress: [##........] 20%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: --
-- Total execution time: ~1 session
+- Total plans completed: 3
+- Average duration: ~5 min
+- Total execution time: ~1.5 sessions
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 7 | 2/2 | ~1 session | -- |
+| 8 | 1/4 | 4.5 min | 4.5 min |
 
 ## Accumulated Context
 
@@ -79,6 +79,11 @@ Recent decisions affecting current work:
 - [Phase 7]: Data models compose with existing (AgentLink wraps CausalLink, AutomationLayer wraps FixRecord)
 - [Phase 7]: Visual vocabulary: shape-coded nodes (hexagon, rectangle, cylinder, diamond, octagon) with subtle color tints
 - [Phase 7]: Week 3 module title: "Systems Thinking for AI Agents", difficulty: Advanced, 30 min total (8/12/10)
+- [Phase 8 Plan 3]: Implemented topological sort layout fallback instead of dagre dependency - artifact sandbox may not support external graph libraries
+- [Phase 8 Plan 3]: Used inline SVG shape rendering (polygon, rect, path) instead of imported shape components - keeps artifact self-contained
+- [Phase 8 Plan 3]: Retry storm example has 6 nodes with 2 distinct loops (reinforcing + balancing) - demonstrates both loop types in single scenario
+- [Phase 8 Plan 3]: Primer panel defaults to collapsed state - progressive disclosure for students who need context without blocking canvas view
+- [Phase 8 Plan 3]: Severity scores displayed inline per loop (0-100 with Low/Medium/High labels) - makes risk assessment immediate and visual
 
 ### Pending Todos
 
@@ -91,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T05:54:33.046Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-st-004-pathfinder/08-CONTEXT.md
+Last session: 2026-03-21T07:14:23Z
+Stopped at: Phase 8 Plan 3 complete (agent-feedback-loop-builder.jsx)
+Resume file: .planning/phases/08-st-004-pathfinder/08-03-SUMMARY.md
