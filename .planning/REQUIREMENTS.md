@@ -20,8 +20,8 @@ Requirements for this milestone. Each maps to roadmap phases (7-11).
 - [ ] **AF-01**: Cubelet markdown with all 6 faces (WHAT/WHY/HOW/WHERE/WHEN/APPLY) covering agent feedback loop identification
 - [x] **AF-02**: Interactive JSX artifact where student maps agent architecture as CLD with agent-specific node vocabulary, auto-detects reinforcing/balancing loops, and scores loop severity
 - [x] **AF-03**: Artifact includes worked example (retry storm scenario) pre-loaded on canvas with annotated feedback loops
-- [ ] **AF-04**: Progressive disclosure — student predicts loop behavior before artifact reveals algorithmic analysis
-- [ ] **AF-05**: Right-panel instrumentation showing loop classification (R1, R2, B1, B2), severity score, and intervention recommendations
+- [x] **AF-04**: Progressive disclosure — student predicts loop behavior before artifact reveals algorithmic analysis
+- [x] **AF-05**: Right-panel instrumentation showing loop classification (R1, R2, B1, B2), severity score, and intervention recommendations
 - [x] **AF-06**: MCP tool `analyze_agent_feedback_loops` accepts agent components + links, returns reinforcing loops with severity scores
 - [x] **AF-07**: MCP tool reuses existing `score_reinforcing_loops` via composition (transforms AgentComponent/AgentLink to CausalLink format)
 - [ ] **AF-08**: Claude skill `agent-feedback-analyzer.skill` guides multi-step workflow for analyzing agent architectures
@@ -101,8 +101,8 @@ Acknowledged features to add after v1.1 core is validated in classroom.
 | AF-01 | Phase 8 | Pending |
 | AF-02 | Phase 8 | Complete (08-03) |
 | AF-03 | Phase 8 | Complete (08-03) |
-| AF-04 | Phase 8 | Pending |
-| AF-05 | Phase 8 | Pending |
+| AF-04 | Phase 8 | Complete |
+| AF-05 | Phase 8 | Complete |
 | AF-06 | Phase 8 | Complete |
 | AF-07 | Phase 8 | Complete |
 | AF-08 | Phase 8 | Pending |
