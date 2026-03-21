@@ -47,8 +47,8 @@ Delivered: 6 cubelets (W1-C1, W1-C2, W1-C3, ST-001, ST-002, ST-003), 18 delivera
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md -- Prerequisite chain, agent experience checkpoint, and data model specifications
-- [ ] 07-02-PLAN.md -- Agent visual vocabulary and course syllabus update
+- [x] 07-01-PLAN.md -- Prerequisite chain, agent experience checkpoint, and data model specifications
+- [x] 07-02-PLAN.md -- Agent visual vocabulary and course syllabus update
 
 ### Phase 8: ST-004 Pathfinder (Agent Feedback Loops)
 **Goal**: Students can map agent architectures as causal loop diagrams with agent-specific vocabulary, see auto-detected feedback loops with severity scores, and receive intervention recommendations -- delivered as a complete three-layer stack that validates the dual-domain cubelet format before ST-005 and ST-006 proceed
@@ -63,12 +63,13 @@ Plans:
   4. MCP tool `analyze_agent_feedback_loops` accepts AgentComponent + AgentLink inputs, internally transforms to CausalLink format, reuses existing `score_reinforcing_loops`, and returns loop classifications (R1, R2, B1, B2) with severity scores
   5. Claude skill `agent-feedback-analyzer.skill` guides a multi-step analysis workflow and is functional in Claude Desktop/CLI
   6. Cubelet markdown has all 6 faces (WHAT/WHY/HOW/WHERE/WHEN/APPLY) and scores >= 42/60 on quality gate
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
-- [ ] 08-03: TBD
+- [ ] 08-01-PLAN.md -- MCP tool: AgentComponent/AgentLink models and analyze_agent_feedback_loops tool
+- [ ] 08-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP
+- [ ] 08-03-PLAN.md -- Interactive artifact: shape-coded nodes, canvas, DFS loop detection, worked example, primer panel
+- [ ] 08-04-PLAN.md -- Interactive artifact: progressive disclosure, tabbed right panel, prediction comparison, interventions
 
 ### Phase 9: ST-005 Tool Orchestration
 **Goal**: Students can input MCP tools and their dependencies, see a dependency graph with redundancy/coupling/blast radius analysis, and score interventions using Meadows hierarchy -- delivered as a complete three-layer stack
@@ -185,7 +186,7 @@ Phase 9   Phase 10
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 7. Content Foundations | v1.1 | 2/2 | COMPLETE | 2026-03-21 |
-| 8. ST-004 Pathfinder | v1.1 | 0/TBD | Not started | - |
+| 8. ST-004 Pathfinder | v1.1 | 0/4 | Not started | - |
 | 9. ST-005 Tool Orchestration | v1.1 | 0/TBD | Not started | - |
 | 10. ST-006 Automation Debt | v1.1 | 0/TBD | Not started | - |
 | 11. Integration + Deployment | v1.1 | 0/TBD | Not started | - |
