@@ -44,11 +44,11 @@ Delivered: 6 cubelets (W1-C1, W1-C2, W1-C3, ST-001, ST-002, ST-003), 18 delivera
   3. Agent visual vocabulary defines node types (agent, tool, memory, evaluator, constraint) with dark cybernetic styling that matches existing CLD builder aesthetic
   4. Course syllabus includes Week 3: Agentic Systems Design with learning objectives, deliverables, and practice exercises for all three cubelets
   5. Agent experience checkpoint defines what hands-on agent knowledge students need before entering ST-004
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md -- Prerequisite chain, agent experience checkpoint, and data model specifications
+- [ ] 07-02-PLAN.md -- Agent visual vocabulary and course syllabus update
 
 ### Phase 8: ST-004 Pathfinder (Agent Feedback Loops)
 **Goal**: Students can map agent architectures as causal loop diagrams with agent-specific vocabulary, see auto-detected feedback loops with severity scores, and receive intervention recommendations -- delivered as a complete three-layer stack that validates the dual-domain cubelet format before ST-005 and ST-006 proceed
@@ -184,7 +184,7 @@ Phase 9   Phase 10
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 7. Content Foundations | v1.1 | 0/TBD | Not started | - |
+| 7. Content Foundations | v1.1 | 0/2 | Planning complete | - |
 | 8. ST-004 Pathfinder | v1.1 | 0/TBD | Not started | - |
 | 9. ST-005 Tool Orchestration | v1.1 | 0/TBD | Not started | - |
 | 10. ST-006 Automation Debt | v1.1 | 0/TBD | Not started | - |
