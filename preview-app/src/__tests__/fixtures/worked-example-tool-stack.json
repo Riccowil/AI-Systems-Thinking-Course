@@ -1,0 +1,153 @@
+{
+  "tools": [
+    {
+      "tool_id": "create_causal_loop",
+      "name": "Create Causal Loop",
+      "server": "week1-foundations",
+      "criticality": "high",
+      "inputs": ["variables", "causal_links"],
+      "outputs": ["cld_graph"]
+    },
+    {
+      "tool_id": "find_leverage_points",
+      "name": "Find Leverage Points",
+      "server": "week1-foundations",
+      "criticality": "medium",
+      "inputs": ["variables", "causal_links"],
+      "outputs": ["leverage_scores"]
+    },
+    {
+      "tool_id": "analyze_system",
+      "name": "Analyze System",
+      "server": "week1-foundations",
+      "criticality": "low",
+      "inputs": ["system_description"],
+      "outputs": ["analysis"]
+    },
+    {
+      "tool_id": "score_reinforcing_loops",
+      "name": "Score Reinforcing Loops",
+      "server": "systems-thinking-cubelets",
+      "criticality": "high",
+      "inputs": ["variables", "causal_links"],
+      "outputs": ["loops", "severity"]
+    },
+    {
+      "tool_id": "compare_interventions",
+      "name": "Compare Interventions",
+      "server": "systems-thinking-cubelets",
+      "criticality": "medium",
+      "inputs": ["interventions", "leverage_scores"],
+      "outputs": ["ranked_comparison"]
+    },
+    {
+      "tool_id": "detect_burden_shift",
+      "name": "Detect Burden Shift",
+      "server": "systems-thinking-cubelets",
+      "criticality": "medium",
+      "inputs": ["fix_records"],
+      "outputs": ["burden_analysis"]
+    },
+    {
+      "tool_id": "analyze_agent_feedback_loops",
+      "name": "Analyze Agent Feedback Loops",
+      "server": "systems-thinking-cubelets",
+      "criticality": "high",
+      "inputs": ["components", "links"],
+      "outputs": ["loops", "severity"],
+      "planned": true
+    },
+    {
+      "tool_id": "analyze_tool_orchestration",
+      "name": "Analyze Tool Orchestration",
+      "server": "systems-thinking-cubelets",
+      "criticality": "high",
+      "inputs": ["tools", "dependencies"],
+      "outputs": ["health_scores"],
+      "planned": true
+    },
+    {
+      "tool_id": "detect_automation_debt",
+      "name": "Detect Automation Debt",
+      "server": "systems-thinking-cubelets",
+      "criticality": "medium",
+      "inputs": ["automation_layers"],
+      "outputs": ["debt_analysis"],
+      "planned": true
+    }
+  ],
+  "dependencies": [
+    {
+      "from_tool": "create_causal_loop",
+      "to_tool": "score_reinforcing_loops",
+      "dependency_type": "required",
+      "data_fields": ["variables", "causal_links"]
+    },
+    {
+      "from_tool": "create_causal_loop",
+      "to_tool": "find_leverage_points",
+      "dependency_type": "required",
+      "data_fields": ["variables", "causal_links"]
+    },
+    {
+      "from_tool": "create_causal_loop",
+      "to_tool": "analyze_agent_feedback_loops",
+      "dependency_type": "required",
+      "data_fields": ["cld_graph"]
+    },
+    {
+      "from_tool": "find_leverage_points",
+      "to_tool": "compare_interventions",
+      "dependency_type": "required",
+      "data_fields": ["leverage_scores"]
+    },
+    {
+      "from_tool": "score_reinforcing_loops",
+      "to_tool": "compare_interventions",
+      "dependency_type": "optional",
+      "data_fields": ["loops"]
+    },
+    {
+      "from_tool": "score_reinforcing_loops",
+      "to_tool": "analyze_agent_feedback_loops",
+      "dependency_type": "enhances",
+      "data_fields": ["scoring_patterns"]
+    },
+    {
+      "from_tool": "compare_interventions",
+      "to_tool": "analyze_tool_orchestration",
+      "dependency_type": "enhances",
+      "data_fields": ["intervention_format"]
+    },
+    {
+      "from_tool": "detect_burden_shift",
+      "to_tool": "detect_automation_debt",
+      "dependency_type": "required",
+      "data_fields": ["burden_patterns"]
+    },
+    {
+      "from_tool": "analyze_agent_feedback_loops",
+      "to_tool": "analyze_tool_orchestration",
+      "dependency_type": "optional",
+      "data_fields": ["feedback_analysis"]
+    },
+    {
+      "from_tool": "analyze_system",
+      "to_tool": "find_leverage_points",
+      "dependency_type": "optional",
+      "data_fields": ["system_context"]
+    },
+    {
+      "from_tool": "analyze_system",
+      "to_tool": "detect_burden_shift",
+      "dependency_type": "optional",
+      "data_fields": ["system_context"]
+    },
+    {
+      "from_tool": "score_reinforcing_loops",
+      "to_tool": "detect_burden_shift",
+      "dependency_type": "enhances",
+      "data_fields": ["loop_data"]
+    }
+  ]
+}
