@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Agentic Systems Design
-status: in-progress
-stopped_at: Phase 8 Plan 2 complete (ST-004 cubelet + skill)
-last_updated: "2026-03-21T07:16:11Z"
-last_activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown + agent-feedback-analyzer skill)
+status: completed
+stopped_at: Completed 08-01-PLAN.md (AgentComponent/AgentLink models + analyze_agent_feedback_loops MCP tool)
+last_updated: "2026-03-21T07:20:05.473Z"
+last_activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown with 6 faces + agent-feedback-analyzer skill)
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 13
-  completed_plans: 3
+  total_plans: 6
+  completed_plans: 5
   percent: 23
 ---
 
@@ -63,6 +63,7 @@ Progress: [##........] 23%
 |-------|-------|-------|----------|
 | 7 | 2/2 | ~1 session | -- |
 | 8 | 3/4 | ~15 min | ~5 min |
+| Phase 08 P01 | 6min 29sec | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Recent decisions affecting current work:
 - [Phase 8 Plan 3]: Retry storm example has 6 nodes with 2 distinct loops (reinforcing + balancing) - demonstrates both loop types in single scenario
 - [Phase 8 Plan 3]: Primer panel defaults to collapsed state - progressive disclosure for students who need context without blocking canvas view
 - [Phase 8 Plan 3]: Severity scores displayed inline per loop (0-100 with Low/Medium/High labels) - makes risk assessment immediate and visual
+- [Phase 08-01]: Use ID-to-name mapping instead of to_causal_link() for readable output (component names in loop paths, not IDs)
+- [Phase 08-01]: Severity score = loop_gain * 100 (matches artifact JavaScript implementation for consistency)
+- [Phase 08-01]: Intervention suggestions target highest-strength link in high-severity loops (pragmatic breaking point)
 
 ### Pending Todos
 
@@ -100,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T07:16:11Z
-Stopped at: Phase 8 Plan 2 complete (ST-004 cubelet + skill)
-Resume file: .planning/phases/08-st-004-pathfinder/08-02-SUMMARY.md
+Last session: 2026-03-21T07:19:59.121Z
+Stopped at: Completed 08-01-PLAN.md (AgentComponent/AgentLink models + analyze_agent_feedback_loops MCP tool)
+Resume file: None
