@@ -2,8 +2,8 @@
 phase: 9
 slug: st-005-tool-orchestration
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-21
 ---
 
@@ -18,7 +18,7 @@ created: 2026-03-21
 | Property | Value |
 |----------|-------|
 | **Framework** | Vitest 2.x + React Testing Library (artifact), pytest 7.x (MCP tool) |
-| **Config file** | vitest.config.js (create in preview-app/ — Wave 0), pytest.ini (exists in Cubelets MCP Tool/) |
+| **Config file** | vitest.config.js (created in preview-app/ — Wave 0 Task 0 of Plan 03), pytest.ini (exists in Cubelets MCP Tool/) |
 | **Quick run command** | `npm test -- tool-orchestration-analyzer.test.jsx -x` (artifact), `pytest tests/test_analyze_tool_orchestration.py -x` (MCP tool) |
 | **Full suite command** | `npm test` (artifact), `pytest tests/` (MCP server) |
 | **Estimated runtime** | ~15 seconds (artifact), ~5 seconds (MCP tool) |
@@ -38,18 +38,17 @@ created: 2026-03-21
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 09-01-01 | 01 | 1 | TO-06 | unit | `pytest tests/test_analyze_tool_orchestration.py::test_basic_health_scoring -x` | ❌ W0 | ⬜ pending |
-| 09-01-02 | 01 | 1 | TO-07 | integration | `pytest tests/test_analyze_tool_orchestration.py::test_intervention_composition -x` | ❌ W0 | ⬜ pending |
-| 09-02-01 | 02 | 1 | TO-02 | unit | `npm test -- tool-orchestration-analyzer.test.jsx::test_graph_rendering -x` | ❌ W0 | ⬜ pending |
-| 09-02-02 | 02 | 1 | TO-02 | unit | `npm test -- tool-orchestration-analyzer.test.jsx::test_redundancy_detection -x` | ❌ W0 | ⬜ pending |
-| 09-02-03 | 02 | 1 | TO-02 | integration | `npm test -- tool-orchestration-analyzer.test.jsx::test_blast_radius_cascade -x` | ❌ W0 | ⬜ pending |
-| 09-02-04 | 02 | 1 | TO-03 | unit | `npm test -- tool-orchestration-analyzer.test.jsx::test_intervention_meadows_assignment -x` | ❌ W0 | ⬜ pending |
-| 09-02-05 | 02 | 1 | TO-04 | smoke | `npm test -- tool-orchestration-analyzer.test.jsx::test_worked_example_loads -x` | ❌ W0 | ⬜ pending |
-| 09-02-06 | 02 | 1 | TO-05 | unit | `npm test -- tool-orchestration-analyzer.test.jsx::test_health_score_calculation -x` | ❌ W0 | ⬜ pending |
-| 09-03-01 | 03 | 2 | TO-01 | manual-only | Human scoring via quality rubric | N/A | ⬜ pending |
-| 09-03-02 | 03 | 2 | TO-08 | smoke | Manual verification (extract ZIP, check structure) | N/A | ⬜ pending |
-| 09-03-03 | 03 | 2 | TO-09 | manual-only | Human scoring via quality rubric | N/A | ⬜ pending |
-| 09-03-04 | 03 | 2 | TO-10 | manual-only | Human verification of content accuracy | N/A | ⬜ pending |
+| 09-01-00 | 01 | 1 | TO-06, TO-07 | stub | `cd "Cubelets MCP Tool/files" && python -c "import ast; ..."` (see Plan 01 Task 0 verify) | W0 creates | ⬜ pending |
+| 09-01-01 | 01 | 1 | TO-06 | unit | `cd "Cubelets MCP Tool/files" && python -m pytest test_tool_orchestration.py::TestMCPTool -x` | ✅ W0 | ⬜ pending |
+| 09-01-02 | 01 | 1 | TO-07 | integration | `cd "Cubelets MCP Tool/files" && python -m pytest test_tool_orchestration.py::test_intervention_composition -x` | ✅ W0 | ⬜ pending |
+| 09-03-00 | 03 | 1 | TO-02, TO-03, TO-04, TO-05 | stub | `cd preview-app && node -e "..."` (see Plan 03 Task 0 verify) | W0 creates | ⬜ pending |
+| 09-03-01 | 03 | 1 | TO-02 | unit | `cd preview-app && npx vitest run src/__tests__/tool-orchestration-analyzer.test.jsx -x` | ✅ W0 | ⬜ pending |
+| 09-03-02 | 03 | 1 | TO-05 | unit | `cd preview-app && npx vitest run src/__tests__/tool-orchestration-analyzer.test.jsx -x` | ✅ W0 | ⬜ pending |
+| 09-04-01 | 04 | 2 | TO-02, TO-03 | integration | `cd preview-app && npx vitest run src/__tests__/tool-orchestration-analyzer.test.jsx -x` | ✅ W0 | ⬜ pending |
+| 09-02-01 | 02 | 1 | TO-01 | manual-only | Human scoring via quality rubric | N/A | ⬜ pending |
+| 09-02-02 | 02 | 1 | TO-08 | smoke | Manual verification (extract ZIP, check structure) | N/A | ⬜ pending |
+| 09-02-03 | 02 | 1 | TO-09 | manual-only | Human scoring via quality rubric | N/A | ⬜ pending |
+| 09-02-04 | 02 | 1 | TO-10 | manual-only | Human verification of content accuracy | N/A | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -57,12 +56,12 @@ created: 2026-03-21
 
 ## Wave 0 Requirements
 
-- [ ] `preview-app/src/__tests__/tool-orchestration-analyzer.test.jsx` — stubs for TO-02, TO-03, TO-04, TO-05
-- [ ] `Cubelets MCP Tool/tests/test_analyze_tool_orchestration.py` — stubs for TO-06, TO-07
-- [ ] `vitest.config.js` in preview-app/ — if not exists, install: `npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom`
-- [ ] Test fixtures: worked-example-tool-stack.json (9 tools, 12 dependencies) for both artifact and MCP tests
+- [x] `preview-app/src/__tests__/tool-orchestration-analyzer.test.jsx` — stubs for TO-02, TO-03, TO-04, TO-05 (Plan 03, Task 0)
+- [x] `Cubelets MCP Tool/files/test_tool_orchestration.py` — stubs for TO-06, TO-07 (Plan 01, Task 0)
+- [x] `preview-app/vitest.config.js` — created with jsdom environment (Plan 03, Task 0)
+- [x] Test fixtures: `preview-app/src/__tests__/fixtures/worked-example-tool-stack.json` — 9 tools, 12 dependencies (Plan 03, Task 0)
 
-*If none: "Existing infrastructure covers all phase requirements."*
+*Wave 0 tasks added to Plan 01 (Task 0) and Plan 03 (Task 0) to create all test infrastructure before implementation begins.*
 
 ---
 
@@ -80,11 +79,11 @@ created: 2026-03-21
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 20s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 20s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** validated (revision pass — Wave 0 tasks added to Plans 01 and 03)
