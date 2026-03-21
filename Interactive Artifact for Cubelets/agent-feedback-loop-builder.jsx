@@ -311,8 +311,10 @@ export default function AgentFeedbackLoopBuilder() {
   const [activeTab, setActiveTab] = useState('loops');
   const [predictions, setPredictions] = useState({});
   const [allPredicted, setAllPredicted] = useState(false);
+  const [maxNodeWarning, setMaxNodeWarning] = useState(false);
   const svgRef = useRef(null);
   const inputRef = useRef(null);
+  const prevLoopCountRef = useRef(0);
 
   useEffect(() => {
     const cycles = findCycles(nodes, edges);
@@ -336,13 +338,14 @@ export default function AgentFeedbackLoopBuilder() {
     });
 
     // Reset predictions when graph structure changes
-    const prevLoopCount = detectedLoops.length;
+    const prevLoopCount = prevLoopCountRef.current;
     if (unique.length !== prevLoopCount) {
       setPredictions({});
       setAllPredicted(false);
     }
 
     setDetectedLoops(unique);
+    prevLoopCountRef.current = unique.length;
     if (unique.length > 0) {
       setPulseActive(true);
       const t = setTimeout(() => setPulseActive(false), 4500);
@@ -366,7 +369,8 @@ export default function AgentFeedbackLoopBuilder() {
       if (e.target !== svgRef.current && e.target.tagName !== "rect") return;
       if (mode === "add") {
         if (nodes.length >= 20) {
-          alert("Maximum 20 nodes allowed");
+          setMaxNodeWarning(true);
+          setTimeout(() => setMaxNodeWarning(false), 3000);
           return;
         }
         const pt = getSVGPoint(e);
@@ -923,6 +927,11 @@ export default function AgentFeedbackLoopBuilder() {
 
         {/* Canvas */}
         <div style={{ flex: 1, position: "relative" }}>
+          {maxNodeWarning && (
+            <div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 100, background: COLORS.accentDanger, color: "#fff", padding: "8px 16px", borderRadius: 6, fontSize: 11, fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+              Maximum 20 nodes reached
+            </div>
+          )}
           <svg
             ref={svgRef}
             width="100%"
