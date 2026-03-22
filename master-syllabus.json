@@ -284,7 +284,7 @@
           ],
           "deliverables": {
             "artifact": {
-              "file": "agent-feedback-mapper.jsx",
+              "file": "agent-feedback-loop-builder.jsx",
               "description": "Agent CLD Builder with agent-specific nodes, auto-detected feedback loops, and severity scoring",
               "url": "https://preview-app-two.vercel.app"
             },
