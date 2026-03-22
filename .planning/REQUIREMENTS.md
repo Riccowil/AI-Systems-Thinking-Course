@@ -50,7 +50,7 @@ Requirements for this milestone. Each maps to roadmap phases (7-11).
 - [ ] **AB-05**: Post-simulation grade (A-F) with erosion channel diagnosis and debt accumulation visualization
 - [x] **AB-06**: MCP tool `detect_automation_debt` accepts automation layers + fundamental solution, identifies burden shift patterns with B1/B2/R1 loop analysis
 - [x] **AB-07**: MCP tool reuses existing `detect_burden_shift` via composition (transforms AutomationLayer to FixRecord format)
-- [ ] **AB-08**: Claude skill `automation-debt-detector.skill` guides multi-step workflow for detecting automation debt
+- [x] **AB-08**: Claude skill `automation-debt-detector.skill` guides multi-step workflow for detecting automation debt
 - [x] **AB-09**: Quality gate score >= 42/60
 - [ ] **AB-10**: Archetype boundaries section — explicitly defines when shifting-the-burden applies and when it doesn't, with counter-examples
 
@@ -125,7 +125,7 @@ Acknowledged features to add after v1.1 core is validated in classroom.
 | AB-05 | Phase 10 | Pending |
 | AB-06 | Phase 10 | Complete |
 | AB-07 | Phase 10 | Complete |
-| AB-08 | Phase 10 | Pending |
+| AB-08 | Phase 10 | Complete |
 | AB-09 | Phase 10 | Complete |
 | AB-10 | Phase 10 | Pending |
 | INTG-01 | Phase 11 | Pending |
