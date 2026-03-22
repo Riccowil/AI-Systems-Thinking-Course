@@ -141,8 +141,7 @@ Plans:
 | Category | Count | Phase | Requirement IDs |
 |----------|-------|-------|-----------------|
 | Content Foundations (CFND) | 5 | Phase 7 | CFND-01, CFND-02, CFND-03, CFND-04, CFND-05 |
-| Agent Feedback Loops (AF) | 10 | Phase 8 | AF-01 through AF-10 |
-| Tool Orchestration (TO) | 10 | Phase 9 | TO-01 through TO-10 |
+| Agent Feedback Loops (AF) | 10 | 0/3 | Planned    |  | Tool Orchestration (TO) | 10 | Phase 9 | TO-01 through TO-10 |
 | Automation Debt (AB) | 10 | Phase 10 | AB-01 through AB-10 |
 | Integration (INTG) | 8 | Phase 11 | INTG-01 through INTG-08 |
 
