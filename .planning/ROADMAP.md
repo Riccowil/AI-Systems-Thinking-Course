@@ -109,9 +109,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- Interactive artifact: 12-round automation debt simulator with scenarios, dashboard, post-game diagnosis, and archetype boundaries
-- [ ] 10-02-PLAN.md -- MCP tool (detect_automation_debt with composition) and cubelet markdown (6 faces with archetype boundaries)
-- [ ] 10-03-PLAN.md -- Claude skill ZIP (automation-debt-detector) and sandbox verification checkpoint
+- [ ] 10-01-PLAN.md -- Artifact testability: Wave 0 test stubs, module.exports for simulation engine, real test assertions
+- [ ] 10-02-PLAN.md -- MCP tool tests (detect_automation_debt pytest suite) and cubelet markdown quality verification
+- [ ] 10-03-PLAN.md -- Claude skill verification and sandbox UAT checkpoint
 
 ### Phase 11: Integration + Deployment
 **Goal**: All 3 new cubelets are wired into the existing preview app, MCP server, and course infrastructure -- students access 9 cubelets through a single deployed app with consistent aesthetic and working prerequisites
