@@ -1,18 +1,22 @@
 # Phase 10: ST-006 Automation Debt - Research
 
-**Researched:** 2026-03-22
+**Researched:** 2026-03-22 (updated with worktree state audit)
 **Domain:** Shifting-the-Burden archetype applied to AI automation debt -- interactive simulation, MCP tool composition, cubelet pedagogy
 **Confidence:** HIGH
 
 ## Summary
 
-Phase 10 builds the complete three-layer stack for ST-006: a 12-round scenario-based decision game (JSX artifact), an MCP tool (`detect_automation_debt`) that wraps the existing `detect_burden_shift`, a Claude skill, and cubelet markdown. The core simulation engine from ST-003's `burden-shift-simulator.jsx` (629 lines) is directly forkable -- the `stepSim()` function, `SimEngine()` initializer, `MiniChart` SVG sparkline component, and scenario data structure are all proven patterns that need specialization, not rewriting.
+Phase 10 builds the complete three-layer stack for ST-006: a 12-round scenario-based decision game (JSX artifact), an MCP tool (`detect_automation_debt`) that wraps the existing `detect_burden_shift`, a Claude skill (`automation-debt-detector.skill`), and cubelet markdown. **Critical finding from worktree audit: all four deliverables already exist in the `main` branch but are absent from the current worktree branch (`claude/admiring-lovelace`).** The planning must account for this: tasks should treat the main-branch versions as reference implementations to copy/adapt rather than building greenfield.
 
-The MCP composition is straightforward: the existing `detect_burden_shift` tool accepts a `DetectBurdenShiftInput` with `recurring_symptom`, `fixes_applied` (list of `FixRecord`), optional `fundamental_solution`, and optional viability ratings. The new `detect_automation_debt` tool creates an `AutomationLayer` model with a `to_fix_record()` method that converts to `FixRecord` format, then delegates to the existing erosion scoring. Additional output fields (`debt_score`, named `erosion_channels`, `automation_coverage_estimate`) layer on top of `detect_burden_shift` results.
+Deliverables in `main` (reference implementations):
+- `Interactive Artifact for Cubelets/automation-debt-simulator.jsx` -- ~500 lines, purple accent (#7c5cfc), full simulation with 2x2 dashboard, gauge, B1/B2/R1 diagram, boundaries tab, quiz
+- `Cubelets/CubeletsMarkdown/ST-006-automation-debt.md` -- all 6 faces, score_aggregate 54/60, PASS status
+- `Claude skills build for Cubelets/files/automation-debt-detector.skill` -- compressed archive format (ZIP/PK), SKILL.md + references/
+- `detect_automation_debt` in `Cubelets MCP Tool/files/cubelets_mcp_server.py` -- fully implemented at lines 1478-1662
 
-The pedagogical innovation in ST-006 versus ST-003 is the archetype boundaries section (AB-10): teaching students when the shifting-the-burden pattern does NOT apply through three counter-patterns (Novel Problem, Legitimate Triage, Acceptable Trade-off), each with AI-specific examples and a 3-question mini-quiz.
+The MCP composition is already implemented: `AutomationLayer.to_fix_record()` converts to `FixRecord`, and `detect_automation_debt` computes debt_score, active erosion channels, automation_coverage_estimate, and recommendations layered on top of `detect_burden_shift` results. The artifact uses purple (#7c5cfc) as the accent, distinct from ST-003 orange and ST-005 teal.
 
-**Primary recommendation:** Fork ST-003's simulation engine wholesale, specialize the scenario data for automation contexts, add the 2x2 dashboard grid with sparklines (reuse `MiniChart`), move B1/B2/R1 diagram to post-game only, add circular debt gauge as pure SVG, and implement the boundaries tab as a post-game companion.
+**Primary recommendation:** Copy deliverables from main-branch reference implementations into the worktree, verify sandbox compatibility using established Phase 9 patterns (array-based state, z-index layering, token limit), write Wave 0 test stubs, and confirm quality gate score >= 42/60 for the cubelet.
 
 ---
 
@@ -66,16 +70,16 @@ The pedagogical innovation in ST-006 versus ST-003 is the archetype boundaries s
 
 | ID | Description | Research Support |
 |----|-------------|-----------------|
-| AB-01 | Cubelet markdown with all 6 faces covering automation debt detection | ST-003 cubelet structure analyzed (6 faces, quality gate scoring), ST-006 specialization for automation contexts identified |
-| AB-02 | Interactive JSX artifact with 12-round decision game | ST-003 `burden-shift-simulator.jsx` analyzed in full -- simulation engine, UI components, state management documented |
-| AB-03 | Three pre-loaded scenarios: LLM outputs, Agent failures, Tool latency | Real-world case studies researched for realistic parameters; scenario data structure from ST-003 documented |
-| AB-04 | Round mechanics: 4 choices, 4 metrics tracking | `stepSim()` function analyzed with exact formulas; metric interaction model documented |
-| AB-05 | Post-simulation grade (A-F) with erosion diagnosis and debt visualization | Grading logic from ST-003 analyzed; SVG gauge pattern researched for debt visualization |
-| AB-06 | MCP tool `detect_automation_debt` with B1/B2/R1 analysis | `detect_burden_shift` tool fully analyzed (input/output contract, erosion scoring, classification logic) |
-| AB-07 | MCP tool reuses `detect_burden_shift` via composition | `FixRecord` model, `_classify_fix()`, `_compute_erosion_risk()` documented; composition pattern clear |
-| AB-08 | Claude skill `automation-debt-detector.skill` | Existing skill patterns identified (burden-shift-detector.skill exists as reference, compressed format) |
-| AB-09 | Quality gate score >= 42/60 | ST-003 scored 53/60 and ST-005 scored 48/60; quality gate rubric understood |
-| AB-10 | Archetype boundaries with counter-examples | Three counter-patterns researched; mini-quiz pedagogy patterns documented |
+| AB-01 | Cubelet markdown with all 6 faces covering automation debt detection | ST-006-automation-debt.md exists in main (54/60, PASS) -- copy to worktree; all 6 faces confirmed complete |
+| AB-02 | Interactive JSX artifact with 12-round decision game | automation-debt-simulator.jsx exists in main (~500 lines) -- copy to worktree; all game mechanics confirmed present |
+| AB-03 | Three pre-loaded scenarios: LLM outputs, Agent failures, Tool latency | All 3 scenarios confirmed in main artifact with calibrated parameters and difficulty ratings |
+| AB-04 | Round mechanics: 4 choices, 4 metrics tracking | stepSim() with 4-choice branches and 4 tracked metrics confirmed in main artifact |
+| AB-05 | Post-simulation grade (A-F) with erosion diagnosis and debt visualization | Grading logic (4-metric composite), DebtGauge SVG, LoopDiagram SVG all confirmed in main artifact |
+| AB-06 | MCP tool `detect_automation_debt` with B1/B2/R1 analysis | detect_automation_debt fully implemented in cubelets_mcp_server.py (main) at lines 1478-1662 |
+| AB-07 | MCP tool reuses `detect_burden_shift` via composition | AutomationLayer.to_fix_record() confirmed; composition via _classify_fix() and _compute_erosion_risk() confirmed |
+| AB-08 | Claude skill `automation-debt-detector.skill` | automation-debt-detector.skill exists in main (compressed archive format) |
+| AB-09 | Quality gate score >= 42/60 | ST-006-automation-debt.md shows score_aggregate: 54/60, PASS -- exceeds gate |
+| AB-10 | Archetype boundaries with counter-examples | COUNTER_PATTERNS array (3 items) + QUIZ array (3 questions) confirmed in main artifact; Boundaries tab in results phase |
 
 </phase_requirements>
 
@@ -87,13 +91,13 @@ The pedagogical innovation in ST-006 versus ST-003 is the archetype boundaries s
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | React | (Claude.ai sandbox) | UI framework | Artifact runs in Claude.ai sandbox; React is the only option |
-| Pydantic | v2.x | MCP tool models | Existing `server.py` uses Pydantic BaseModel throughout |
+| Pydantic | v2.x | MCP tool models | Existing server.py uses Pydantic BaseModel throughout |
 | FastMCP | Current | MCP server framework | Existing server uses `from mcp.server.fastmcp import FastMCP` |
 
 ### Supporting
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| SVG (inline) | N/A | Sparklines, gauges, diagrams | All visualizations -- no charting libraries allowed in sandbox |
+| SVG (inline) | N/A | Sparklines, gauges, loop diagrams | All visualizations -- no charting libraries allowed in sandbox |
 | JSON | stdlib | Structured output | MCP tool JSON response format |
 
 ### Alternatives Considered
@@ -103,144 +107,119 @@ The pedagogical innovation in ST-006 versus ST-003 is the archetype boundaries s
 | Pure React state | Zustand/Redux | Sandbox constraint: single-file, no imports beyond React |
 | Pydantic models | dataclasses | Pydantic already used in server.py; validators needed for input |
 
-**Installation:** No new packages needed. All work extends existing files or creates new single-file artifacts.
+**Installation:** No new packages needed. All work copies/extends existing files.
 
 ---
 
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
+The worktree branch needs these files added (all exist in main as reference):
+
 ```
-Interactive Artifact for Cubelets/
-  automation-debt-simulator.jsx      # NEW: ST-006 artifact (fork of burden-shift-simulator.jsx)
+[worktree] Interactive Artifact for Cubelets/
+  automation-debt-simulator.jsx      # COPY from main: ~500 lines, purple accent
 
-Cubelets/CubeletsMarkdown/
-  ST-006-automation-debt.md          # NEW: 6-face cubelet markdown
+[worktree] Cubelets/CubeletsMarkdown/
+  ST-006-automation-debt.md          # COPY from main: 6 faces, 54/60 score
 
-Claude skills build for Cubelets/files/
-  automation-debt-detector.skill     # NEW: Claude skill
+[worktree] Claude skills build for Cubelets/files/
+  automation-debt-detector.skill     # COPY from main: ZIP archive format
 
-packages/cubelets-mcp/server.py     # EXTEND: add detect_automation_debt tool
+[worktree] Cubelets MCP Tool/files/cubelets_mcp_server.py
+  (EXTEND: add detect_automation_debt section from main, after tool_orchestration)
+
+[worktree] preview-app/src/
+  automation-debt-simulator.jsx      # COPY alongside artifact file
+  App.jsx                           # UPDATE: already has st006 tab in main
 ```
 
-### Pattern 1: Simulation Engine (Reuse from ST-003)
-**What:** Pure-function state machine. `SimEngine()` creates initial state object, `stepSim(state, choice, scenario)` returns new state. No mutation.
-**When to use:** Every round of the game
-**Reuse assessment:**
-
-The ST-003 `SimEngine` and `stepSim` functions are directly reusable with parameter changes:
+### Pattern 1: Simulation Engine (Forked from ST-003, Confirmed in Main)
+**What:** Pure-function state machine. `SimEngine()` creates initial state object, `stepSim(state, choice, scenario)` returns new state immutably. No mutation.
+**Confirmed implementation in main:**
 
 ```javascript
-// ST-003 SimEngine -- REUSE with minor tweaks
-function SimEngine(scenario) {
-  return {
-    symptomSeverity: 70,
-    fundamentalCapacity: 100,
-    orgWill: 100,           // rename to "willingness" in UI only
-    fixDependency: 0,
-    cumulativeCost: 0,
-    round: 0,
-    history: [],
-    choices: [],
-    attemptNumber: 1,       // NEW: track replay for optimal path
-  };
+// From automation-debt-simulator.jsx (main branch) lines 113-116
+function SimEngine() {
+  return { symptomSeverity: 70, fundamentalCapacity: 100, orgWill: 100, fixDependency: 0,
+    cumulativeCost: 0, round: 0, history: [], choices: [], attemptNumber: 1 };
 }
 
-// ST-003 stepSim -- REUSE core formula, adjust parameters per scenario
-function stepSim(state, choice, scenario) {
-  // Same structure: switch on choice, clamp metrics, push history
-  // Parameter changes: quickEffect, erosionRate, buildRate, delay per scenario
-}
+// stepSim returns new state with spread: { ...state }
+// History uses array spread: s.history = [...state.history, { ... }]
+// Choices uses array spread: s.choices = [...state.choices, choice]
 ```
 
-**What needs rewriting:**
-- Scenario data objects (new AI automation scenarios)
-- Post-game screen (add B1/B2/R1 diagram, gauge, boundaries tab)
-- Dashboard layout (2x2 grid instead of right-panel charts)
-- Grading logic (use 4-metric composite instead of choice-count heuristics)
-- Add attempt tracking for optimal path comparison on replay
-
-### Pattern 2: MiniChart SVG Sparkline (Reuse from ST-003)
-**What:** Pure SVG polyline component that takes data array, dataKey, color, and renders sparkline with dots.
-**Reuse assessment:** Directly reusable. The `MiniChart` component (lines 161-194 in ST-003) uses only inline SVG, no external dependencies. Fits perfectly in the 2x2 dashboard grid.
+### Pattern 2: SVG Sparkline (Spark Component)
+**What:** Pure SVG polyline, no external dependencies.
+**Confirmed implementation:**
 
 ```javascript
-// ST-003 MiniChart -- REUSE VERBATIM, just adjust width/height for 2x2 grid
-function MiniChart({ data, dataKey, color, label, height = 80, maxVal = 100 }) {
-  // ... polyline-based sparkline, fully self-contained
+// From automation-debt-simulator.jsx (main branch) lines 166-177
+function Spark({ data, dataKey, color, h = 50 }) {
+  if (!data.length) return null;
+  const w = 120;
+  const pts = data.map((d, i) => {
+    const x = 4 + (i / Math.max(data.length - 1, 1)) * (w - 8);
+    const y = h - 4 - ((d[dataKey] / 100) * (h - 8));
+    return `${x},${y}`;
+  }).join(" ");
+  return (<svg width={w} height={h} style={{ display: "block" }}>
+    <polyline points={pts} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" />
+  </svg>);
 }
 ```
 
-### Pattern 3: MCP Tool Composition
-**What:** New tool wraps existing tool by converting domain-specific input to existing input format.
-**Example:**
+### Pattern 3: Circular Debt Gauge (DebtGauge)
+**What:** Half-circle arc gauge using strokeDasharray/strokeDashoffset, color transitions green to red.
+**Confirmed in main (lines 179-190):** Uses path-based arc `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`, not the full-circle approach. Color thresholds: <30 teal, <60 gold, <80 pink, else danger.
+
+### Pattern 4: MCP Tool Composition (detect_automation_debt)
+**What:** New tool wraps detect_burden_shift by converting AutomationLayer inputs to FixRecord format via to_fix_record() method.
+**Confirmed in main (lines 1481-1662):**
 
 ```python
-class AutomationLayer(BaseModel):
-    layer_name: str = Field(..., min_length=1, max_length=200)
-    layer_type: Literal["quick_fix", "fundamental", "transition"] = Field(...)
-    side_effects: Optional[str] = Field(default=None)
-    duration_active: Optional[str] = Field(default=None)
-    times_applied: int = Field(default=1, ge=1)
+# AutomationLayer.to_fix_record() -- confirmed pattern
+def to_fix_record(self) -> FixRecord:
+    return FixRecord(
+        label=self.layer_name,
+        description=f"Automation layer: {self.layer_type}",
+        is_symptomatic=self.layer_type == "quick_fix",
+        side_effects=self.side_effects,
+        duration_active=self.duration_active,
+    )
 
-    def to_fix_record(self) -> FixRecord:
-        """Convert AutomationLayer to FixRecord for detect_burden_shift."""
-        return FixRecord(
-            label=self.layer_name,
-            description=f"Automation layer ({self.layer_type})",
-            times_applied=self.times_applied,
-            is_symptomatic=self.layer_type == "quick_fix",
-            side_effects=self.side_effects,
-            duration_active=self.duration_active,
-        )
+# Debt score formula (confirmed)
+quick_fix_ratio = len(symptomatic) / max(len(classified), 1)
+erosion_factor = erosion["risk_score"] / 100
+debt_score = int(min(100, (quick_fix_ratio * 60 + erosion_factor * 40)))
 ```
 
-### Pattern 4: Circular Debt Gauge (Pure SVG)
-**What:** Arc-based SVG gauge using `strokeDasharray` and `strokeDashoffset` to show debt level 0-100.
-**Design recommendation:**
+### Pattern 5: Grading Logic (4-Metric Composite)
+**What:** Composite score from 4 normalized metrics, not choice-count heuristics.
+**Confirmed in main (lines 153-164):**
 
 ```javascript
-function DebtGauge({ value, size = 160 }) {
-  const radius = 60;
-  const circumference = Math.PI * radius; // half-circle
-  const offset = circumference - (value / 100) * circumference;
-  const color = value < 30 ? '#00d4aa' : value < 60 ? '#ffd700' : value < 80 ? '#ff8c42' : '#ff5555';
-
-  return (
-    <svg width={size} height={size * 0.65} viewBox="0 0 160 100">
-      {/* Background arc */}
-      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none"
-        stroke="#1f2440" strokeWidth={10} strokeLinecap="round" />
-      {/* Value arc */}
-      <path d="M 20 90 A 60 60 0 0 1 140 90" fill="none"
-        stroke={color} strokeWidth={10} strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        style={{ transition: 'stroke-dashoffset 0.8s ease, stroke 0.5s ease' }} />
-      {/* Center value */}
-      <text x="80" y="80" textAnchor="middle" fill={color}
-        fontSize="24" fontWeight="700">{Math.round(value)}</text>
-      <text x="80" y="95" textAnchor="middle" fill="#7580a0"
-        fontSize="9">DEBT SCORE</text>
-    </svg>
-  );
+function getGrade(sim) {
+  const sev = (100 - sim.symptomSeverity) / 100, cap = sim.fundamentalCapacity / 100;
+  const dep = (100 - sim.fixDependency) / 100, wil = sim.orgWill / 100;
+  const composite = sev * 0.3 + cap * 0.3 + dep * 0.2 + wil * 0.2;
+  if (composite >= 0.80) return { grade: "A", ... };
+  if (composite >= 0.70) return { grade: "B+", ... };
+  if (composite >= 0.60) return { grade: "B", ... };
+  if (composite >= 0.45) return { grade: "C", ... };
+  if (composite >= 0.30) return { grade: "D", ... };
+  return { grade: "F", ... };
 }
-```
-
-### Pattern 5: Post-Game Tab Navigation
-**What:** Simple array-state tab switcher for diagnosis/boundaries tabs.
-**Implementation:** Use array-based state (not Set) per Phase 9 sandbox fix.
-
-```javascript
-const [activeTab, setActiveTab] = useState('diagnosis'); // 'diagnosis' | 'boundaries'
 ```
 
 ### Anti-Patterns to Avoid
-- **External charting libraries in sandbox:** Claude.ai sandbox only supports React core. No recharts, d3, chart.js.
-- **Set-based React state:** Causes serialization issues in Claude.ai sandbox. Use arrays.
-- **Missing z-index on overlapping panels:** Phase 9 discovered toolbar/panel overlap without explicit z-index.
-- **Mutating simulation state:** `stepSim` must return new object, never mutate the input state.
-- **Choice-count grading:** ST-003 grades primarily on choice counts (sympCount >= 8 = C). ST-006 should use 4-metric composite for more nuanced grading.
+- **Building from scratch:** All deliverables exist in main. Copy, verify, adjust — do not rewrite.
+- **External charting libraries in sandbox:** Claude.ai sandbox only supports React core.
+- **Set-based React state:** Causes serialization issues. Use arrays (confirmed pattern in main).
+- **Missing z-index on overlapping panels:** Required for sandbox rendering (Phase 9 fix, confirmed in main: top bar has `zIndex: 2`).
+- **Forgetting preview-app/src copy:** The artifact must be copied to BOTH `Interactive Artifact for Cubelets/` AND `preview-app/src/`. Both directories exist in main.
 
 ---
 
@@ -248,303 +227,206 @@ const [activeTab, setActiveTab] = useState('diagnosis'); // 'diagnosis' | 'bound
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Burden shift detection | Custom erosion scoring | Existing `detect_burden_shift` via composition | 170+ lines of classification, erosion scoring, transition strategy already built and tested |
-| Fix classification | Manual symptomatic/fundamental labeling | `_classify_fix()` heuristic in server.py | 20+ symptomatic signals and 15+ fundamental signals already encoded |
-| Erosion risk scoring | Custom risk formula | `_compute_erosion_risk()` in server.py | Handles application count, distinct fixes, viability decline, erosion channels |
-| SVG sparklines | Canvas-based charting | ST-003's `MiniChart` component | Proven in sandbox, pure SVG, 33 lines |
-| Scenario selection UI | Complex carousel | ST-003's card-grid pattern | Button cards with hover effects, proven sandbox compatible |
+| Simulation engine | New state machine | Copy SimEngine/stepSim from main artifact | Proven, sandbox-compatible, calibrated parameters |
+| Erosion scoring | Custom risk formula | Existing `_compute_erosion_risk()` in server.py | Already handles application count, distinct fixes, viability |
+| Fix classification | Manual labeling logic | `_classify_fix()` in server.py | 20+ symptomatic signals already encoded |
+| SVG sparklines | Canvas/D3 charts | `Spark` component from main artifact | Proven sandbox-compatible, 12 lines |
+| SVG gauge | Third-party gauge | `DebtGauge` from main artifact | Proven, color-transitions, 11 lines |
+| Loop diagram | Complex D3 force graph | `LoopDiagram` SVG from main artifact | Custom SVG, 23 lines, pedagogically sufficient |
+| Cubelet markdown | Write from scratch | ST-006-automation-debt.md from main | 54/60, all 6 faces, already passes quality gate |
 
-**Key insight:** The entire MCP tool backend exists. The simulation engine exists. This phase is about composition and specialization, not greenfield development.
+**Key insight:** This phase is a port-and-verify, not greenfield. The planner should structure tasks as: copy from main → verify in worktree → run tests → confirm sandbox.
 
 ---
 
 ## Common Pitfalls
 
-### Pitfall 1: Overcomplicating Scenario Parameters
-**What goes wrong:** Simulation parameters (erosionRate, quickEffect, buildRate, delay) don't produce meaningful gameplay -- either too easy or impossible.
-**Why it happens:** Parameters copied from one domain don't transfer to another without calibration.
-**How to avoid:** Use ST-003's proven parameter ranges as baseline, then playtest each scenario. ST-003 ranges: quickEffect 20-30, erosionRate 8-12, buildRate 10-15, delay 3-5. The three ST-006 scenarios should vary within these ranges.
-**Warning signs:** All scenarios produce same grade regardless of strategy. Or: fundamental solution never becomes viable.
+### Pitfall 1: Missing the Dual-Copy Requirement
+**What goes wrong:** Artifact copied to `Interactive Artifact for Cubelets/` but not to `preview-app/src/`. Preview app tab breaks.
+**Why it happens:** The project has two artifact locations -- the source file and the preview-app copy.
+**How to avoid:** Every artifact copy task must include both paths. App.jsx already imports from `./automation-debt-simulator.jsx`.
+**Warning signs:** Preview app shows "Loading artifact..." indefinitely for ST-006 tab.
 
-### Pitfall 2: Post-Game Information Overload
-**What goes wrong:** Showing B1/B2/R1 diagram, erosion timeline, debt gauge, archetype breakdown, grade, AND boundaries all at once overwhelms the student.
-**Why it happens:** Progressive disclosure is hard to implement when everything feels important.
-**How to avoid:** Tab-based post-game: Tab 1 (diagnosis) shows grade + B1/B2/R1 + gauge. Tab 2 (boundaries) appears as separate tab. Optimal path appears only on replay.
-**Warning signs:** Post-game screen requires scrolling to see all information.
+### Pitfall 2: MCP Server Section Placement
+**What goes wrong:** detect_automation_debt is added to the worktree server.py in the wrong location, breaking the entry point.
+**Why it happens:** The entry point `if __name__ == "__main__": mcp.run(...)` must be the LAST section.
+**How to avoid:** Insert ST-006 section between the ST-005 tool_orchestration section and the Entry Point section. In the worktree, the server ends at line 1474 with the entry point.
+**Warning signs:** Server fails to start, `mcp.run` not reached.
 
-### Pitfall 3: Grading That Punishes Learning
-**What goes wrong:** Students who experiment with different strategies get worse grades than students who play "optimally."
-**Why it happens:** Grading based on final state penalizes early experimentation.
-**How to avoid:** Grade on trajectory (did capacity stabilize or recover?) and final state together. Allow a "warm-up" effect where early bad choices matter less.
-**Warning signs:** Students who play quick-fix for 3 rounds then transition get worse grades than students who play transition from round 1.
+### Pitfall 3: Skill Archive Format
+**What goes wrong:** automation-debt-detector.skill is treated as a text file to be written; the compressed archive format is not reproduced.
+**Why it happens:** .skill files are ZIP archives with internal structure (SKILL.md + references/).
+**How to avoid:** Copy the binary archive from main directly. Do not attempt to reconstruct the ZIP format by hand. The skill already exists and works.
+**Warning signs:** skill file is plain text, not binary ZIP.
 
-### Pitfall 4: MCP Composition Losing Information
-**What goes wrong:** `AutomationLayer.to_fix_record()` drops domain-specific information that should appear in the output.
-**Why it happens:** FixRecord model has fewer fields than AutomationLayer needs.
-**How to avoid:** Pass extra automation-specific data alongside the detect_burden_shift call, then merge results. Don't try to encode everything into FixRecord fields.
-**Warning signs:** MCP tool output has less useful information than calling detect_burden_shift directly.
+### Pitfall 4: Test File Coverage Gap
+**What goes wrong:** No test stubs created for AB-02 through AB-05 (the JSX artifact), leaving Nyquist validation incomplete.
+**Why it happens:** JSX artifacts in Claude.ai sandbox are harder to test than pure logic functions.
+**How to avoid:** Create Wave 0 test stubs in `preview-app/src/__tests__/automation-debt-simulator.test.jsx` following the TO-02-05 stub pattern from `tool-orchestration-analyzer.test.jsx`.
+**Warning signs:** No test file exists for ST-006 before Task 1 begins.
 
-### Pitfall 5: Sandbox Token Limit
+### Pitfall 5: Quality Gate Score Not Confirmed
+**What goes wrong:** Cubelet markdown copied from main but score not verified against 42/60 gate.
+**Why it happens:** The main branch score (54/60) assumed to transfer without verification.
+**How to avoid:** After copying, confirm the 6-face structure, check archetype boundaries section is present (AB-10), and spot-check content quality.
+**Warning signs:** Cubelet markdown missing Face 6 APPLY section or boundaries section.
+
+### Pitfall 6: Sandbox Token Limit
 **What goes wrong:** Artifact exceeds Claude.ai sandbox token limit and fails to render.
-**Why it happens:** Adding post-game features, boundaries tab, gauge, diagram, and scenario data pushes file size past limit.
-**How to avoid:** Keep scenario descriptions terse. Share component styles. Minimize inline string content. ST-003 is 629 lines -- ST-006 should target 700-850 lines maximum.
+**Why it happens:** Main artifact is already ~500 lines; any additions could push past the limit.
+**How to avoid:** Do not add features beyond what is in the main branch artifact. Target 500-700 lines maximum.
 **Warning signs:** File exceeds 900 lines or 30KB.
 
 ---
 
 ## Code Examples
 
-### ST-003 Scenario Data Structure (Template for ST-006)
+### Confirmed Scenario Data Structure (from main artifact)
+
 ```javascript
-// Source: burden-shift-simulator.jsx, lines 27-96
+// Lines 13-78 of automation-debt-simulator.jsx (main)
 const SCENARIOS = {
-  scenario_key: {
-    title: "Scenario Title",
-    subtitle: "Context note",
-    symptom: "Recurring problem description",
+  llm_confidence: {
+    title: "LLM Output Reliability Pipeline",
+    subtitle: "Validation layer accumulation",
+    difficulty: "Medium",
+    symptom: "LLM produces unreliable outputs that fail downstream checks",
     symptomatic: {
-      label: "Quick Fix Name",
-      desc: "What this fix does and why it works short-term.",
-      quickEffect: 30,      // Severity reduction per round
-      erosionRate: 8,        // Capacity erosion per round
-      erosionChannel: "How the fix undermines the fundamental solution",
+      label: "Add Validation Layers",
+      desc: "Stack retry logic, regex checks, and human review. Catches bad outputs fast.",
+      quickEffect: 28, erosionRate: 10,
+      erosionChannel: "Complexity blocks prompt improvements. Cost grows. Team normalizes workarounds.",
     },
     fundamental: {
-      label: "Root Cause Fix Name",
-      desc: "What the fundamental solution does.",
-      delay: 3,              // Rounds before benefit kicks in
-      buildRate: 15,         // Severity reduction after delay
-      longEffect: 45,        // Maximum severity reduction
+      label: "Restructure Prompt Architecture",
+      desc: "Redesign input pipeline, improve context engineering, fix upstream data quality.",
+      delay: 4, buildRate: 14, longEffect: 50,
     },
-    transition: {
-      label: "Maintain fix AND build fundamental",
-      target: "Measurable transition goal",
-    },
+    transition: { ... },
+    erosionChannels: ["Knowledge Drain", "Complexity Creep"],
   },
+  agent_edge_cases: { difficulty: "Hard", erosionRate: 12, delay: 5, ... },
+  tool_latency: { difficulty: "Easy", erosionRate: 8, delay: 3, ... },
 };
 ```
 
-### Recommended ST-006 Scenarios
+### Confirmed Optimal Path Data (for replay comparison)
 
-**Scenario 1: LLM Low-Confidence Outputs**
 ```javascript
-llm_confidence: {
-  title: "LLM Output Reliability Pipeline",
-  subtitle: "Validation layers vs prompt architecture",
-  symptom: "LLM produces low-confidence outputs that fail downstream validation",
-  symptomatic: {
-    label: "Stack Validation Layers",
-    desc: "Add retry logic, output validators, and human review queue. Catches bad outputs.",
-    quickEffect: 28,
-    erosionRate: 10,
-    erosionChannel: "Validation complexity blocks prompt architecture improvement. Team normalizes workarounds. Cost grows 15% per quarter.",
-  },
-  fundamental: {
-    label: "Restructure Prompt Architecture",
-    desc: "Redesign input pipeline, improve context engineering, fix upstream data quality.",
-    delay: 4,
-    buildRate: 14,
-    longEffect: 50,
-  },
-  transition: {
-    label: "Keep validators while rebuilding prompt pipeline in parallel",
-    target: "Eliminate 80% of validation layers within 2 quarters",
-  },
-  erosionChannels: ["Knowledge Drain", "Complexity Creep"],
-},
+// Lines 81-85 of automation-debt-simulator.jsx (main)
+const OPTIMAL_PATHS = {
+  llm_confidence: { seq: "SSTTFFFFFFFFFFF".slice(0,12).split(""),
+    finalMetrics: { severity: 12, capacity: 82, dependency: 8, will: 62 }},
+  agent_edge_cases: { seq: "SSSTFFFFFFFFFF".slice(0,12).split(""),
+    finalMetrics: { severity: 18, capacity: 75, dependency: 12, will: 55 }},
+  tool_latency: { seq: "STFFFFFFFFFFFF".slice(0,12).split(""),
+    finalMetrics: { severity: 8, capacity: 88, dependency: 5, will: 68 }},
+};
 ```
 
-**Scenario 2: Agent Edge-Case Failures**
-```javascript
-agent_edge_cases: {
-  title: "AI Agent Error Handling",
-  subtitle: "Exception handlers vs architecture redesign",
-  symptom: "Agent fails on edge cases, triggering exception handlers and manual intervention",
-  symptomatic: {
-    label: "Add Exception Handlers",
-    desc: "Catch-all error handlers, fallback paths, manual escalation queue.",
-    quickEffect: 25,
-    erosionRate: 12,
-    erosionChannel: "Exception handlers mask root failures. Architecture debt accumulates. New edge cases appear faster than handlers.",
-  },
-  fundamental: {
-    label: "Redesign Agent Architecture",
-    desc: "Decompose monolithic agent into specialized sub-agents with clear contracts.",
-    delay: 5,
-    buildRate: 12,
-    longEffect: 55,
-  },
-  transition: {
-    label: "Maintain handlers while decomposing agent into sub-agents",
-    target: "Sub-agent architecture handles 60% of edge cases natively",
-  },
-  erosionChannels: ["Complexity Creep", "Normalization"],
-},
-```
+### Confirmed MCP Tool (from main server.py lines 1526-1662)
 
-**Scenario 3: Tool Call Latency**
-```javascript
-tool_latency: {
-  title: "MCP Tool Call Performance",
-  subtitle: "Caching and retries vs root cause optimization",
-  symptom: "Tool calls exceed latency thresholds, causing timeouts and user frustration",
-  symptomatic: {
-    label: "Add Caching & Retry Logic",
-    desc: "Cache frequent responses, add retry with backoff, increase timeout thresholds.",
-    quickEffect: 22,
-    erosionRate: 8,
-    erosionChannel: "Cache invalidation complexity grows. Stale data risk increases. Original performance bottleneck remains unaddressed.",
-  },
-  fundamental: {
-    label: "Optimize Tool Pipeline",
-    desc: "Profile bottlenecks, parallelize independent calls, optimize data serialization.",
-    delay: 3,
-    buildRate: 16,
-    longEffect: 45,
-  },
-  transition: {
-    label: "Keep cache while optimizing critical path tools in parallel",
-    target: "Remove caching from 70% of tool calls within 1 quarter",
-  },
-  erosionChannels: ["Knowledge Drain", "Normalization"],
-},
-```
-
-### Grading Logic (Improved from ST-003)
-```javascript
-// ST-006: 4-metric composite grading (replaces ST-003's choice-count approach)
-function getGrade(sim) {
-  // Normalize: low severity good, high capacity good, low dependency good, high willingness good
-  const severityScore = (100 - sim.symptomSeverity) / 100;
-  const capacityScore = sim.fundamentalCapacity / 100;
-  const dependencyScore = (100 - sim.fixDependency) / 100;
-  const willingnessScore = sim.orgWill / 100;
-
-  const composite = (severityScore * 0.3) + (capacityScore * 0.3)
-                   + (dependencyScore * 0.2) + (willingnessScore * 0.2);
-
-  if (composite >= 0.80) return { grade: "A", color: "#00d4aa", msg: "..." };
-  if (composite >= 0.70) return { grade: "B+", color: "#6b8aff", msg: "..." };
-  if (composite >= 0.60) return { grade: "B", color: "#6b8aff", msg: "..." };
-  if (composite >= 0.45) return { grade: "C", color: "#ffd700", msg: "..." };
-  if (composite >= 0.30) return { grade: "D", color: "#ff8c42", msg: "..." };
-  return { grade: "F", color: "#ff5555", msg: "..." };
+Key output fields returned by detect_automation_debt:
+```python
+result = {
+    "recurring_symptom": params.recurring_symptom,
+    "debt_score": debt_score,              # 0-100
+    "debt_level": "Critical|At Risk|Healthy",
+    "automation_coverage_estimate": f"{coverage}%",
+    "erosion_channels": {ch: description for ch in active_channels},
+    "b1_loop": {"fixes": [symptomatic fix labels]},
+    "b2_loop": {"fixes": [fundamental fix labels]},
+    "erosion_risk_score": erosion["risk_score"],
+    "recommendations": [list of strings],
 }
 ```
 
-### MCP Tool Composition Pattern
-```python
-# Source: server.py analysis of detect_burden_shift + new composition layer
+### Confirmed Palette (from main artifact)
 
-class DetectAutomationDebtInput(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
-
-    system_description: str = Field(..., min_length=5, max_length=500)
-    automation_layers: List[AutomationLayer] = Field(..., min_length=1, max_length=20)
-    fundamental_solution: Optional[str] = Field(default=None)
-    fundamental_viability_now: Optional[int] = Field(default=None, ge=1, le=10)
-    fundamental_viability_original: Optional[int] = Field(default=None, ge=1, le=10)
-    response_format: ResponseFormat = Field(default=ResponseFormat.MARKDOWN)
-
-@mcp.tool(name="detect_automation_debt")
-async def detect_automation_debt(params: DetectAutomationDebtInput) -> str:
-    # 1. Convert AutomationLayers to FixRecords
-    fix_records = [layer.to_fix_record() for layer in params.automation_layers]
-
-    # 2. Build detect_burden_shift input
-    burden_input = DetectBurdenShiftInput(
-        recurring_symptom=params.system_description,
-        fixes_applied=fix_records,
-        fundamental_solution=params.fundamental_solution,
-        fundamental_viability_now=params.fundamental_viability_now,
-        fundamental_viability_original=params.fundamental_viability_original,
-        response_format=ResponseFormat.JSON,  # always get structured data
-    )
-
-    # 3. Call existing tool's internal logic
-    burden_result = json.loads(await detect_burden_shift(burden_input))
-
-    # 4. Layer on automation-specific analysis
-    debt_score = _compute_debt_score(burden_result, params.automation_layers)
-    erosion_channels = _identify_erosion_channels(params.automation_layers)
-    coverage = _estimate_automation_coverage(params.automation_layers)
-    recommendations = _generate_recommendations(burden_result, params.automation_layers)
-
-    # 5. Merge and return
-    result = {
-        **burden_result,
-        "debt_score": debt_score,
-        "erosion_channels": erosion_channels,
-        "automation_coverage_estimate": coverage,
-        "recommendations": recommendations,
-    }
-    # Format per response_format...
+```javascript
+// Lines 3-8 of automation-debt-simulator.jsx (main)
+const C = {
+  bg: "#0d0f16", canvas: "#121420", panel: "#161928", panelBorder: "#1f2440",
+  node: "#1a1e32", nodeBorder: "#283050", text: "#e2e6f0", textSec: "#7580a0",
+  textMuted: "#404a68", accent: "#7c5cfc", accentGlow: "#7c5cfc44",   // PURPLE accent
+  teal: "#00d4aa", blue: "#6b8aff", pink: "#ff6b8a", danger: "#ff5555", gold: "#ffd700",
+};
 ```
 
-### Archetype Boundaries Counter-Patterns
+### Wave 0 Test Stub Pattern (follow TO-05 precedent)
+
 ```javascript
-const COUNTER_PATTERNS = [
-  {
-    name: "Novel Problem",
-    principle: "No known fundamental solution exists yet",
-    aiExample: "First time deploying a multimodal agent -- no architecture pattern exists. Quick experimental fixes ARE the learning process.",
-    test: "Could an expert name the fundamental solution? If no, this is exploration, not burden shifting.",
-  },
-  {
-    name: "Legitimate Triage",
-    principle: "Quick fix IS the right call under true emergency",
-    aiExample: "Production LLM starts hallucinating during peak traffic. Adding a validation gate is correct triage, not burden shifting.",
-    test: "Is this a genuine emergency with a planned return to root cause? If yes, this is triage.",
-  },
-  {
-    name: "Acceptable Trade-off",
-    principle: "Cost of fundamental fix exceeds the benefit",
-    aiExample: "Tool call latency is 200ms above target but affects only 2% of requests. Full pipeline refactor costs 3 sprints. The quick fix is rational.",
-    test: "Does the fundamental solution cost more than the total lifetime cost of the symptomatic fix? If yes, this is a valid trade-off.",
-  },
-];
+// preview-app/src/__tests__/automation-debt-simulator.test.jsx
+import { describe, test, expect } from 'vitest';
+
+describe('AB-02: 12-Round Decision Game', () => {
+  test('test_simulation_engine_initializes: SimEngine returns correct starting state', () => {
+    throw new Error('Wave 0 stub -- not yet implemented');
+  });
+  test('test_stepSim_symptomatic: symptomatic choice increases fixDependency', () => {
+    throw new Error('Wave 0 stub -- not yet implemented');
+  });
+  test('test_stepSim_nothing: doing nothing increases symptomSeverity', () => {
+    throw new Error('Wave 0 stub -- not yet implemented');
+  });
+});
+
+describe('AB-03: Three Scenarios', () => {
+  test('test_scenarios_complete: all 3 scenarios have required fields', () => {
+    throw new Error('Wave 0 stub -- not yet implemented');
+  });
+});
+
+describe('AB-05: Grading and Gauge', () => {
+  test('test_grade_A_threshold: composite >= 0.80 returns grade A', () => {
+    throw new Error('Wave 0 stub -- not yet implemented');
+  });
+  test('test_debt_score_derivation: debtScore = (1 - composite) * 100', () => {
+    throw new Error('Wave 0 stub -- not yet implemented');
+  });
+});
 ```
 
 ---
 
-## Accent Color Recommendation
+## Naming and Accent Color
 
-ST-003 uses orange (#ff8c42), ST-005 uses teal (#00d4aa). For ST-006, recommend **electric violet/indigo (#7c5cfc)** -- visually distinct from both, conveys the "hidden debt" theme, works well on dark backgrounds, and provides good contrast for both text and UI elements.
+**Confirmed accent:** `#7c5cfc` (electric violet/indigo)
+- ST-003: orange `#ff8c42`
+- ST-005: teal `#00d4aa`
+- ST-006: violet `#7c5cfc` -- confirmed in main artifact
 
-Palette extension:
-```javascript
-// ST-006 accent additions to C object
-accentST006: "#7c5cfc",       // electric violet -- primary accent
-accentST006Glow: "#7c5cfc44", // glow variant
-```
+**File naming conventions (confirmed):**
+- Artifact: `automation-debt-simulator.jsx`
+- Cubelet: `ST-006-automation-debt.md`
+- Skill: `automation-debt-detector.skill`
+- MCP tool function: `detect_automation_debt`
+- MCP tool section header: `# ST-006: Automation Debt Detector`
 
 ---
 
-## Simulation Parameter Calibration
-
-Based on analysis of ST-003's proven parameters and the three new AI automation scenarios:
+## Simulation Parameter Reference
 
 | Parameter | LLM Confidence | Agent Edge-Cases | Tool Latency | Notes |
 |-----------|---------------|------------------|--------------|-------|
-| quickEffect | 28 | 25 | 22 | How much severity drops per symptomatic fix |
-| erosionRate | 10 | 12 | 8 | How much capacity erodes per symptomatic fix |
-| buildRate | 14 | 12 | 16 | How much severity drops per fundamental fix (after delay) |
+| quickEffect | 28 | 25 | 22 | Severity reduction per symptomatic fix |
+| erosionRate | 10 | 12 | 8 | Capacity erosion per symptomatic fix |
+| buildRate | 14 | 12 | 16 | Severity reduction per fundamental (after delay) |
 | delay | 4 | 5 | 3 | Rounds before fundamental fix starts working |
-| longEffect | 50 | 55 | 45 | Maximum severity reduction from fundamental |
+| longEffect | 50 | 55 | 45 | Max severity reduction from fundamental |
+| difficulty | Medium | Hard | Easy | Student-visible difficulty label |
 
-**Difficulty ordering:** Tool Latency (easiest -- shortest delay, highest buildRate) < LLM Confidence (medium) < Agent Edge-Cases (hardest -- longest delay, highest erosion).
+Difficulty ordering: Tool Latency (easiest) < LLM Confidence (medium) < Agent Edge-Cases (hardest).
 
 ---
 
-## Named Erosion Channels
+## Erosion Channels Reference
 
-Three named erosion patterns for post-game diagnosis:
-
-| Channel | Description | AI Example | Detection Signal |
-|---------|-------------|------------|-----------------|
-| **Knowledge Drain** | Fixes prevent the team from learning the root cause | Validation layers catch bad outputs so no one investigates prompt failures | High symptomatic fix count + low fundamental investment |
-| **Complexity Creep** | Each workaround adds architectural layers | Exception handlers + fallback paths + retry logic = 3 new failure modes | Fix dependency > 60 |
-| **Normalization** | Team accepts degraded performance as normal | "200ms latency is just how our tools work" | Willingness < 40 + severity stable (not rising) |
+| Channel | Active When | AI Example | Icon |
+|---------|-------------|------------|------|
+| Knowledge Drain | symptomatic choices >= 6 AND fundamental <= 2 | Validation layers catch bad outputs so no one investigates prompt failures | 🧠 |
+| Complexity Creep | fixDependency > 60 | Exception handlers + fallback paths + retry logic = 3 new failure modes | 🕸 |
+| Normalization | orgWill < 40 AND last 3 severity readings within 10 points | "200ms latency is just how our tools work" | 😐 |
 
 ---
 
@@ -552,49 +434,94 @@ Three named erosion patterns for post-game diagnosis:
 
 | Old Approach | Current Approach | When Changed | Impact |
 |--------------|------------------|--------------|--------|
-| Choice-count grading | Composite metric grading | ST-006 improvement | More nuanced assessment that rewards diverse strategies |
-| Loop diagram always visible | Post-game progressive disclosure | ST-006 design decision | Archetype reveal becomes pedagogical payoff |
+| Build all deliverables greenfield | Port from main-branch reference implementations | Phase 10 state audit | Reduces implementation time; focus is on verify, not build |
+| Choice-count grading (ST-003) | Composite metric grading (ST-006) | ST-006 design | More nuanced assessment rewards diverse strategies |
+| Loop diagram always visible (ST-003) | Post-game progressive disclosure (ST-006) | ST-006 design | Archetype reveal becomes pedagogical payoff |
 | Single play-through | Replay with optimal path comparison | ST-006 addition | Scaffolded learning: explore first, then compare |
+
+---
+
+## Validation Architecture
+
+### Test Framework
+| Property | Value |
+|----------|-------|
+| Framework | Vitest (via vite) |
+| Config file | `preview-app/vite.config.js` (inferred from Phase 9 pattern) |
+| Quick run command | `cd preview-app && npm test -- --run automation-debt` |
+| Full suite command | `cd preview-app && npm test -- --run` |
+
+MCP tests run via pytest:
+| Property | Value |
+|----------|-------|
+| Framework | pytest |
+| Config file | None detected (run from directory) |
+| Quick run command | `cd "Cubelets MCP Tool/files" && python -m pytest test_automation_debt.py -x` |
+| Full suite command | `cd "Cubelets MCP Tool/files" && python -m pytest -x` |
+
+### Phase Requirements to Test Map
+
+| Req ID | Behavior | Test Type | Automated Command | File Exists? |
+|--------|----------|-----------|-------------------|--------------|
+| AB-02 | SimEngine initializes correct starting state | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-02 | stepSim: symptomatic choice increases fixDependency | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-02 | stepSim: nothing choice increases symptomSeverity | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-03 | All 3 scenarios have required data fields | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-04 | 4 metrics tracked (symptom, capacity, dependency, will) | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-05 | Grade A at composite >= 0.80 | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-05 | debtScore = (1 - composite) * 100 | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-06 | detect_automation_debt returns debt_score 0-100 | unit | `pytest test_automation_debt.py -x` | Wave 0 |
+| AB-07 | AutomationLayer.to_fix_record() converts to FixRecord | unit | `pytest test_automation_debt.py -x` | Wave 0 |
+| AB-10 | 3 counter-patterns present in COUNTER_PATTERNS | unit | `npm test -- --run automation-debt` | Wave 0 |
+| AB-08 | Skill installs and responds in Claude Desktop | manual | Manual smoke test | manual-only |
+| AB-01 | Cubelet markdown has 6 faces | manual | File structure inspection | manual-only |
+| AB-09 | Quality gate score >= 42/60 | manual | Cubelet quality review | manual-only |
+
+### Sampling Rate
+- **Per task commit:** `cd preview-app && npm test -- --run automation-debt`
+- **Per wave merge:** `cd preview-app && npm test -- --run`
+- **Phase gate:** Full suite green before `/gsd:verify-work`
+
+### Wave 0 Gaps
+- [ ] `preview-app/src/__tests__/automation-debt-simulator.test.jsx` -- covers AB-02, AB-03, AB-04, AB-05, AB-10
+- [ ] `Cubelets MCP Tool/files/test_automation_debt.py` -- covers AB-06, AB-07
+- [ ] Framework install: already installed (Phase 9 established vitest + pytest)
 
 ---
 
 ## Open Questions
 
-1. **Optimal Path Calculation**
-   - What we know: Optimal path should be shown only on second attempt. Need to compute "best possible" sequence for each scenario.
-   - What's unclear: Should optimal path be pre-computed (static) or computed by brute-force simulation of all 4^12 combinations (too many)?
-   - Recommendation: Pre-compute a static "expert path" per scenario (e.g., 2 rounds symptomatic, 1 transition, 9 fundamental) and store the resulting metrics. Display as comparison line on sparklines.
+1. **Wave 0 Test Stub Granularity**
+   - What we know: TO-05 test stubs used a simple `throw new Error('Wave 0 stub')` pattern. Vitest runs them as failing stubs.
+   - What's unclear: Whether the simulation engine functions (SimEngine, stepSim) can be imported from the JSX file in a Node.js test context.
+   - Recommendation: Export SimEngine and stepSim as named exports in the artifact if they are to be unit-tested. Otherwise, test only the pure data constants (SCENARIOS, QUIZ, COUNTER_PATTERNS) by importing them directly.
 
-2. **Skill File Format**
-   - What we know: Existing skills are compressed `.skill` archives (ZIP/PK format) containing SKILL.md and references/.
-   - What's unclear: Exact internal structure beyond SKILL.md + references/ directory.
-   - Recommendation: Follow the same archive pattern. Create the SKILL.md and reference files, then package.
+2. **Skill File Binary Copy**
+   - What we know: .skill files are ZIP/PK binary archives. The automation-debt-detector.skill exists in main as a binary.
+   - What's unclear: Whether git operations (checkout, copy) will preserve the binary correctly when moving between worktree branches.
+   - Recommendation: Verify binary integrity after copy (file size should be > 2KB, not ASCII text).
 
-3. **Debt Score vs Erosion Risk Score**
-   - What we know: `_compute_erosion_risk` returns a risk_score (0-100). The new tool needs a `debt_score` (0-100).
-   - What's unclear: Should debt_score be the same as erosion risk_score, or a separate calculation?
-   - Recommendation: debt_score = weighted combination of erosion risk_score (60%) + automation-specific factors like layer count and quick_fix ratio (40%). This adds value beyond just forwarding the existing score.
+3. **Preview App App.jsx in Worktree**
+   - What we know: App.jsx in main already has the st006 tab entry. The worktree preview-app/src only has `__tests__/`.
+   - What's unclear: Whether the full App.jsx (with st006 tab) needs to be explicitly added to the worktree or will arrive via merge.
+   - Recommendation: Explicitly copy App.jsx from main to worktree as part of the integration task. Do not rely on implicit merge.
 
 ---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- `burden-shift-simulator.jsx` (629 lines) -- full code analysis of simulation engine, UI, state management
-- `server.py` (cubelets-mcp) -- full analysis of `detect_burden_shift`, `FixRecord`, `_classify_fix()`, `_compute_erosion_risk()`
-- `ST-003-shifting-the-burden.md` -- cubelet structure, 6-face format, quality gate scoring
-- `ST-005-tool-orchestration.md` -- recent cubelet for pattern reference
+- `Interactive Artifact for Cubelets/automation-debt-simulator.jsx` (main branch) -- full code analysis, all components confirmed
+- `Cubelets MCP Tool/files/cubelets_mcp_server.py` (main branch, lines 1478-1662) -- detect_automation_debt fully implemented
+- `Cubelets/CubeletsMarkdown/ST-006-automation-debt.md` (main branch) -- all 6 faces, score_aggregate 54/60
+- `Claude skills build for Cubelets/files/automation-debt-detector.skill` (main branch) -- binary archive confirmed
 - `10-CONTEXT.md` -- locked decisions and constraints
+- `REQUIREMENTS.md` -- AB-01 through AB-10 requirement definitions
+- `STATE.md` -- Phase 9 UAT passed, Phase 10 not started
 
 ### Secondary (MEDIUM confidence)
-- [Beyond Prompt Engineering: What Engineers Are Actually Using](https://fullstackaiengineer.substack.com/p/008-beyond-prompt-engineering-what) -- validation layers vs prompt architecture tradeoffs
-- [AI-Generated Code Creates New Technical Debt](https://www.infoq.com/news/2025/11/ai-code-technical-debt/) -- real-world automation debt patterns
-- [Why AI Systems Create New Forms of Technical Debt](https://altersquare.medium.com/why-ai-systems-create-new-forms-of-technical-debt-e3b5c0a7f6a1) -- data-centric debt, prompt debt
-- [Building a Dynamic SVG Gauge Component](https://www.fullstack.com/labs/resources/blog/creating-an-svg-gauge-component-from-scratch) -- pure SVG gauge pattern
-- [Shifting the Burden - isee systems](https://blog.iseesystems.com/systems-thinking/shifting-the-burden/) -- archetype boundaries and when symptomatic fixes are appropriate
-
-### Tertiary (LOW confidence)
-- [HFS/Publicis Sapient AI Tech Debt Report](https://www.publicissapient.com/content/dam/ps-reinvent/us/en/2025/05/insights-lp/hfs-ai-tech-debt-report/docs/HFS-PS-Report-SmashTechDebt-2025.pdf) -- $1.5-2T tech debt estimate (unverified specific number)
+- Phase 9 PLAN files -- Wave 0 test stub patterns (tool-orchestration-analyzer.test.jsx as reference)
+- ST-003 burden-shift-simulator.jsx -- simulation engine ancestry confirmed
 
 ---
 
@@ -602,10 +529,10 @@ Three named erosion patterns for post-game diagnosis:
 
 **Confidence breakdown:**
 - Standard stack: HIGH -- sandbox constraints well-understood from Phases 8-9; MCP server pattern proven
-- Architecture: HIGH -- forking from analyzed ST-003 code; MCP composition pattern clear from server.py
-- Pitfalls: HIGH -- sandbox constraints documented from Phase 9; grading issues identified from ST-003 analysis
-- Scenarios: MEDIUM -- parameter calibration needs playtesting; real-world case studies inform but don't guarantee good gameplay
-- Archetype boundaries: MEDIUM -- counter-pattern pedagogy based on systems thinking literature, but mini-quiz design is discretionary
+- Architecture: HIGH -- all deliverables in main analyzed in full; port tasks are defined
+- Pitfalls: HIGH -- sandbox constraints documented from Phase 9; worktree-specific risks identified
+- Test stubs: MEDIUM -- vitest pattern confirmed from Phase 9; import strategy for JSX simulation engine TBD
+- Skill binary: MEDIUM -- binary format confirmed, copy integrity needs verification
 
 **Research date:** 2026-03-22
 **Valid until:** 2026-04-22 (stable domain, no fast-moving dependencies)
