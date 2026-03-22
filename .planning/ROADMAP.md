@@ -126,11 +126,12 @@ Plans:
   4. master-syllabus.json includes Week 3 module with 3 new lessons, and prerequisite-chain.json includes ST-004/005/006 entries with correct dependency ordering
   5. Dark cybernetic aesthetic is consistent across all 9 artifacts -- no visual breaks in palette, typography, or component styling when switching tabs
   6. Vercel deployment is live with all 9 artifacts functional at the production URL
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
+- [ ] 11-01-PLAN.md -- Preview app: copy 3 artifacts, add week-grouped 9-tab layout, verify build
+- [ ] 11-02-PLAN.md -- Course config: verify/fix syllabus and prerequisite chain correctness
+- [ ] 11-03-PLAN.md -- Verification and deployment: MCP server test, skills check, theme consistency, Vercel deploy
 
 ## Coverage
 
@@ -191,7 +192,7 @@ Phase 9   Phase 10
 | 8. ST-004 Pathfinder | v1.1 | 5/5 | COMPLETE | 2026-03-21 |
 | 9. ST-005 Tool Orchestration | v1.1 | 4/4 | COMPLETE | 2026-03-22 |
 | 10. ST-006 Automation Debt | v1.1 | 0/3 | PLANNED | - |
-| 11. Integration + Deployment | v1.1 | 0/TBD | Not started | - |
+| 11. Integration + Deployment | v1.1 | 0/3 | PLANNED | - |
 
 ---
 *Roadmap created: 2026-03-21*
