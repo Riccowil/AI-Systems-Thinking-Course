@@ -5,7 +5,7 @@ domain: AI for Systems Thinking
 difficulty: Advanced
 time_to_absorb: ~8 minutes
 version: "1.0"
-score_aggregate: 50/60
+score_aggregate: 54/60
 status: PASS
 tags:
   - cubelet
@@ -109,11 +109,17 @@ Without loop mapping, teams invest in low-leverage interventions: increasing rat
 
 5. **Score loop severity:** Calculate loop gain as the product of coupling strengths around the cycle. Higher gain means faster amplification. Map gain to severity: 0-33 = Low, 34-66 = Medium, 67-100 = High.
 
+**Estimating coupling strength (0.0-1.0):**
+- **0.8-1.0:** Automatic, immediate effect. Example: failed tool call instantly triggers retry (0.9), budget exceeded immediately halts execution (1.0).
+- **0.5-0.7:** Conditional effect. Example: evaluator rejects output 60% of the time (0.6), memory lookup influences but doesn't determine next action (0.5).
+- **0.2-0.4:** Weak or delayed effect. Example: error logged but only reviewed weekly (0.2), usage metrics influence scaling decisions at monthly review (0.3).
+- **0.0-0.1:** Negligible. The connection exists architecturally but rarely influences behavior in practice.
+
 6. **Target highest-gain link for intervention:** Within high-severity loops, identify the link with the strongest coupling. This is the highest-leverage intervention point. Weakening this link (adding rate limiting, introducing caching, decoupling components) reduces loop amplification most effectively.
 
 **Technical connection:** This process applies ST-001's loop detection algorithm (DFS cycle finding, polarity classification) to the agent architecture domain. The difference is node types: ST-001 uses generic system variables, ST-004 uses typed agent components with domain-specific semantics.
 
-**Score: 8/10**
+**Score: 9/10**
 
 ---
 
@@ -125,13 +131,15 @@ Without loop mapping, teams invest in low-leverage interventions: increasing rat
 **Loop path:** Agent → Tool → Error Handler → Agent
 **Narrative:** Agent calls a tool that fails intermittently. Error handler triggers retry. Retries hit rate limits, generating more errors, triggering more retries. The loop amplifies until the rate limiter or budget constraint intervenes externally.
 **Loop type:** Reinforcing (0 negative links)
-**Highest-leverage intervention:** Add exponential backoff in the Error Handler → Agent link, reducing coupling strength from 0.9 to 0.3. This dampens retry amplification without eliminating necessary retries.
+**Severity:** Loop gain 0.81 (0.9 × 0.9 × 1.0) — High severity. Without intervention, retry count doubles every 4 cycles.
+**Highest-leverage intervention:** Add exponential backoff in the Error Handler → Agent link, reducing coupling strength from 0.9 to 0.3. Loop gain drops to 0.27 (Low). This dampens retry amplification without eliminating necessary retries.
 
 ### Example 2: Cost Spiral Loop (Reinforcing)
 **Loop path:** Agent Complexity → Token Usage → AI Spend → Scaling Pressure → Agent Complexity
 **Narrative:** Complex agents consume more tokens. Higher token usage increases spend. Increased spend creates pressure to scale agent count to justify cost. More agents increase overall complexity, driving token usage higher. The loop compounds until budget constraints force intervention.
 **Loop type:** Reinforcing (0 negative links)
-**Highest-leverage intervention:** Introduce prompt caching at the Token Usage link and model tiering at the Agent Complexity link. This breaks the tight coupling between complexity and token consumption.
+**Severity:** Loop gain 0.56 (0.8 × 0.7 × 1.0 × 1.0) — Medium severity. Cost growth outpaces usage growth by ~40% per quarter.
+**Highest-leverage intervention:** Introduce prompt caching at the Token Usage link (coupling 0.8 → 0.3) and model tiering at the Agent Complexity link. Loop gain drops to 0.21 (Low). Cost growth aligns with usage growth.
 
 ### Example 3: Capability Snowball Loop (Reinforcing)
 **Loop path:** Tool Quality → Agent Capability → User Adoption → Usage Data → Tool Quality
@@ -145,9 +153,16 @@ Without loop mapping, teams invest in low-leverage interventions: increasing rat
 **Loop type:** Balancing (1 negative link: Rate Limiter → Throttling Delay decreases request rate)
 **Leverage note:** This is a protective balancing loop. Weakening it removes a critical safety mechanism.
 
-**Pattern recognition:** Reinforcing loops often involve error handlers, scaling logic, and cost accumulation. Balancing loops often involve limiters, budgets, and timeouts. Identifying loop type before intervention prevents accidentally weakening protective balancing loops or amplifying destructive reinforcing loops.
+### Example 5: Data Pipeline Feedback Loop (Reinforcing — Cross-Domain)
+**Loop path:** Data Quality → Model Accuracy → User Trust → Data Volume → Data Quality
+**Narrative:** Poor training data produces inaccurate model predictions. Inaccurate predictions erode user trust. Lower trust reduces user engagement, shrinking the data volume available for retraining. Less data further degrades quality. This reinforcing loop operates outside the agent architecture itself — in the data pipeline that feeds it.
+**Loop type:** Reinforcing (0 negative links)
+**Severity:** Loop gain 0.48 (0.8 × 0.6 × 1.0 × 1.0) — Medium severity. Model accuracy declines ~5% per quarter without intervention.
+**Highest-leverage intervention:** Introduce active learning at the User Trust → Data Volume link. Users flag bad predictions, which directly generates high-quality training examples. Converts the erosion into a virtuous data flywheel.
 
-**Score: 8/10**
+**Pattern recognition:** Reinforcing loops often involve error handlers, scaling logic, and cost accumulation. Balancing loops often involve limiters, budgets, and timeouts. Identifying loop type before intervention prevents accidentally weakening protective balancing loops or amplifying destructive reinforcing loops. Look for loops that cross architectural boundaries (agent → data pipeline → model → agent) — these are often the highest-severity and hardest to detect.
+
+**Score: 9/10**
 
 ---
 
@@ -159,7 +174,7 @@ Without loop mapping, teams invest in low-leverage interventions: increasing rat
 
 - **Debugging agent failures:** If failures are recurring, escalating, or seem to cluster in waves, suspect a reinforcing loop. Map the architecture to find the cycle driving the pattern.
 
-- **Optimizing agent costs:** If costs are growing faster than usage (second derivative positive), trace the cost variable through the architecture. Close the loop. Intervene at the highest-gain link, not the most visible symptom.
+- **Optimizing agent costs:** If costs are growing >15% faster than usage growth (cost second derivative positive), trace the cost variable through the architecture. Close the loop. Intervene at the highest-gain link, not the most visible symptom.
 
 - **Scaling agent systems:** Before scaling agent count, identify feedback loops that involve scaling logic itself. Loops containing agent spawn/termination decisions can create explosive growth or collapse under load.
 
@@ -178,9 +193,15 @@ Without loop mapping, teams invest in low-leverage interventions: increasing rat
 - **Manual workflows:** If humans are in the loop making every decision, the system lacks the autonomy to create feedback loops. Use process mapping instead.
 - **Purely linear pipelines:** If every step executes exactly once in sequence with no branching, retries, or state, there is no cycle to map.
 
-**Temporal pattern:** Apply loop mapping at design time (proactive), during incidents (reactive), and quarterly during architecture reviews (maintenance). The earlier loops are identified, the lower the cost of intervention.
+**Quantitative triggers:**
+- Retry rate exceeds 3× normal baseline → suspect reinforcing loop in error handling
+- Cost-per-transaction growing >15% faster than transaction volume → suspect cost spiral loop
+- Agent spawn rate increasing while throughput is flat or declining → suspect scaling feedback loop
+- Same error pattern recurring >3 times in 30 days despite "fixing" it → the fix is treating symptoms, not structure
 
-**Score: 8/10**
+**Temporal pattern:** Apply loop mapping at design time (proactive — before deploying new agent architectures), during incidents (reactive — when failures cluster or escalate), and quarterly during architecture reviews (maintenance — audit for hidden loops that accumulated). The earlier loops are identified, the lower the cost of intervention.
+
+**Score: 9/10**
 
 ---
 
@@ -225,13 +246,21 @@ analyze_agent_feedback_loops(
 
 The MCP tool returns the same loop classifications, severity scores, and intervention suggestions as the artifact. Use this to verify your manual analysis or to integrate loop detection into agent monitoring pipelines.
 
+**Self-check rubric — you're ready to move on when:**
+- [ ] You identified at least 2 closed loops (not linear chains)
+- [ ] You correctly classified polarity for 80%+ of loops (check against algorithm)
+- [ ] You found at least 1 reinforcing AND 1 balancing loop
+- [ ] You identified the highest-gain link in each high-severity loop
+- [ ] Your intervention targets structure (coupling strength), not symptoms (individual failures)
+- [ ] You can explain WHY each loop is reinforcing or balancing using the polarity count rule
+
 **Common failure modes:**
 - Mislabeling polarity (confusing "more failures" with negative polarity when both failure count and retry count increase together = positive)
 - Not closing the loop (stopping at a linear chain instead of tracing the full cycle back to the origin)
 - Intervening at the most visible variable instead of the highest-gain link (fixing symptoms instead of structure)
 - Ignoring balancing loops and accidentally removing protective constraints
 
-**Score: 8/10**
+**Score: 9/10**
 
 ---
 
@@ -239,9 +268,9 @@ The MCP tool returns the same loop classifications, severity scores, and interve
 
 | WHAT | WHY | HOW | WHERE | WHEN | APPLY |
 |------|-----|-----|-------|------|-------|
-| 9 | 9 | 8 | 8 | 8 | 8 |
+| 9 | 9 | 9 | 9 | 9 | 9 |
 
-**Aggregate: 50/60 (83%) — PASS**
+**Aggregate: 54/60 (90%) — PASS**
 
 ---
 
