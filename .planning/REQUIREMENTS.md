@@ -44,15 +44,15 @@ Requirements for this milestone. Each maps to roadmap phases (7-11).
 ### ST-006: Shifting the Burden in Automation (AB)
 
 - [ ] **AB-01**: Cubelet markdown with all 6 faces covering automation debt detection using shifting-the-burden archetype
-- [ ] **AB-02**: Interactive JSX artifact with scenario-based simulation (12-round decision game) using AI automation contexts
-- [ ] **AB-03**: Three pre-loaded scenarios: (1) LLM low-confidence outputs, (2) Agent edge-case failures, (3) Tool call latency issues
-- [ ] **AB-04**: Each round: student chooses quick fix, fundamental investment, transition strategy, or nothing — system tracks severity, capacity, dependency, willingness
-- [ ] **AB-05**: Post-simulation grade (A-F) with erosion channel diagnosis and debt accumulation visualization
+- [x] **AB-02**: Interactive JSX artifact with scenario-based simulation (12-round decision game) using AI automation contexts
+- [x] **AB-03**: Three pre-loaded scenarios: (1) LLM low-confidence outputs, (2) Agent edge-case failures, (3) Tool call latency issues
+- [x] **AB-04**: Each round: student chooses quick fix, fundamental investment, transition strategy, or nothing — system tracks severity, capacity, dependency, willingness
+- [x] **AB-05**: Post-simulation grade (A-F) with erosion channel diagnosis and debt accumulation visualization
 - [ ] **AB-06**: MCP tool `detect_automation_debt` accepts automation layers + fundamental solution, identifies burden shift patterns with B1/B2/R1 loop analysis
 - [ ] **AB-07**: MCP tool reuses existing `detect_burden_shift` via composition (transforms AutomationLayer to FixRecord format)
 - [ ] **AB-08**: Claude skill `automation-debt-detector.skill` guides multi-step workflow for detecting automation debt
 - [ ] **AB-09**: Quality gate score >= 42/60
-- [ ] **AB-10**: Archetype boundaries section — explicitly defines when shifting-the-burden applies and when it doesn't, with counter-examples
+- [x] **AB-10**: Archetype boundaries section — explicitly defines when shifting-the-burden applies and when it doesn't, with counter-examples
 
 ### Integration and Deployment (INTG)
 
@@ -119,15 +119,15 @@ Acknowledged features to add after v1.1 core is validated in classroom.
 | TO-09 | Phase 9 | Pending |
 | TO-10 | Phase 9 | Pending |
 | AB-01 | Phase 10 | Pending |
-| AB-02 | Phase 10 | Pending |
-| AB-03 | Phase 10 | Pending |
-| AB-04 | Phase 10 | Pending |
-| AB-05 | Phase 10 | Pending |
+| AB-02 | Phase 10 | Complete |
+| AB-03 | Phase 10 | Complete |
+| AB-04 | Phase 10 | Complete |
+| AB-05 | Phase 10 | Complete |
 | AB-06 | Phase 10 | Pending |
 | AB-07 | Phase 10 | Pending |
 | AB-08 | Phase 10 | Pending |
 | AB-09 | Phase 10 | Pending |
-| AB-10 | Phase 10 | Pending |
+| AB-10 | Phase 10 | Complete |
 | INTG-01 | Phase 11 | Pending |
 | INTG-02 | Phase 11 | Pending |
 | INTG-03 | Phase 11 | Pending |
