@@ -96,7 +96,7 @@ export default function ToolOrchestrationAnalyzer() {
   const [edgeType, setEdgeType] = useState('required');
   const [edgeSource, setEdgeSource] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [failedTools, setFailedTools] = useState(new Set());
+  const [failedTools, setFailedTools] = useState([]);
   const [isExample, setIsExample] = useState(false);
   const [draggedNode, setDraggedNode] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -108,24 +108,27 @@ export default function ToolOrchestrationAnalyzer() {
 
   const svgRef = useRef(null);
 
-  // Load worked example on mount
+  // Load worked example on mount with auto-layout
   useEffect(() => {
-    setNodes(WORKED_EXAMPLE.tools);
-    setEdges(WORKED_EXAMPLE.edges);
-    setFailedTools(new Set(['create_causal_loop']));
+    const tools = WORKED_EXAMPLE.tools;
+    const edgeList = WORKED_EXAMPLE.edges;
+    const laid = autoLayoutNodes(tools, edgeList);
+    setNodes(laid);
+    setEdges(edgeList);
+    setFailedTools(['create_causal_loop']);
     setIsExample(true);
     setMode('analyze');
   }, []);
 
   // Compute cascade when failures change
   useEffect(() => {
-    if (failedTools.size === 0) {
+    if (failedTools.length === 0) {
       setCascadeStatus(new Map());
       return;
     }
 
     const cascade = new Map();
-    const queue = Array.from(failedTools).map(id => ({ id, status: 'broken' }));
+    const queue = failedTools.map(id => ({ id, status: 'broken' }));
     const visited = new Set(failedTools);
 
     while (queue.length > 0) {
@@ -277,51 +280,39 @@ export default function ToolOrchestrationAnalyzer() {
     return { label: 'Critical', color: C.accentDanger };
   }
 
-  function handleAutoLayout() {
-    const adjList = {};
-    const inDegree = {};
-
-    nodes.forEach(n => {
-      adjList[n.id] = [];
-      inDegree[n.id] = 0;
-    });
-
-    edges.forEach(e => {
-      if (adjList[e.from]) adjList[e.from].push(e.to);
-      if (inDegree[e.to] !== undefined) inDegree[e.to]++;
-    });
-
-    const layers = [];
-    const queue = nodes.filter(n => inDegree[n.id] === 0).map(n => n.id);
-    const processed = new Set();
-
+  function autoLayoutNodes(nodeList, edgeList) {
+    const adjList = {}, inDegree = {};
+    nodeList.forEach(n => { adjList[n.id] = []; inDegree[n.id] = 0; });
+    edgeList.forEach(e => { if (adjList[e.from]) adjList[e.from].push(e.to); if (inDegree[e.to] !== undefined) inDegree[e.to]++; });
+    const layers = [], queue = nodeList.filter(n => inDegree[n.id] === 0).map(n => n.id), processed = new Set();
     while (queue.length > 0) {
-      const layer = [...queue];
-      layers.push(layer);
-      queue.length = 0;
-
-      layer.forEach(id => {
-        processed.add(id);
-        adjList[id].forEach(childId => {
-          inDegree[childId]--;
-          if (inDegree[childId] === 0 && !processed.has(childId)) {
-            queue.push(childId);
-          }
-        });
-      });
+      const layer = [...queue]; layers.push(layer); queue.length = 0;
+      layer.forEach(id => { processed.add(id); adjList[id].forEach(childId => { inDegree[childId]--; if (inDegree[childId] === 0 && !processed.has(childId)) queue.push(childId); }); });
     }
-
-    const unprocessed = nodes.filter(n => !processed.has(n.id)).map(n => n.id);
+    const unprocessed = nodeList.filter(n => !processed.has(n.id)).map(n => n.id);
     if (unprocessed.length > 0) layers.push(unprocessed);
-
-    const updated = nodes.map(n => {
-      const layerIndex = layers.findIndex(l => l.includes(n.id));
-      const posInLayer = layers[layerIndex].indexOf(n.id);
-      const layerSize = layers[layerIndex].length;
-      return { ...n, y: layerIndex * 120 + 50, x: (posInLayer + 1) * (600 / (layerSize + 1)) };
+    // Split wide layers: if a layer has more than 3 nodes, split into sub-rows
+    const splitLayers = [];
+    layers.forEach(layer => {
+      if (layer.length > 3) {
+        for (let i = 0; i < layer.length; i += 3) splitLayers.push(layer.slice(i, i + 3));
+      } else splitLayers.push(layer);
     });
+    const nodeW = 230, nodeH = 100, padY = 60;
+    const maxPerRow = Math.max(...splitLayers.map(l => l.length));
+    const totalW = maxPerRow * nodeW;
+    return nodeList.map(n => {
+      const layerIndex = splitLayers.findIndex(l => l.includes(n.id));
+      const posInLayer = splitLayers[layerIndex].indexOf(n.id);
+      const layerSize = splitLayers[layerIndex].length;
+      const rowW = layerSize * nodeW;
+      const startX = (totalW - rowW) / 2 + 110;
+      return { ...n, x: startX + posInLayer * nodeW + nodeW / 2, y: layerIndex * nodeH + padY };
+    });
+  }
 
-    setNodes(updated);
+  function handleAutoLayout() {
+    setNodes(prev => autoLayoutNodes(prev, edges));
   }
 
   function handleNodeMouseDown(node, e) {
@@ -360,24 +351,37 @@ export default function ToolOrchestrationAnalyzer() {
     }
   }
 
+  const [newToolName, setNewToolName] = useState('');
+  const [newToolCriticality, setNewToolCriticality] = useState('medium');
+
+  function handleAddTool() {
+    if (!newToolName.trim()) return;
+    const id = newToolName.toLowerCase().replace(/\s+/g, '_');
+    const newNode = { id, name: newToolName.trim(), server: 'custom', criticality: newToolCriticality, inputs: [], outputs: [], x: 200 + Math.random() * 200, y: 100 + Math.random() * 200 };
+    setNodes(prev => [...prev, newNode]);
+    setNewToolName('');
+    setShowAddForm(false);
+  }
+
   function handleToggleFailure(nodeId, e) {
     e.stopPropagation();
     setFailedTools(prev => {
-      const next = new Set(prev);
-      if (next.has(nodeId)) next.delete(nodeId);
-      else next.add(nodeId);
-      return next;
+      if (prev.includes(nodeId)) return prev.filter(id => id !== nodeId);
+      return [...prev, nodeId];
     });
   }
 
   function handleResetFailures() {
-    setFailedTools(new Set());
+    setFailedTools([]);
+    setCascadeStatus(new Map());
+    setBlastRadius(new Map());
+    setSelectedTool(null);
   }
 
   function handleStartFresh() {
     setNodes([]);
     setEdges([]);
-    setFailedTools(new Set());
+    setFailedTools([]);
     setIsExample(false);
     setMode('build');
     setShowAnnotations(false);
@@ -421,17 +425,14 @@ export default function ToolOrchestrationAnalyzer() {
   }
 
   function getEdgePath(from, to) {
-    const curve = 30;
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const midX = (from.x + to.x) / 2 + (dy > 0 ? curve : -curve);
-    const midY = (from.y + to.y) / 2;
-    return `M ${from.x} ${from.y} Q ${midX} ${midY} ${to.x} ${to.y}`;
+    const x1 = from.x, y1 = from.y + 20;
+    const x2 = to.x, y2 = to.y - 20;
+    return `M ${x1} ${y1} L ${x2} ${y2}`;
   }
 
   function renderNode(n) {
     const isSelected = selectedTool === n.id;
-    const isFailed = failedTools.has(n.id);
+    const isFailed = failedTools.includes(n.id);
     const cascadeState = cascadeStatus.get(n.id);
     const blastDepth = blastRadius.get(n.id);
     const isIsolated = !edges.some(e => e.from === n.id || e.to === n.id);
@@ -467,15 +468,15 @@ export default function ToolOrchestrationAnalyzer() {
 
     return (
       <g key={n.id} transform={`translate(${n.x}, ${n.y})`} onMouseDown={(e) => handleNodeMouseDown(n, e)} onClick={() => handleNodeClick(n)} style={{ cursor: 'pointer' }} opacity={isIsolated ? 0.5 : nodeOpacity}>
-        <rect x={-60} y={-20} width={120} height={40} rx={8} fill={fillColor} stroke={strokeColor} strokeWidth={isSelected ? 2 : 1} strokeDasharray={n.planned ? '4 2' : ''} />
-        <text x={0} y={0} textAnchor="middle" fill={C.textPrimary} fontSize={11} fontWeight="500" dominantBaseline="middle">{n.name.length > 18 ? n.name.slice(0, 16) + '...' : n.name}</text>
-        <circle cx={50} cy={-10} r={3} fill={critColor} />
+        <rect x={-85} y={-22} width={170} height={44} rx={8} fill={fillColor} stroke={strokeColor} strokeWidth={isSelected ? 2 : 1} strokeDasharray={n.planned ? '4 2' : ''} />
+        {n.name.length > 20 ? <><text x={0} y={-6} textAnchor="middle" fill={C.textPrimary} fontSize={10} fontWeight="500" dominantBaseline="middle">{n.name.split(' ').slice(0, Math.ceil(n.name.split(' ').length / 2)).join(' ')}</text><text x={0} y={8} textAnchor="middle" fill={C.textPrimary} fontSize={10} fontWeight="500" dominantBaseline="middle">{n.name.split(' ').slice(Math.ceil(n.name.split(' ').length / 2)).join(' ')}</text></> : <text x={0} y={0} textAnchor="middle" fill={C.textPrimary} fontSize={10} fontWeight="500" dominantBaseline="middle">{n.name}</text>}
+        <circle cx={75} cy={-12} r={3} fill={critColor} />
         {n.planned && <text x={0} y={15} textAnchor="middle" fill={C.textMuted} fontSize={8}>planned</text>}
         {isIsolated && <text x={0} y={15} textAnchor="middle" fill={C.textMuted} fontSize={8}>isolated</text>}
         {mode === 'analyze' && (
           <g onClick={(e) => handleToggleFailure(n.id, e)}>
-            <circle cx={-50} cy={-10} r={6} fill={isFailed ? C.accentDanger : C.panel} stroke={C.textMuted} strokeWidth={1} />
-            <text x={-50} y={-9} textAnchor="middle" fill={C.textPrimary} fontSize={9}>×</text>
+            <circle cx={-75} cy={-12} r={6} fill={isFailed ? C.accentDanger : C.panel} stroke={C.textMuted} strokeWidth={1} />
+            <text x={-75} y={-11} textAnchor="middle" fill={C.textPrimary} fontSize={9}>×</text>
           </g>
         )}
       </g>
@@ -490,10 +491,14 @@ export default function ToolOrchestrationAnalyzer() {
     const path = getEdgePath(fromNode, toNode);
     const dashArray = e.type === 'optional' ? '8 4' : e.type === 'enhances' ? '3 3' : '';
 
+    // Only show edges connected to selected tool, or all if none selected
+    const isConnected = selectedTool && (e.from === selectedTool || e.to === selectedTool);
+    const showEdge = !selectedTool || isConnected;
+    if (!showEdge) return null;
+
     return (
       <g key={`${e.from}-${e.to}`}>
-        <defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill={C.accent} /></marker></defs>
-        <path d={path} stroke={C.accent} strokeWidth={1.5} fill="none" strokeDasharray={dashArray} markerEnd="url(#arrow)" opacity={0.7} />
+        <path d={path} stroke={C.accent} strokeWidth={isConnected ? 1.5 : 0.5} fill="none" strokeDasharray={dashArray} markerEnd="url(#arrow)" opacity={isConnected ? 0.8 : 0.15} />
       </g>
     );
   }
@@ -535,6 +540,14 @@ export default function ToolOrchestrationAnalyzer() {
     serverGroups[n.server].push(n);
   });
 
+  // Compute viewBox to fit all nodes with padding
+  const allXs = nodes.map(n => n.x), allYs = nodes.map(n => n.y);
+  const vbPadL = 100, vbPadR = 100, vbPadT = 50, vbPadB = 50;
+  const vbX = nodes.length ? Math.min(...allXs) - vbPadL : 0;
+  const vbY = nodes.length ? Math.min(...allYs) - vbPadT : 0;
+  const vbW = nodes.length ? Math.max(...allXs) - Math.min(...allXs) + vbPadL + vbPadR + 170 : 600;
+  const vbH = nodes.length ? Math.max(...allYs) - Math.min(...allYs) + vbPadT + vbPadB + 50 : 400;
+
   const isolatedCount = nodes.filter(n => !edges.some(e => e.from === n.id || e.to === n.id)).length;
 
   return (
@@ -542,7 +555,7 @@ export default function ToolOrchestrationAnalyzer() {
       <style>{`@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`}</style>
 
       {/* Left toolbar */}
-      <div style={{ ...S.flexCol, width: '72px', background: C.panel, borderRight: `1px solid ${C.panelBorder}`, padding: '12px 8px', gap: '8px' }}>
+      <div style={{ ...S.flexCol, width: '72px', minWidth: '72px', background: C.panel, borderRight: `1px solid ${C.panelBorder}`, padding: '12px 8px', gap: '8px', position: 'relative', zIndex: 20 }}>
         <button onClick={() => setMode('build')} style={S.toolbarBtn(mode === 'build')} title="Build Mode">Build</button>
         <button onClick={() => setMode('analyze')} style={S.toolbarBtn(mode === 'analyze')} title="Analyze Mode">Analyze</button>
         <div style={S.divider} />
@@ -555,18 +568,31 @@ export default function ToolOrchestrationAnalyzer() {
 
       {/* Central SVG canvas */}
       <div style={{ flex: 1, background: C.canvas, position: 'relative', overflow: 'hidden' }}>
-        <svg ref={svgRef} width="100%" height="100%" onMouseMove={handleSvgMouseMove} onMouseUp={handleSvgMouseUp}>
-          {Object.entries(serverGroups).map(([server, tools]) => { const xs = tools.map(t => t.x), ys = tools.map(t => t.y), minX = Math.min(...xs) - 80, maxX = Math.max(...xs) + 80, minY = Math.min(...ys) - 40, maxY = Math.max(...ys) + 40; return <rect key={server} x={minX} y={minY} width={maxX - minX} height={maxY - minY} fill="#1e2230" opacity={0.4} rx={8} />; })}
+        <svg ref={svgRef} width="100%" height="100%" viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`} onMouseMove={handleSvgMouseMove} onMouseUp={handleSvgMouseUp}>
+          <defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill={C.accent} /></marker></defs>
           {redundantPairs.map((pair, idx) => { const n1 = nodes.find(n => n.id === pair[0]), n2 = nodes.find(n => n.id === pair[1]); if (!n1 || !n2) return null; const minX = Math.min(n1.x, n2.x) - 70, minY = Math.min(n1.y, n2.y) - 30, w = Math.abs(n1.x - n2.x) + 140, h = Math.abs(n1.y - n2.y) + 60; return <g key={idx}><rect x={minX} y={minY} width={w} height={h} fill="none" stroke={C.accentDanger} strokeWidth={1} strokeDasharray="4 2" rx={8} opacity={0.5} /><text x={minX + w / 2} y={minY - 5} textAnchor="middle" fill={C.accentDanger} fontSize={9}>redundant</text></g>; })}
           {edges.map(renderEdge)}
           {nodes.map(renderNode)}
-          {showAnnotations && isExample && <g><circle cx={200} cy={50} r={12} fill={C.accentDanger} opacity={0.8} /><text x={200} y={55} textAnchor="middle" fill="white" fontSize={10} fontWeight="600">1</text></g>}
+          {showAnnotations && isExample && (() => { const cNode = nodes.find(n => n.id === 'create_causal_loop'); if (!cNode) return null; return <g><circle cx={cNode.x} cy={cNode.y + 25} r={12} fill={C.accentDanger} opacity={0.8} /><text x={cNode.x} y={cNode.y + 30} textAnchor="middle" fill="white" fontSize={10} fontWeight="600">1</text></g>; })()}
         </svg>
-        {showAnnotations && isExample && <div style={{ position: 'absolute', top: '10px', right: '300px', background: C.panel, border: `1px solid ${C.accentDanger}`, borderRadius: '6px', padding: '8px 12px', fontSize: '11px', maxWidth: '200px' }}><button onClick={() => setShowAnnotations(false)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', color: C.textMuted, cursor: 'pointer' }}>×</button><strong style={{ color: C.accentDanger }}>Annotation 1:</strong> create_causal_loop pre-failed. Click break icons to simulate more failures.</div>}
+        {showAnnotations && isExample && <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: C.panel, border: `1px solid ${C.accentDanger}`, borderRadius: '6px', padding: '8px 12px', fontSize: '11px', maxWidth: '260px', zIndex: 10 }}><button onClick={() => setShowAnnotations(false)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', color: C.textMuted, cursor: 'pointer' }}>×</button><strong style={{ color: C.accentDanger }}>Annotation 1:</strong> create_causal_loop pre-failed. Click break icons to simulate more failures.</div>}
+        {showAddForm && mode === 'build' && <div style={{ position: 'absolute', top: '12px', left: '12px', background: C.panel, border: `1px solid ${C.accent}`, borderRadius: '6px', padding: '12px', zIndex: 15, width: '220px' }}>
+          <div style={S.labelSm}>Add New Tool</div>
+          <input value={newToolName} onChange={e => setNewToolName(e.target.value)} placeholder="Tool name..." style={{ ...S.selectInput, width: '100%', marginBottom: '8px' }} />
+          <select value={newToolCriticality} onChange={e => setNewToolCriticality(e.target.value)} style={{ ...S.selectInput, width: '100%', marginBottom: '8px' }}>
+            <option value="high">High Criticality</option>
+            <option value="medium">Medium Criticality</option>
+            <option value="low">Low Criticality</option>
+          </select>
+          <div style={{ ...S.flexRow, gap: '8px' }}>
+            <button onClick={handleAddTool} style={{ ...S.toolbarBtn(true), flex: 1, textAlign: 'center' }}>Add</button>
+            <button onClick={() => setShowAddForm(false)} style={{ ...S.toolbarBtn(false), flex: 1, textAlign: 'center' }}>Cancel</button>
+          </div>
+        </div>}
       </div>
 
       {/* Right panel */}
-      <div style={{ ...S.flexCol, width: '280px', background: C.panel, borderLeft: `1px solid ${C.panelBorder}`, overflowY: 'auto' }}>
+      <div style={{ ...S.flexCol, width: '280px', minWidth: '280px', background: C.panel, borderLeft: `1px solid ${C.panelBorder}`, overflowY: 'auto', position: 'relative', zIndex: 20 }}>
         <div style={{ ...S.cardBase, margin: '12px', borderColor: C.accent }}>
           <div onClick={() => setPrimerCollapsed(!primerCollapsed)} style={{ ...S.flexRow, justifyContent: 'space-between', cursor: 'pointer' }}><span style={{ fontSize: '12px', fontWeight: '600', color: C.accent }}>Primer: Tool Orchestration</span><span style={{ color: C.textMuted }}>{primerCollapsed ? '▼' : '▲'}</span></div>
           {!primerCollapsed && <div style={{ fontSize: '11px', color: C.textSecondary, marginTop: '8px', lineHeight: '1.4' }}><p>Tool dependencies create feedback loops. <strong>Required</strong> edges (solid) are critical paths. <strong>Optional</strong> (dashed) add resilience. <strong>Enhances</strong> (dotted) improve quality.</p><p style={{ marginTop: '6px' }}>Health metrics reveal systemic fragility. High brittleness = deep cascades. See <strong>ST-002</strong> for Meadows leverage hierarchy (L1-L12).</p></div>}

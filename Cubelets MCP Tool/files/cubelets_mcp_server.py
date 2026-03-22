@@ -1475,6 +1475,194 @@ async def analyze_tool_orchestration(params: AnalyzeToolOrchestrationInput) -> s
 
 
 # ============================================================================
+# ST-006: Automation Debt Detector
+# ============================================================================
+
+class AutomationLayer(BaseModel):
+    """An automation layer applied to a recurring problem in an AI/ML system."""
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    layer_name: str = Field(..., description="Name of the automation layer (e.g., 'Retry logic', 'Validation pipeline', 'Exception handler')", min_length=1, max_length=200)
+    layer_type: str = Field(
+        ...,
+        description="Type of automation layer: 'quick_fix' (treats symptom), 'fundamental' (addresses root cause), or 'transition' (maintains fix while building solution)",
+        pattern="^(quick_fix|fundamental|transition)$"
+    )
+    side_effects: Optional[str] = Field(default=None, description="Known side effects (e.g., 'Adds latency', 'Blocks architecture improvements')", max_length=500)
+    duration_active: Optional[str] = Field(default=None, description="How long this layer has been running (e.g., '3 months', 'since Q1')")
+
+    def to_fix_record(self) -> FixRecord:
+        """Convert AutomationLayer to FixRecord for detect_burden_shift composition."""
+        return FixRecord(
+            label=self.layer_name,
+            description=f"Automation layer: {self.layer_type}",
+            is_symptomatic=self.layer_type == "quick_fix",
+            side_effects=self.side_effects,
+            duration_active=self.duration_active,
+        )
+
+
+class DetectAutomationDebtInput(BaseModel):
+    """Input for detecting automation debt via shifting-the-burden analysis."""
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    automation_layers: List[AutomationLayer] = Field(
+        ...,
+        description="All automation layers applied to the system",
+        min_length=1, max_length=20
+    )
+    fundamental_solution: Optional[str] = Field(
+        default=None,
+        description="The known fundamental solution (e.g., 'Restructure prompt architecture', 'Redesign agent state machine')"
+    )
+    recurring_symptom: str = Field(
+        ...,
+        description="The recurring problem symptom (e.g., 'LLM outputs unreliable', 'Agent crashes on edge cases')",
+        min_length=5, max_length=500
+    )
+    response_format: ResponseFormat = Field(default=ResponseFormat.MARKDOWN)
+
+
+AUTOMATION_EROSION_CHANNELS = {
+    "Knowledge Drain": "Quick fixes prevent learning root causes. Institutional knowledge never forms — the team forgets why the system was broken.",
+    "Complexity Creep": "Each workaround adds a layer. The system grows harder to change with every fix applied.",
+    "Normalization": "The degraded state becomes 'normal'. The team stops seeing it as a problem worth fixing.",
+}
+
+
+@mcp.tool(
+    annotations={
+        "title": "Detect Automation Debt",
+        "readOnlyHint": True,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    }
+)
+async def detect_automation_debt(params: DetectAutomationDebtInput) -> str:
+    """Detect automation debt in AI/ML systems using shifting-the-burden archetype analysis.
+
+    Accepts automation layers (quick fixes, fundamental solutions, transition strategies)
+    and identifies burden-shift patterns with B1/B2/R1 loop analysis.
+
+    Returns debt score (0-100), erosion channels, automation coverage estimate,
+    and specific recommendations for addressing the debt.
+
+    This composes with the existing detect_burden_shift tool by converting
+    AutomationLayer inputs to FixRecord format.
+
+    Args:
+        params: Automation layers, fundamental solution, and recurring symptom.
+
+    Returns:
+        Automation debt analysis with debt score, erosion channels, and recommendations.
+    """
+    # Convert AutomationLayers to FixRecords for burden-shift composition
+    fix_records = [layer.to_fix_record() for layer in params.automation_layers]
+
+    # Build burden-shift input
+    burden_input = DetectBurdenShiftInput(
+        recurring_symptom=params.recurring_symptom,
+        fixes_applied=fix_records,
+        fundamental_solution=params.fundamental_solution,
+    )
+
+    # Call existing detect_burden_shift internally
+    # (reuse classification and erosion logic)
+    classified = []
+    for fix in burden_input.fixes_applied:
+        classification = _classify_fix(fix)
+        classified.append({
+            "label": fix.label,
+            "classification": classification,
+            "side_effects": fix.side_effects,
+        })
+
+    symptomatic = [f for f in classified if f["classification"] == "symptomatic"]
+    fundamental = [f for f in classified if f["classification"] == "fundamental"]
+
+    erosion = _compute_erosion_risk(
+        burden_input.fixes_applied,
+        None, None,
+    )
+
+    # Compute automation-specific debt score
+    quick_fix_ratio = len(symptomatic) / max(len(classified), 1)
+    erosion_factor = erosion["risk_score"] / 100
+    debt_score = int(min(100, (quick_fix_ratio * 60 + erosion_factor * 40)))
+
+    # Identify active erosion channels
+    active_channels = []
+    if len(symptomatic) >= 2 and len(fundamental) == 0:
+        active_channels.append("Knowledge Drain")
+    if any(f.get("side_effects") for f in classified):
+        active_channels.append("Complexity Creep")
+    if quick_fix_ratio > 0.7 and erosion["risk_score"] > 40:
+        active_channels.append("Normalization")
+
+    # Automation coverage estimate
+    fundamental_count = len(fundamental)
+    total_count = len(classified)
+    coverage = int((fundamental_count / max(total_count, 1)) * 100)
+
+    # Generate recommendations
+    recommendations = []
+    if debt_score > 60:
+        recommendations.append(f"High automation debt ({debt_score}/100). Prioritize fundamental solution investment.")
+    if "Knowledge Drain" in active_channels:
+        recommendations.append("Knowledge Drain detected: Convert manual corrections into training data or documentation.")
+    if "Complexity Creep" in active_channels:
+        recommendations.append("Complexity Creep detected: Audit and consolidate overlapping automation layers.")
+    if "Normalization" in active_channels:
+        recommendations.append("Normalization detected: Schedule regular health reviews to prevent acceptance of degraded state.")
+    if params.fundamental_solution and debt_score > 30:
+        recommendations.append(f"Transition strategy: Maintain current fixes while investing in '{params.fundamental_solution}'.")
+    if not recommendations:
+        recommendations.append("Automation debt is manageable. Continue monitoring.")
+
+    result = {
+        "recurring_symptom": params.recurring_symptom,
+        "debt_score": debt_score,
+        "debt_level": "Critical" if debt_score >= 67 else "At Risk" if debt_score >= 34 else "Healthy",
+        "automation_coverage_estimate": f"{coverage}%",
+        "erosion_channels": {ch: AUTOMATION_EROSION_CHANNELS[ch] for ch in active_channels},
+        "b1_loop": {"fixes": [f["label"] for f in symptomatic]},
+        "b2_loop": {"fixes": [f["label"] for f in fundamental]},
+        "erosion_risk_score": erosion["risk_score"],
+        "recommendations": recommendations,
+    }
+
+    if params.response_format == ResponseFormat.JSON:
+        return json.dumps(result, indent=2)
+
+    # Markdown output
+    md = []
+    md.append("# Automation Debt Analysis")
+    md.append("")
+    md.append(f"**Symptom:** {params.recurring_symptom}")
+    md.append(f"**Debt Score:** {debt_score}/100 ({result['debt_level']})")
+    md.append(f"**Automation Coverage:** {coverage}% fundamental")
+    md.append("")
+
+    if active_channels:
+        md.append("## Active Erosion Channels")
+        for ch in active_channels:
+            md.append(f"- **{ch}**: {AUTOMATION_EROSION_CHANNELS[ch]}")
+        md.append("")
+
+    md.append("## Loop Analysis")
+    md.append(f"- **B1 (Symptomatic):** {', '.join(f['label'] for f in symptomatic) or 'None'}")
+    md.append(f"- **B2 (Fundamental):** {', '.join(f['label'] for f in fundamental) or 'None'}")
+    md.append(f"- **Erosion Risk:** {erosion['risk_score']}/100")
+    md.append("")
+
+    md.append("## Recommendations")
+    for rec in recommendations:
+        md.append(f"- {rec}")
+
+    return "\n".join(md)
+
+
+# ============================================================================
 # Entry Point
 # ============================================================================
 
