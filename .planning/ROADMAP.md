@@ -25,8 +25,8 @@ Delivered: 6 cubelets (W1-C1, W1-C2, W1-C3, ST-001, ST-002, ST-003), 18 delivera
 - Decimal phases (e.g. 8.1): Urgent insertions if needed (marked INSERTED)
 
 - [x] **Phase 7: Content Foundations** - Prerequisite chain, data models, agent visual vocabulary, and syllabus update
-- [ ] **Phase 8: ST-004 Pathfinder (Agent Feedback Loops)** - Full three-layer stack for ST-004, validating cognitive load hypothesis
-- [ ] **Phase 9: ST-005 Tool Orchestration** - Full three-layer stack for ST-005, highest-complexity cubelet
+- [x] **Phase 8: ST-004 Pathfinder (Agent Feedback Loops)** - Full three-layer stack for ST-004, validating cognitive load hypothesis
+- [x] **Phase 9: ST-005 Tool Orchestration** - Full three-layer stack for ST-005, highest-complexity cubelet
 - [ ] **Phase 10: ST-006 Automation Debt** - Full three-layer stack for ST-006, scenario-based simulation
 - [ ] **Phase 11: Integration + Deployment** - Wire all 3 cubelets into preview app, extend MCP server, deploy to Vercel
 
@@ -70,7 +70,7 @@ Plans:
 - [x] 08-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP
 - [x] 08-03-PLAN.md -- Interactive artifact: shape-coded nodes, canvas, DFS loop detection, worked example, primer panel (complete: da81154)
 - [x] 08-04-PLAN.md -- Interactive artifact: progressive disclosure, tabbed right panel, prediction comparison, interventions (complete: b9b2090)
-- [ ] 08-05-PLAN.md -- Gap closure: compress artifact to sandbox size limit, fix stale closure and alert() bugs
+- [x] 08-05-PLAN.md -- Gap closure: compress artifact to sandbox size limit, fix stale closure and alert() bugs (complete: 1db426a)
 
 ### Phase 9: ST-005 Tool Orchestration
 **Goal**: Students can input MCP tools and their dependencies, see a dependency graph with redundancy/coupling/blast radius analysis, and score interventions using Meadows hierarchy -- delivered as a complete three-layer stack
@@ -88,10 +88,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- MCP tool: MCPTool/ToolDependency models and analyze_tool_orchestration tool with composition
-- [ ] 09-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP (tool-stack-analyzer)
-- [ ] 09-03-PLAN.md -- Interactive artifact core: graph rendering, Build/Analyze modes, worked example, health scoring, tabbed right panel
-- [ ] 09-04-PLAN.md -- Interactive artifact enhancement: failure simulation, blast radius, redundancy viz, intervention scoring with progressive disclosure
+- [x] 09-01-PLAN.md -- MCP tool: MCPTool/ToolDependency models and analyze_tool_orchestration tool with composition
+- [x] 09-02-PLAN.md -- Cubelet markdown (6 faces) and Claude skill ZIP (tool-stack-analyzer)
+- [x] 09-03-PLAN.md -- Interactive artifact core: graph rendering, Build/Analyze modes, worked example, health scoring, tabbed right panel
+- [x] 09-04-PLAN.md -- Interactive artifact enhancement: failure simulation, blast radius, redundancy viz, intervention scoring with progressive disclosure
 
 ### Phase 10: ST-006 Automation Debt
 **Goal**: Students can play a 12-round scenario-based decision game that reveals automation debt through the shifting-the-burden archetype, with post-game diagnosis and MCP-powered debt detection -- delivered as a complete three-layer stack
@@ -106,12 +106,12 @@ Plans:
   4. MCP tool `detect_automation_debt` accepts AutomationLayer inputs + fundamental solution description, internally reuses existing `detect_burden_shift` via composition, and returns burden-shift pattern analysis with B1/B2/R1 loop identification
   5. Claude skill `automation-debt-detector.skill` guides a multi-step detection workflow and is functional in Claude Desktop/CLI
   6. Cubelet markdown has all 6 faces, includes archetype boundaries section (when pattern applies and when it does not, with counter-examples), and scores >= 42/60 on quality gate
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
-- [ ] 10-03: TBD
+- [ ] 10-01-PLAN.md -- Interactive artifact: 12-round automation debt simulator with scenarios, dashboard, post-game diagnosis, and archetype boundaries
+- [ ] 10-02-PLAN.md -- MCP tool (detect_automation_debt with composition) and cubelet markdown (6 faces with archetype boundaries)
+- [ ] 10-03-PLAN.md -- Claude skill ZIP (automation-debt-detector) and sandbox verification checkpoint
 
 ### Phase 11: Integration + Deployment
 **Goal**: All 3 new cubelets are wired into the existing preview app, MCP server, and course infrastructure -- students access 9 cubelets through a single deployed app with consistent aesthetic and working prerequisites
@@ -188,11 +188,11 @@ Phase 9   Phase 10
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 7. Content Foundations | v1.1 | 2/2 | COMPLETE | 2026-03-21 |
-| 8. ST-004 Pathfinder | v1.1 | 4/5 | In progress | - |
-| 9. ST-005 Tool Orchestration | v1.1 | 0/4 | Planned | - |
-| 10. ST-006 Automation Debt | v1.1 | 0/TBD | Not started | - |
+| 8. ST-004 Pathfinder | v1.1 | 5/5 | COMPLETE | 2026-03-21 |
+| 9. ST-005 Tool Orchestration | v1.1 | 4/4 | COMPLETE | 2026-03-22 |
+| 10. ST-006 Automation Debt | v1.1 | 0/3 | PLANNED | - |
 | 11. Integration + Deployment | v1.1 | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-03-21*
-*Last updated: 2026-03-21*
+*Last updated: 2026-03-22*
