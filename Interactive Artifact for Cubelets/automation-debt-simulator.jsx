@@ -514,3 +514,6 @@ export default function AutomationDebtSimulator() {
     </div>
   );
 }
+
+// Testability exports -- vitest imports these as named exports; Claude.ai sandbox uses default export only
+export { SimEngine, stepSim, getGrade, SCENARIOS, OPTIMAL_PATHS, COUNTER_PATTERNS, QUIZ };
