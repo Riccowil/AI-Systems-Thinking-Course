@@ -56,22 +56,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ST004-01 | — | Pending |
-| ST004-02 | — | Pending |
-| ST004-03 | — | Pending |
-| ST005-01 | — | Pending |
-| ST005-02 | — | Pending |
-| ST006-01 | — | Pending |
-| XCUBE-01 | — | Pending |
-| XCUBE-02 | — | Pending |
-| XCUBE-03 | — | Pending |
-| DEPLOY-01 | — | Pending |
+| ST004-01 | Phase 13 | Pending |
+| ST004-02 | Phase 13 | Pending |
+| ST004-03 | Phase 13 | Pending |
+| ST005-01 | Phase 14 | Pending |
+| ST005-02 | Phase 14 | Pending |
+| ST006-01 | Phase 15 | Pending |
+| XCUBE-01 | Phase 15 | Pending |
+| XCUBE-02 | Phase 16 | Pending |
+| XCUBE-03 | Phase 16 | Pending |
+| DEPLOY-01 | Phase 17 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 (awaiting roadmap)
+- Mapped to phases: 10
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after initial definition*
+*Last updated: 2026-03-23 — traceability filled after roadmap creation*

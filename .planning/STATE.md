@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Polish & Deferred Features
-status: Defining requirements
-stopped_at: —
-last_updated: "2026-03-23T19:00:00Z"
-last_activity: 2026-03-23 -- Milestone v1.2 started
+status: Roadmap defined
+stopped_at: Phase 13 (not started)
+last_updated: "2026-03-23T19:30:00Z"
+last_activity: 2026-03-23 -- v1.2 roadmap created (phases 13-17)
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 9
   completed_plans: 0
   percent: 0
 ---
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 13 — ST-004 Enhancements (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-23 — Milestone v1.2 started
+Status: Roadmap defined, ready to plan Phase 13
+Last activity: 2026-03-23 — v1.2 roadmap created
 
-Progress: [..........] 0%
+Progress: [..........] 0% (0/5 phases, 0/9 plans)
 
 ## Milestones
 
@@ -49,16 +49,26 @@ Progress: [..........] 0%
 - Last phase: 12
 - Archive: .planning/milestones/v1.1-*
 
+### v1.2 -- Polish & Deferred Features (IN PROGRESS)
+
+- 10 requirements across 5 phases (13-17)
+- 0/5 phases complete
+- Focus: enhancements to ST-004, ST-005, ST-006 + cross-cubelet pattern library + tech debt
+
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-No pending decisions.
+
+v1.2-specific notes:
+- Phase 15 groups ST006-01 and XCUBE-01 together (both add depth without new cubelets)
+- Phase 16 collapses two small data-file fixes into one plan (syllabus + prerequisite)
+- XCUBE-02 and XCUBE-03 are pure file edits — no artifact changes needed
 
 ### Pending Todos
 
-None.
+- Run /gsd:plan-phase 13 to begin execution
 
 ### Blockers/Concerns
 
@@ -67,5 +77,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Defining v1.2 requirements
+Stopped at: Roadmap created — Phase 13 next
 Resume file: None
