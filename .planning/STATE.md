@@ -2,32 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Agentic Systems Design
-status: completed
-stopped_at: Phase 11 context gathered
-last_updated: "2026-03-23T03:30:55.125Z"
-last_activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown with 6 faces + agent-feedback-analyzer skill)
+status: in-progress
+stopped_at: Completed 11-02-PLAN.md Task 1; Task 2 at checkpoint:human-verify
+last_updated: "2026-03-23T04:13:00.000Z"
+last_activity: 2026-03-23 -- Phase 11 Plan 02 Task 1 complete (Vercel deployment live)
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 14
-  completed_plans: 13
-  percent: 71
----
-
----
-gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Agentic Systems Design
-status: completed
-stopped_at: Phase 9 context gathered
-last_updated: "2026-03-21T19:03:46.548Z"
-last_activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown with 6 faces + agent-feedback-analyzer skill)
-progress:
-  [███████░░░] 71%
-  completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 23
+  completed_phases: 4
+  total_plans: 16
+  completed_plans: 15
+  percent: 94
 ---
 
 # Project State
@@ -37,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Every cubelet ships three usable deliverables -- artifact, MCP tool, skill -- so learning is hands-on.
-**Current focus:** Phase 8 - ST-004 Pathfinder (v1.1 Agentic Systems Design)
+**Current focus:** Phase 11 - Integration + Deployment (v1.1 Agentic Systems Design)
 
 ## Current Position
 
-Phase: 8 of 11 (ST-004 Pathfinder) -- IN PROGRESS
-Plan: 3 of 4 in Phase 8 complete (08-01, 08-02, 08-03 complete)
-Status: Phase 8 progressing, content + artifact complete
-Last activity: 2026-03-21 -- Phase 8 Plan 2 executed (ST-004 cubelet markdown with 6 faces + agent-feedback-analyzer skill)
+Phase: 11 of 11 (Integration + Deployment) -- IN PROGRESS
+Plan: 2 of 2 in Phase 11 (11-01 COMPLETE, 11-02 Task 1 complete, Task 2 at checkpoint)
+Status: Task 1 done (Vercel deployed); awaiting human verification for Task 2
+Last activity: 2026-03-23 -- Phase 11 Plan 02 deployed to Vercel, checkpoint:human-verify reached
 
-Progress: [##........] 23%
+Progress: [##########] 94%
 
 ## Milestones
 
@@ -61,26 +45,35 @@ Progress: [##........] 23%
 ### v1.1 -- Agentic Systems Design (IN PROGRESS)
 
 - Phase 7: Content Foundations (COMPLETE)
-- Phase 8: ST-004 Pathfinder (not started)
-- Phase 9: ST-005 Tool Orchestration (not started)
-- Phase 10: ST-006 Automation Debt (not started)
-- Phase 11: Integration + Deployment (not started)
+- Phase 8: ST-004 Agent Feedback Loops (COMPLETE -- verified 2026-03-21)
+- Phase 9: ST-005 Tool Orchestration (COMPLETE -- verified 2026-03-22, 13/13 UAT)
+- Phase 10: ST-006 Automation Debt (COMPLETE)
+- Phase 11: Integration + Deployment (IN PROGRESS -- Task 2 checkpoint)
+
+## Phase 11 Deliverable Status
+
+| Deliverable | Status | Notes |
+|-------------|--------|-------|
+| 11-01: Build + syllabus verification | COMPLETE | master-syllabus.json fixed, 9 chunks, 23 MCP tests |
+| 11-02 Task 1: Vercel deployment | COMPLETE | dpl_5zpqznzTcPhnxEdiEooJgCXCHAzL, 200 OK |
+| 11-02 Task 2: Human verification | PENDING | checkpoint:human-verify |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: ~5 min
-- Total execution time: ~1.5 sessions
+- Total plans completed: 15 of 16
+- Average duration: ~8 min
+- Total execution time: ~4 sessions
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 7 | 2/2 | ~1 session | -- |
-| 8 | 3/4 | ~15 min | ~5 min |
-| Phase 08 P01 | 6min 29sec | 2 tasks | 2 files |
-| Phase 08 P05 | 19 | 2 tasks | 1 files |
+| Phase | Plans | Status |
+|-------|-------|--------|
+| 7 | 2/2 | COMPLETE |
+| 8 | 5/5 | COMPLETE |
+| 9 | 4/4 | COMPLETE |
+| 10 | 3/3 | COMPLETE |
+| 11 | 1/2 + T1 | IN PROGRESS |
 
 ## Accumulated Context
 
@@ -91,40 +84,34 @@ Recent decisions affecting current work:
 
 - [v1.1 init]: Phase 8 (ST-004) is the pathfinder -- validate cognitive load before proceeding to 9/10
 - [v1.1 init]: Extend existing systems-thinking-cubelets MCP server (no new server)
-- [v1.1 init]: Only new dependency is dagre ^0.8.5 for graph layout
 - [v1.1 init]: Custom SVG over heavy visualization frameworks (ReactFlow, D3 rejected)
-- [Phase 7]: Agent experience checkpoint is conceptual only -- no framework-specific knowledge required
+- [Phase 7]: Agent experience checkpoint is conceptual only
 - [Phase 7]: Data models compose with existing (AgentLink wraps CausalLink, AutomationLayer wraps FixRecord)
-- [Phase 7]: Visual vocabulary: shape-coded nodes (hexagon, rectangle, cylinder, diamond, octagon) with subtle color tints
-- [Phase 7]: Week 3 module title: "Systems Thinking for AI Agents", difficulty: Advanced, 30 min total (8/12/10)
-- [Phase 8 Plan 2]: Self-assessment checklist positioned before Face 1 - warm-up activation not a gate
-- [Phase 8 Plan 2]: Score aggregate set to 50/60 (83%) - demonstrates PASS threshold with room for iteration
-- [Phase 8 Plan 2]: Skill workflow uses 5 steps - matches existing skill complexity patterns
-- [Phase 8 Plan 2]: Reference card kept to ~1000 chars - students access full cubelet for depth
-- [Phase 8 Plan 3]: Implemented topological sort layout fallback instead of dagre dependency - artifact sandbox may not support external graph libraries
-- [Phase 8 Plan 3]: Used inline SVG shape rendering (polygon, rect, path) instead of imported shape components - keeps artifact self-contained
-- [Phase 8 Plan 3]: Retry storm example has 6 nodes with 2 distinct loops (reinforcing + balancing) - demonstrates both loop types in single scenario
-- [Phase 8 Plan 3]: Primer panel defaults to collapsed state - progressive disclosure for students who need context without blocking canvas view
-- [Phase 8 Plan 3]: Severity scores displayed inline per loop (0-100 with Low/Medium/High labels) - makes risk assessment immediate and visual
-- [Phase 08-01]: Use ID-to-name mapping instead of to_causal_link() for readable output (component names in loop paths, not IDs)
-- [Phase 08-01]: Severity score = loop_gain * 100 (matches artifact JavaScript implementation for consistency)
-- [Phase 08-01]: Intervention suggestions target highest-strength link in high-severity loops (pragmatic breaking point)
-- [Phase 08]: Used ref pattern (prevLoopCountRef) instead of adding detectedLoops to deps to avoid stale closure
-- [Phase 08]: Compressed artifact 72% (1,984→546 lines) using shared style objects and rendering helpers
-- [Phase 10]: Ported detect_automation_debt from master branch (1670 lines) rather than building greenfield
-- [Phase 10]: AutomationLayer uses pattern= regex validator (not Literal) matching master implementation; tests adapted accordingly
+- [Phase 8]: Compressed artifact 72% (1,984→546 lines) using shared style objects
+- [Phase 8]: Used ref pattern for stale closure fix
+- [Phase 9]: Topological layout with 4 tiers, 230px node width, 100px row height
+- [Phase 9]: Straight-line edges at 0.15 opacity default, 0.8 on selection -- avoids spaghetti
+- [Phase 9]: Annotation positioned bottom-left to avoid node overlap
+- [Phase 9]: viewBox auto-computed from node positions with asymmetric padding (100L, 100R, 50T, 50B)
+- [Phase 9]: 9-tool worked example uses all course tools (6 existing + 3 planned) across 2 MCP servers
+- [Phase 10]: Named ES exports (export { ... }) used instead of module.exports guard -- vitest ESM mode makes module.exports read-only
+- [Phase 10]: vi.mock react hooks at test file level so pure function imports work without React renderer
+- [Phase 11-01]: Python 3.11 used for MCP test execution (installed mcp package) since uv Python 3.14 lacked pytest
+- [Phase 11-02]: Deployed via Vercel CLI (npx vercel --prod) since no git remote configured -- production URL confirmed 200
+- [Phase 11-02]: Human verification checkpoint required for Claude skills, visual theme consistency, and production tab rendering
 
 ### Pending Todos
 
-None yet.
+- Human verification: 3 Claude skills functional in Claude Desktop (INTG-03)
+- Human verification: 9 tabs visually consistent with dark cybernetic palette (INTG-06)
+- Human verification: All 9 tabs load at https://preview-app-two.vercel.app (INTG-07)
 
 ### Blockers/Concerns
 
-- [Phase 8]: Agent experience baseline unknown -- no data on what % of students have agent-building experience
-- [Phase 10]: Production automation case studies not yet collected -- ST-006 scenario quality depends on real examples
+- [Phase 11-02]: Task 2 (checkpoint:human-verify) requires human to install/invoke Claude skills and check UI
 
 ## Session Continuity
 
-Last session: 2026-03-23T03:30:55.116Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-integration-deployment/11-CONTEXT.md
+Last session: 2026-03-23T04:13:00.000Z
+Stopped at: Completed 11-02-PLAN.md Task 1; Task 2 at checkpoint:human-verify
+Resume file: None
