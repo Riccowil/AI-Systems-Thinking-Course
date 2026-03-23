@@ -1531,9 +1531,11 @@ AUTOMATION_EROSION_CHANNELS = {
 
 
 @mcp.tool(
+    name="detect_automation_debt",
     annotations={
         "title": "Detect Automation Debt",
         "readOnlyHint": True,
+        "destructiveHint": False,
         "idempotentHint": True,
         "openWorldHint": False,
     }
