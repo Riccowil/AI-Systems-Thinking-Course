@@ -1,10 +1,11 @@
 ---
 phase: 10
 slug: st-006-automation-debt
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-22
+updated: 2026-03-23
 ---
 
 # Phase 10 — Validation Strategy
@@ -20,7 +21,7 @@ created: 2026-03-22
 | **Framework** | vitest (artifact) + pytest 7.x (MCP tool) |
 | **Config file** | `preview-app/vitest.config.js` + `Cubelets MCP Tool/files/` (no config, pytest auto-discovers) |
 | **Quick run command** | `cd preview-app && npm test -- --run automation-debt` |
-| **Full suite command** | `cd preview-app && npm test -- --run automation-debt && cd "../Cubelets MCP Tool/files" && python -m pytest test_automation_debt.py -x -v` |
+| **Full suite command** | `cd preview-app && npm test -- --run automation-debt && cd "../Cubelets MCP Tool/files" && python -m pytest test_automation_debt.py test_st006_structural.py -x -v` |
 | **Estimated runtime** | ~10 seconds |
 
 ---
@@ -38,13 +39,13 @@ created: 2026-03-22
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 10-01-00 | 01 | 1 | AB-02,03,04,05,10 | stub | `cd preview-app && npx vitest run src/__tests__/automation-debt-simulator.test.jsx` | ❌ W0 | ⬜ pending |
-| 10-01-01 | 01 | 1 | AB-02,03,04 | unit | `cd preview-app && npm test -- --run automation-debt` | ❌ W0 | ⬜ pending |
-| 10-01-02 | 01 | 1 | AB-05,10 | unit | `cd preview-app && npm test -- --run automation-debt` | ❌ W0 | ⬜ pending |
-| 10-02-01 | 02 | 1 | AB-06,07 | unit (TDD) | `cd "Cubelets MCP Tool/files" && python -m pytest test_automation_debt.py -x -v` | ❌ W0 | ⬜ pending |
-| 10-02-02 | 02 | 1 | AB-01,09 | structural | `python -c "..."` (content check) | N/A | ⬜ pending |
-| 10-03-01 | 03 | 2 | AB-08 | structural | `python -c "import zipfile; ..."` (ZIP check) | N/A | ⬜ pending |
-| 10-03-02 | 03 | 2 | ALL | manual | Sandbox drop test | N/A | ⬜ pending |
+| 10-01-00 | 01 | 1 | AB-02,03,04,05,10 | stub | `cd preview-app && npx vitest run src/__tests__/automation-debt-simulator.test.jsx` | ✅ | ✅ green |
+| 10-01-01 | 01 | 1 | AB-02,03,04 | unit | `cd preview-app && npm test -- --run automation-debt` | ✅ | ✅ green |
+| 10-01-02 | 01 | 1 | AB-05,10 | unit | `cd preview-app && npm test -- --run automation-debt` | ✅ | ✅ green |
+| 10-02-01 | 02 | 1 | AB-06,07 | unit (TDD) | `cd "Cubelets MCP Tool/files" && python -m pytest test_automation_debt.py -x -v` | ✅ | ✅ green |
+| 10-02-02 | 02 | 1 | AB-01,09 | structural | `cd "Cubelets MCP Tool/files" && python -m pytest test_st006_structural.py -v` | ✅ | ✅ green |
+| 10-03-01 | 03 | 2 | AB-08 | structural | `cd "Cubelets MCP Tool/files" && python -m pytest test_st006_structural.py -v` | ✅ | ✅ green |
+| 10-03-02 | 03 | 2 | AB-02 (sandbox) | manual | Sandbox drop test | N/A | manual-only |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -52,8 +53,9 @@ created: 2026-03-22
 
 ## Wave 0 Requirements
 
-- [ ] `preview-app/src/__tests__/automation-debt-simulator.test.jsx` — stubs for AB-02, AB-03, AB-04, AB-05, AB-10
-- [ ] `Cubelets MCP Tool/files/test_automation_debt.py` — stubs for AB-06, AB-07
+- [x] `preview-app/src/__tests__/automation-debt-simulator.test.jsx` — 9 tests for AB-02, AB-03, AB-04, AB-05, AB-10 (9/9 vitest)
+- [x] `Cubelets MCP Tool/files/test_automation_debt.py` — 10 tests for AB-06, AB-07 (10/10 pytest)
+- [x] `Cubelets MCP Tool/files/test_st006_structural.py` — 5 tests for AB-01, AB-08, AB-09 (5/5 pytest) — added 2026-03-23
 
 *Vitest and pytest frameworks already installed from Phases 8-9.*
 
@@ -71,11 +73,11 @@ created: 2026-03-22
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** 2026-03-23 (Nyquist auditor — all gaps filled)
