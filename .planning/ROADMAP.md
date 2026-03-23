@@ -28,7 +28,8 @@ Delivered: 6 cubelets (W1-C1, W1-C2, W1-C3, ST-001, ST-002, ST-003), 18 delivera
 - [ ] **Phase 8: ST-004 Pathfinder (Agent Feedback Loops)** - Full three-layer stack for ST-004, validating cognitive load hypothesis
 - [ ] **Phase 9: ST-005 Tool Orchestration** - Full three-layer stack for ST-005, highest-complexity cubelet
 - [ ] **Phase 10: ST-006 Automation Debt** - Full three-layer stack for ST-006, scenario-based simulation
-- [ ] **Phase 11: Integration + Deployment** - Wire all 3 cubelets into preview app, extend MCP server, deploy to Vercel
+- [x] **Phase 11: Integration + Deployment** - Wire all 3 cubelets into preview app, extend MCP server, deploy to Vercel
+- [ ] **Phase 12: Audit Gap Closure** - Expand TO-10 primer, generate missing VERIFICATIONs, style fixes
 
 ## Phase Details
 
@@ -129,8 +130,23 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 11-01: TBD
-- [ ] 11-02: TBD
+- [x] 11-01-PLAN.md -- Build verification, syllabus fix, MCP tests
+- [x] 11-02-PLAN.md -- Vercel deployment and human verification
+
+### Phase 12: Audit Gap Closure
+**Goal**: Close the 1 partial requirement (TO-10) and resolve tech debt (missing VERIFICATIONs, style inconsistency) identified by v1.1 milestone audit
+**Depends on**: Phase 11 (integration complete)
+**Requirements**: TO-10 (gap closure)
+**Research flag**: No -- mechanical fixes
+**Estimated complexity**: LOW -- primer content expansion, VERIFICATION.md generation, one-line MCP fix
+**Success Criteria** (what must be TRUE):
+  1. ST-005 artifact primer panel includes full ST-002 prerequisite refresher content (Meadows hierarchy levels, leverage scoring methodology)
+  2. VERIFICATION.md exists for phases 7, 9, 10, 11
+  3. detect_automation_debt MCP tool uses explicit name= parameter
+**Plans**: TBD
+
+Plans:
+- [ ] 12-01: TBD
 
 ## Coverage
 
@@ -182,7 +198,7 @@ Phase 9   Phase 10
 
 ## Progress
 
-**Execution Order:** 7 -> 8 -> 9 -> 10 -> 11
+**Execution Order:** 7 -> 8 -> 9 -> 10 -> 11 -> 12
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -190,7 +206,8 @@ Phase 9   Phase 10
 | 8. ST-004 Pathfinder | v1.1 | 5/5 | COMPLETE | 2026-03-21 |
 | 9. ST-005 Tool Orchestration | v1.1 | 4/4 | COMPLETE | 2026-03-22 |
 | 10. ST-006 Automation Debt | v1.1 | 3/3 | COMPLETE | 2026-03-23 |
-| 11. Integration + Deployment | v1.1 | 1/2 (T1 done) | In progress | - |
+| 11. Integration + Deployment | v1.1 | 2/2 | COMPLETE | 2026-03-23 |
+| 12. Audit Gap Closure | v1.1 | 0/1 | Pending | - |
 
 ---
 *Roadmap created: 2026-03-21*
