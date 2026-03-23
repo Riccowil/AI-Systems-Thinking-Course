@@ -107,12 +107,12 @@ Plans:
   4. MCP tool `detect_automation_debt` accepts AutomationLayer inputs + fundamental solution description, internally reuses existing `detect_burden_shift` via composition, and returns burden-shift pattern analysis with B1/B2/R1 loop identification
   5. Claude skill `automation-debt-detector.skill` guides a multi-step detection workflow and is functional in Claude Desktop/CLI
   6. Cubelet markdown has all 6 faces, includes archetype boundaries section (when pattern applies and when it does not, with counter-examples), and scores >= 42/60 on quality gate
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
-- [ ] 10-03: TBD
+- [ ] 10-01-PLAN.md -- Artifact testability: Wave 0 test stubs, module.exports for simulation engine, real test assertions
+- [ ] 10-02-PLAN.md -- MCP tool tests (detect_automation_debt pytest suite) and cubelet markdown quality verification
+- [ ] 10-03-PLAN.md -- Claude skill verification and sandbox UAT checkpoint
 
 ### Phase 11: Integration + Deployment
 **Goal**: All 3 new cubelets are wired into the existing preview app, MCP server, and course infrastructure -- students access 9 cubelets through a single deployed app with consistent aesthetic and working prerequisites
@@ -127,7 +127,7 @@ Plans:
   4. master-syllabus.json includes Week 3 module with 3 new lessons, and prerequisite-chain.json includes ST-004/005/006 entries with correct dependency ordering
   5. Dark cybernetic aesthetic is consistent across all 9 artifacts -- no visual breaks in palette, typography, or component styling when switching tabs
   6. Vercel deployment is live with all 9 artifacts functional at the production URL
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 - [x] 11-01-PLAN.md -- Build verification, syllabus fix, MCP tests
@@ -143,10 +143,11 @@ Plans:
   1. ST-005 artifact primer panel includes full ST-002 prerequisite refresher content (Meadows hierarchy levels, leverage scoring methodology)
   2. VERIFICATION.md exists for phases 7, 9, 10, 11
   3. detect_automation_debt MCP tool uses explicit name= parameter
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 12-01-PLAN.md -- ST-005 primer panel expansion with Meadows content and MCP decorator style fix
+- [ ] 12-02-PLAN.md -- Retroactive VERIFICATION.md generation for phases 7, 9, 10, 11
 
 ## Coverage
 
@@ -157,7 +158,8 @@ Plans:
 | Category | Count | Phase | Requirement IDs |
 |----------|-------|-------|-----------------|
 | Content Foundations (CFND) | 5 | Phase 7 | CFND-01, CFND-02, CFND-03, CFND-04, CFND-05 |
-| Agent Feedback Loops (AF) | 10 | 0/3 | Planned    |  | Tool Orchestration (TO) | 10 | Phase 9 | TO-01 through TO-10 |
+| Agent Feedback Loops (AF) | 10 | Phase 8 | AF-01 through AF-10 |
+| Tool Orchestration (TO) | 10 | Phase 9 + 12 | TO-01 through TO-10 |
 | Automation Debt (AB) | 10 | Phase 10 | AB-01 through AB-10 |
 | Integration (INTG) | 8 | Phase 11 | INTG-01 through INTG-08 |
 
@@ -179,6 +181,9 @@ Phase 9   Phase 10
         |
         v
   Phase 11 (Integration)
+        |
+        v
+  Phase 12 (Audit Gap Closure)
 ```
 
 **Notes:**
@@ -195,6 +200,7 @@ Phase 9   Phase 10
 | 9 | YES | Novel Meadows-to-tool-orchestration scoring algorithm | Scoring feels arbitrary, students lose trust in framework |
 | 10 | YES | Production automation case studies; archetype boundary definition | Scenarios feel hypothetical, archetype gets misapplied |
 | 11 | No | Mechanical integration | Low |
+| 12 | No | Mechanical fixes | Low |
 
 ## Progress
 
@@ -207,7 +213,7 @@ Phase 9   Phase 10
 | 9. ST-005 Tool Orchestration | v1.1 | 4/4 | COMPLETE | 2026-03-22 |
 | 10. ST-006 Automation Debt | v1.1 | 3/3 | COMPLETE | 2026-03-23 |
 | 11. Integration + Deployment | v1.1 | 2/2 | COMPLETE | 2026-03-23 |
-| 12. Audit Gap Closure | v1.1 | 0/1 | Pending | - |
+| 12. Audit Gap Closure | v1.1 | 0/2 | PLANNED | - |
 
 ---
 *Roadmap created: 2026-03-21*
