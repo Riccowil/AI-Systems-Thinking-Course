@@ -39,7 +39,7 @@ Requirements for this milestone. Each maps to roadmap phases (7-11).
 - [ ] **TO-07**: MCP tool reuses existing `compare_interventions` via composition (transforms MCPTool/ToolDependency to intervention format)
 - [ ] **TO-08**: Claude skill `tool-stack-analyzer.skill` guides multi-step workflow for auditing tool stacks
 - [ ] **TO-09**: Quality gate score >= 42/60
-- [ ] **TO-10**: Prerequisite refresher panel referencing ST-002 concepts (Meadows hierarchy, leverage scoring)
+- [x] **TO-10**: Prerequisite refresher panel referencing ST-002 concepts (Meadows hierarchy, leverage scoring)
 
 ### ST-006: Shifting the Burden in Automation (AB)
 
@@ -117,7 +117,7 @@ Acknowledged features to add after v1.1 core is validated in classroom.
 | TO-07 | Phase 9 | Pending |
 | TO-08 | Phase 9 | Pending |
 | TO-09 | Phase 9 | Pending |
-| TO-10 | Phase 9 | Pending |
+| TO-10 | Phase 9 | Complete |
 | AB-01 | Phase 10 | Complete |
 | AB-02 | Phase 10 | Pending |
 | AB-03 | Phase 10 | Pending |
