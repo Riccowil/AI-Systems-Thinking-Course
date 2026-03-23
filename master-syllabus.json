@@ -319,7 +319,7 @@
           ],
           "deliverables": {
             "artifact": {
-              "file": "tool-orchestration-scorer.jsx",
+              "file": "tool-orchestration-analyzer.jsx",
               "description": "Tool Stack Analyzer with dependency graph, health scoring, and Meadows-based intervention ranking",
               "url": "https://preview-app-two.vercel.app"
             },
@@ -354,7 +354,7 @@
           ],
           "deliverables": {
             "artifact": {
-              "file": "automation-burden-detector.jsx",
+              "file": "automation-debt-simulator.jsx",
               "description": "Automation Debt Simulator with 3 AI scenarios, 12-round decision game, and post-game debt diagnosis",
               "url": "https://preview-app-two.vercel.app"
             },
