@@ -56,14 +56,14 @@ Requirements for this milestone. Each maps to roadmap phases (7-11).
 
 ### Integration and Deployment (INTG)
 
-- [ ] **INTG-01**: Preview app App.jsx updated with 3 new lazy-loaded tabs for ST-004/005/006
-- [ ] **INTG-02**: systems-thinking-cubelets MCP server extended from 3 to 6 tools (no new server created)
+- [x] **INTG-01**: Preview app App.jsx updated with 3 new lazy-loaded tabs for ST-004/005/006
+- [x] **INTG-02**: systems-thinking-cubelets MCP server extended from 3 to 6 tools (no new server created)
 - [ ] **INTG-03**: All 3 new Claude skills installed and functional in Claude Desktop/CLI
-- [ ] **INTG-04**: master-syllabus.json updated with Week 3 module and 3 new lessons
-- [ ] **INTG-05**: prerequisite-chain.json updated with ST-004/005/006 entries
+- [x] **INTG-04**: master-syllabus.json updated with Week 3 module and 3 new lessons
+- [x] **INTG-05**: prerequisite-chain.json updated with ST-004/005/006 entries
 - [ ] **INTG-06**: Dark cybernetic aesthetic consistency verified across all 9 artifacts
 - [ ] **INTG-07**: Vercel deployment updated with all 9 artifacts functional
-- [ ] **INTG-08**: dagre dependency installed in preview-app (^0.8.5)
+- [x] **INTG-08**: dagre dependency installed in preview-app (^0.8.5)
 
 ## v1.2 Requirements (Deferred)
 
@@ -128,14 +128,14 @@ Acknowledged features to add after v1.1 core is validated in classroom.
 | AB-08 | Phase 10 | Pending |
 | AB-09 | Phase 10 | Pending |
 | AB-10 | Phase 10 | Complete |
-| INTG-01 | Phase 11 | Pending |
-| INTG-02 | Phase 11 | Pending |
+| INTG-01 | Phase 11 | Complete |
+| INTG-02 | Phase 11 | Complete |
 | INTG-03 | Phase 11 | Pending |
-| INTG-04 | Phase 11 | Pending |
-| INTG-05 | Phase 11 | Pending |
+| INTG-04 | Phase 11 | Complete |
+| INTG-05 | Phase 11 | Complete |
 | INTG-06 | Phase 11 | Pending |
 | INTG-07 | Phase 11 | Pending |
-| INTG-08 | Phase 11 | Pending |
+| INTG-08 | Phase 11 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 43 total
