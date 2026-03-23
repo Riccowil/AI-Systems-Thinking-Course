@@ -33,17 +33,18 @@ Every cubelet ships three usable deliverables — an interactive artifact studen
 
 ### Active
 
-<!-- v1.2 scope — Polish & Deferred Features -->
+<!-- v1.2 scope — see REQUIREMENTS.md for full details -->
 
-- [ ] **ENHANCE-01**: Student can import live agent execution traces into ST-004 feedback loop builder
-- [ ] **ENHANCE-02**: Student can view cost impact overlay on agent feedback loop analysis (ST-004)
-- [ ] **ENHANCE-03**: Student can compare two tool stack configurations side-by-side (ST-005)
-- [ ] **ENHANCE-04**: Student can build custom automation debt scenarios with editable parameters (ST-006)
-- [ ] **ENHANCE-05**: Student can browse a library of common system archetype patterns across cubelets
-- [ ] **TECH-01**: Fix 9 vitest Wave 0 stubs for ST-005 (replace with real assertions)
-- [ ] **TECH-02**: Update master-syllabus.json quality_gate to COMPLETE
-- [ ] **TECH-03**: Expand ST-004 primer panel to match ST-005's depth
-- [ ] **TECH-04**: Fix ST-003 prerequisite inconsistency between reference files
+- [ ] **ST004-01**: Import JSON agent traces → auto-map as CLD
+- [ ] **ST004-02**: Cost/latency overlay on agent feedback loop nodes
+- [ ] **ST004-03**: Expand ST-004 primer to ST-005 depth
+- [ ] **ST005-01**: Side-by-side tool stack comparison with diff
+- [ ] **ST005-02**: Replace 9 vitest stubs with real assertions
+- [ ] **ST006-01**: Custom scenario builder with editable parameters
+- [ ] **XCUBE-01**: Pattern library (5-8 archetypes with CLD examples)
+- [ ] **XCUBE-02**: Syllabus quality_gate → COMPLETE
+- [ ] **XCUBE-03**: Fix ST-003 prerequisite inconsistency
+- [ ] **DEPLOY-01**: Redeploy all modified artifacts to Vercel
 
 ### Out of Scope
 
