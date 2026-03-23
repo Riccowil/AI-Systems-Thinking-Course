@@ -55,7 +55,7 @@ Delivered: 3 cubelets (ST-004, ST-005, ST-006), 9 deliverables, quality gates pa
   1. Student can paste or upload a JSON agent execution trace and see it auto-mapped as a CLD with feedback loops detected
   2. Student can toggle a cost/latency overlay on individual nodes showing token counts and time per step
   3. ST-004 primer panel contains Meadows hierarchy levels, worked examples, and progressive disclosure matching ST-005's depth
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 13-01: JSON trace import + CLD auto-mapping (ST004-01)
@@ -69,7 +69,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Student can load two tool stack configurations and view them side-by-side with diff highlighting on dependencies, health scores, and intervention recommendations
   2. All 9 previously-stubbed vitest tests run real assertions against actual component logic and pass
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 14-01: Side-by-side tool stack comparison with diff (ST005-01)
@@ -83,7 +83,7 @@ Plans:
   1. Student can create a custom automation debt scenario with editable fix parameters (label, side effects, erosion rate) and run a simulation against it
   2. Student can browse 5-8 system archetypes in a pattern library with one-paragraph descriptions and pre-built CLD examples
   3. Pattern library CLD examples are loadable into their relevant cubelets (e.g., reinforcing loop example loads into ST-001)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 15-01: Custom scenario builder with editable parameters (ST006-01)
@@ -96,7 +96,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. master-syllabus.json shows quality_gate: "COMPLETE" for all 9 cubelets
   2. ST-003 prerequisite is identical across cubelet markdown and all syllabus reference files — no inconsistency
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 16-01: Syllabus quality_gate update + ST-003 prerequisite fix (XCUBE-02, XCUBE-03)
@@ -108,7 +108,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Vercel preview app loads all 9 tabs with v1.2 enhancements visible (trace import button in ST-004, comparison mode in ST-005, custom scenario builder in ST-006, pattern library accessible)
   2. No regressions in existing cubelet functionality after redeploy
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 17-01: Redeploy all modified artifacts to Vercel (DEPLOY-01)
