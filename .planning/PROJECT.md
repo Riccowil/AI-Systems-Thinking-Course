@@ -33,9 +33,17 @@ Every cubelet ships three usable deliverables — an interactive artifact studen
 
 ### Active
 
-<!-- Next milestone scope — to be defined via /gsd:new-milestone -->
+<!-- v1.2 scope — Polish & Deferred Features -->
 
-(None — defining in next milestone)
+- [ ] **ENHANCE-01**: Student can import live agent execution traces into ST-004 feedback loop builder
+- [ ] **ENHANCE-02**: Student can view cost impact overlay on agent feedback loop analysis (ST-004)
+- [ ] **ENHANCE-03**: Student can compare two tool stack configurations side-by-side (ST-005)
+- [ ] **ENHANCE-04**: Student can build custom automation debt scenarios with editable parameters (ST-006)
+- [ ] **ENHANCE-05**: Student can browse a library of common system archetype patterns across cubelets
+- [ ] **TECH-01**: Fix 9 vitest Wave 0 stubs for ST-005 (replace with real assertions)
+- [ ] **TECH-02**: Update master-syllabus.json quality_gate to COMPLETE
+- [ ] **TECH-03**: Expand ST-004 primer panel to match ST-005's depth
+- [ ] **TECH-04**: Fix ST-003 prerequisite inconsistency between reference files
 
 ### Out of Scope
 
@@ -85,14 +93,17 @@ Every cubelet ships three usable deliverables — an interactive artifact studen
 | Single MCP server extension (v1.1) | Extended systems-thinking-cubelets from 3 to 6 tools, no new server | ✓ Good |
 | Named ES exports for testability (v1.1) | vitest ESM mode, enables unit testing without React renderer | ✓ Good |
 
-## Deferred Features (v1.2 Candidates)
+## Current Milestone: v1.2 Polish & Deferred Features
 
-From REQUIREMENTS.md v1.2 section:
-- DEFER-01: Live agent execution trace import for ST-004
-- DEFER-02: Cost calculator overlay for ST-004
-- DEFER-03: Comparison mode for ST-005
-- DEFER-04: Custom scenario builder for ST-006
-- DEFER-05: Archetype pattern library
+**Goal:** Ship the 5 deferred enhancements from v1.1 and clean up tracked tech debt, making existing cubelets richer without adding new concepts.
+
+**Target features:**
+- Live agent trace import (ST-004)
+- Cost calculator overlay (ST-004)
+- Tool stack comparison mode (ST-005)
+- Custom scenario builder (ST-006)
+- Archetype pattern library (cross-cubelet)
+- Tech debt cleanup (vitest stubs, syllabus JSON, primer parity, prerequisite fix)
 
 ---
-*Last updated: 2026-03-23 after v1.1 milestone*
+*Last updated: 2026-03-23 — v1.2 milestone started*

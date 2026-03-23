@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Agentic Systems Design
-status: Milestone v1.1 shipped
-stopped_at: Milestone complete
-last_updated: "2026-03-23T18:00:00Z"
-last_activity: 2026-03-23 -- v1.1 Agentic Systems Design milestone completed and archived
+milestone: v1.2
+milestone_name: Polish & Deferred Features
+status: Defining requirements
+stopped_at: —
+last_updated: "2026-03-23T19:00:00Z"
+last_activity: 2026-03-23 -- Milestone v1.2 started
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,14 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Every cubelet ships three usable deliverables -- artifact, MCP tool, skill -- so learning is hands-on.
-**Current focus:** Planning next milestone
+**Current focus:** v1.2 -- Ship deferred enhancements and clean tech debt
 
 ## Current Position
 
-Milestone v1.1 shipped 2026-03-23. All phases archived.
-Next step: /gsd:new-milestone to start v1.2.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-23 — Milestone v1.2 started
 
-Progress: [##########] 100%
+Progress: [..........] 0%
 
 ## Milestones
 
@@ -37,15 +39,12 @@ Progress: [##########] 100%
 - 6 cubelets shipped (W1-C1 through ST-003)
 - 18 deliverables (6 artifacts, 6 MCP tools, 6 skills)
 - All quality gates passed (52-53/60)
-- Deployed to Vercel
 - Last phase: 6
 
 ### v1.1 -- Agentic Systems Design (COMPLETE)
 
 - 3 cubelets shipped (ST-004, ST-005, ST-006)
 - 9 deliverables (3 artifacts, 3 MCP tools, 3 skills)
-- Quality gates passed (48-54/60)
-- 6 MCP tools in single server, Vercel updated to 9 tabs
 - 43/43 requirements satisfied, all 6 phases verified
 - Last phase: 12
 - Archive: .planning/milestones/v1.1-*
@@ -55,11 +54,11 @@ Progress: [##########] 100%
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-No pending decisions -- milestone complete.
+No pending decisions.
 
 ### Pending Todos
 
-None -- milestone shipped.
+None.
 
 ### Blockers/Concerns
 
@@ -68,5 +67,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Milestone v1.1 complete
+Stopped at: Defining v1.2 requirements
 Resume file: None
