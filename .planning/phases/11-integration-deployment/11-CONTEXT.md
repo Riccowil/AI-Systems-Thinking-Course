@@ -1,90 +1,128 @@
 # Phase 11: Integration + Deployment - Context
 
-**Gathered:** 2026-03-22
+**Gathered:** 2026-03-23
 **Status:** Ready for planning
 
 <domain>
 ## Phase Boundary
 
-Integrate all v1.1 deliverables (ST-004, ST-005, ST-006) into the preview app, update syllabus and prerequisite chain, verify MCP server and Claude skills, and deploy to Vercel. This is a mechanical integration phase — no new features, just assembly and verification.
+Wire all 3 new cubelets (ST-004/005/006) into the existing preview app, MCP server, and course infrastructure. Students access 9 cubelets through a single deployed app with consistent aesthetic and working prerequisites. No new features — mechanical integration of completed work.
 
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### Tab Organization
-- Group tabs by week: Week 1 (3 tabs) | Week 2 (3 tabs) | Week 3 (3 tabs) with visual separators
-- Week 3 tab labels: 'ST-004: Agent Feedback', 'ST-005: Tool Orchestration', 'ST-006: Automation Debt'
-- Keep existing Week 2 labels unchanged (ST-001/002/003)
-- Visual separator style: Claude decides (week label headers or thin vertical dividers)
-- Default active tab: Claude decides (W1-C1 or localStorage recall)
-- Prerequisite gating on navigation: Claude decides (free navigation or soft warning banner)
+### Tab Layout and Navigation
+- Grouped by module: Week 1 (W1-C1/C2/C3), Week 2 (ST-001/002/003), Week 3 (ST-004/005/006)
+- Tab labels: ID + short name (e.g. "ST-004: Agent Feedback")
+- Lazy-loaded with React.lazy + Suspense
+- Keep existing App.jsx from main repo — already has all 9 tabs correctly configured
+- No landing/home view — load first artifact (W1-C1) by default
 
-### Syllabus & Prerequisites
-- Mirror Week 2 structure in master-syllabus.json for Week 3
-- Prerequisite ordering per CFND-01: ST-004 requires ST-001, ST-005 requires ST-002 + ST-004, ST-006 requires ST-003
-- Update prerequisite-chain.json with ST-004/005/006 entries
+### Aesthetic Consistency
+- Visual spot-check across all 9 tabs (not automated CSS audit)
+- Primary accent: teal (#00d4aa) for all artifacts where possible
+- Per-artifact accent variation: Claude judges case-by-case whether changing accent breaks the artifact's visual logic
+- Tab nav only — no additional header/footer chrome
+- Self-contained inline styles per artifact — no shared theme provider or CSS variables
+- v1.0 artifacts confirmed working — focus verification on new Week 3 artifacts
 
-### Vercel Deployment
-- Push to main branch, auto-deploy via existing Vercel connection
-- Project already configured: projectId=prj_APAKi6GOWFmnAVJ0GaVAMJmxBdIn, team configured
-- Default Vercel URL for now — custom domain deferred to post-v1.1
-- No environment variables needed — pure client-side React
-- No dagre dependency — ST-005 uses built-in topological layout, passed UAT
+### Artifact Integration
+- Copy .jsx files from "Interactive Artifact for Cubelets/" into preview-app/src/
+- Source of truth: Claude decides per existing v1.0 pattern
 
-### Dark Theme Consistency
-- Visual spot-check in preview app — load each of 9 tabs, confirm palette matches
-- Fix any artifacts that look off compared to the established dark cybernetic palette
+### Deployment Strategy
+- Merge admiring-lovelace worktree branch to main first, then integrate on main
+- Push to main triggers Vercel auto-deploy — no staging preview needed
+- Skip dagre dependency (INTG-08) — Phase 8 decided on topological sort fallback instead
+- Single PR: "v1.1 Agentic Systems Design" covering Phase 8-10 work + integration
 
-### Verification Strategy
-- MCP server: Call each of 6 tools from current session with minimal test inputs
-- Claude skills: Manual smoke test — install each ZIP, invoke via /skill-name, confirm multi-step workflow runs
-- Artifacts: Visual spot-check all 9 tabs in preview app after integration
+### Skill and MCP Verification
+- Skills: ZIP structure + content check (SKILL.md, references/, MCP tool refs, workflow, examples)
+- Skills: Installation docs at Claude's discretion
+- MCP server: Claude decides whether to re-run pytest suites or trust Phase 8-10 results
+
+### Course Data Updates
+- master-syllabus.json: verify existing Week 3 entries are correct (already added in Phase 7)
+- prerequisite-chain.json: verify ST-004/005/006 entries with correct dependency ordering
+
+### Testing Strategy
+- Build verification: `npm run build` must succeed with all 9 artifacts
+- Re-run existing vitest suites from Phases 9-10
+- Phase 9 Wave 0 stubs: leave as documented stubs — don't block deployment
+- No new E2E or integration tests (v1.2 concern)
+
+### Error Handling
+- Simple error boundary: "Failed to load artifact. Refresh to try again." in dark theme
+- No retry button needed
+
+### Git Workflow
+- Merge worktree branch to main first
+- Integration work on main with atomic commits
+- Single PR for entire v1.1 milestone
+- Git tag v1.1.0 on completion + update ROADMAP.md progress table
+
+### Performance
+- No concerns — lazy loading + Vercel free tier handles 9 static artifacts easily
 
 ### Claude's Discretion
-- Week group separator visual design
-- Default tab behavior (first tab vs localStorage)
-- Prerequisite navigation warnings (none vs soft banner)
-- Order of integration tasks
-- Any minor style adjustments for tab bar with 9 tabs
+- Home view vs load-first-artifact decision
+- Per-artifact accent color adjustment (keep or change to teal)
+- Artifact source of truth pattern (follow v1.0 convention)
+- Skill installation docs (brief README or skip)
+- MCP test re-run (redundant check or trust prior results)
+- Milestone closure ceremony level
 
 </decisions>
 
 <code_context>
 ## Existing Code Insights
 
-### Preview App Structure
-- `preview-app/src/App.jsx` — Main app with lazy-loaded tab array, currently 6 artifacts
-- `preview-app/.vercel/project.json` — Vercel project config (already connected)
-- `preview-app/src/` — Contains 6 artifact JSX files copied from `Interactive Artifact for Cubelets/`
+### Reusable Assets
+- preview-app/src/App.jsx (main repo): Complete 9-tab layout with Week grouping, lazy loading, dark cybernetic theme
+- 6 v1.0 artifacts in preview-app/src/ (main repo): Working, deployed, confirmed functional
+- 3 v1.1 artifacts in "Interactive Artifact for Cubelets/": agent-feedback-loop-builder.jsx, tool-orchestration-analyzer.jsx, automation-debt-simulator.jsx
+- 3 cubelet markdowns in Cubelets/CubeletsMarkdown/: ST-004, ST-005, ST-006
+- 3 skill ZIPs in "Claude skills build for Cubelets/files/": agent-feedback-analyzer.skill, tool-stack-analyzer.skill, automation-debt-detector.skill
+- cubelets_mcp_server.py: Already has 6 tools (3 original + 3 new from Phases 8-10)
+- master-syllabus.json: Already includes Week 3 module (added Phase 7)
+- prerequisite-chain.json: Already includes ST-004/005/006 entries (added Phase 7)
 
-### Artifacts to Integrate
-- `Interactive Artifact for Cubelets/agent-feedback-analyzer.jsx` — ST-004 artifact (Phase 8)
-- `Interactive Artifact for Cubelets/tool-orchestration-analyzer.jsx` — ST-005 artifact (Phase 9)
-- `Interactive Artifact for Cubelets/automation-debt-simulator.jsx` — ST-006 artifact (Phase 10)
+### Established Patterns
+- Dark cybernetic theme: #0f1117 background, #00d4aa teal accent, DM Sans + JetBrains Mono fonts
+- Inline styles per artifact (self-contained for Claude.ai sandbox compatibility)
+- Lazy loading with React.lazy + Suspense fallback
+- Vitest + jsdom for artifact unit tests
+- Pytest for MCP tool tests
+- Python zipfile verification for skill ZIPs
 
-### MCP Server
-- `packages/cubelets-mcp/server.py` — Extended from 3 to 6 tools across Phases 8-10
-- Tools: score_reinforcing_loops, compare_interventions, detect_burden_shift, analyze_agent_feedback_loops, analyze_tool_orchestration, detect_automation_debt
-
-### Skills
-- ST-004: agent-feedback-analyzer.skill (Phase 8)
-- ST-005: tool-stack-analyzer.skill (Phase 9)
-- ST-006: automation-debt-detector.skill (Phase 10)
-
-### Config Files to Update
-- `master-syllabus.json` — Add Week 3 module with 3 lessons
-- `prerequisite-chain.json` — Add ST-004/005/006 entries with dependency links
+### Integration Points
+- preview-app/src/App.jsx: Tab configuration array (weeks → tabs → lazy imports)
+- preview-app/package.json: Dependencies (no dagre needed)
+- Vercel: preview-app-two.vercel.app (auto-deploys from main branch)
+- Git: admiring-lovelace worktree → main branch merge
 
 </code_context>
+
+<specifics>
+## Specific Ideas
+
+- App.jsx already exists in main repo with exact desired structure — copy/use directly
+- INTG-08 (dagre) is a dead requirement — Phase 8 chose topological sort fallback instead
+- INTG-02 (MCP server 6 tools) is already satisfied from Phase 8-10 execution
+- Most "integration" is verification of already-completed work + file copies + deployment
+
+</specifics>
 
 <deferred>
 ## Deferred Ideas
 
-- Custom domain for preview app (post-v1.1 classroom validation)
-- dagre library for improved auto-layout (built-in layout sufficient for now)
-- Automated color audit script for theme consistency (visual spot-check sufficient)
-- Automated skill testing framework (manual smoke test sufficient)
+None — discussion stayed within phase scope
 
 </deferred>
+
+---
+
+*Phase: 11-integration-deployment*
+*Context gathered: 2026-03-23*

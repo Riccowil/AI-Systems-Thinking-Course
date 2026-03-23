@@ -594,8 +594,19 @@ export default function ToolOrchestrationAnalyzer() {
       {/* Right panel */}
       <div style={{ ...S.flexCol, width: '280px', minWidth: '280px', background: C.panel, borderLeft: `1px solid ${C.panelBorder}`, overflowY: 'auto', position: 'relative', zIndex: 20 }}>
         <div style={{ ...S.cardBase, margin: '12px', borderColor: C.accent }}>
-          <div onClick={() => setPrimerCollapsed(!primerCollapsed)} style={{ ...S.flexRow, justifyContent: 'space-between', cursor: 'pointer' }}><span style={{ fontSize: '12px', fontWeight: '600', color: C.accent }}>Primer: Tool Orchestration</span><span style={{ color: C.textMuted }}>{primerCollapsed ? '▼' : '▲'}</span></div>
-          {!primerCollapsed && <div style={{ fontSize: '11px', color: C.textSecondary, marginTop: '8px', lineHeight: '1.4' }}><p>Tool dependencies create feedback loops. <strong>Required</strong> edges (solid) are critical paths. <strong>Optional</strong> (dashed) add resilience. <strong>Enhances</strong> (dotted) improve quality.</p><p style={{ marginTop: '6px' }}>Health metrics reveal systemic fragility. High brittleness = deep cascades. See <strong>ST-002</strong> for Meadows leverage hierarchy (L1-L12).</p></div>}
+          <div onClick={() => setPrimerCollapsed(!primerCollapsed)} style={{ ...S.flexRow, justifyContent: 'space-between', cursor: 'pointer' }}><span style={{ fontSize: '12px', fontWeight: '600', color: C.accent }}>PREREQUISITE: LEVERAGE POINTS</span><span style={{ color: C.textMuted }}>{primerCollapsed ? '▼' : '▲'}</span></div>
+          {!primerCollapsed && <div style={{ fontSize: '10px', color: C.textSecondary, marginTop: '8px', lineHeight: '1.6' }}>
+            <p>Meadows leverage points rank where interventions in a system produce the most change. Tool orchestration maps directly onto this hierarchy — the same action can be low or high leverage depending on <em>where</em> in the dependency graph it lands.</p>
+            <p style={{ marginTop: '6px' }}><strong style={{ color: C.textSecondary }}>5 levels used in this artifact:</strong><br />
+              <span style={{ color: C.textMuted }}>▸ <strong>L1: Constants/Parameters</strong></span> — e.g., Add tool (low leverage)<br />
+              <span style={{ color: C.textMuted }}>▸ <strong>L2: Buffer/Stock Sizes</strong></span> — e.g., Remove tool (low leverage)<br />
+              <span style={{ color: C.accentWarm }}>▸ <strong>L5: Feedback Delays</strong></span> — e.g., Add cache/fallback (medium)<br />
+              <span style={{ color: C.accentWarm }}>▸ <strong>L6: Feedback Structure</strong></span> — e.g., Refactor dependency (medium)<br />
+              <span style={{ color: C.accent }}>▸ <strong>L10: System Goals</strong></span> — e.g., Change system purpose (high leverage)
+            </p>
+            <p style={{ marginTop: '6px' }}>Health scores measure systemic fragility: <strong>Complexity</strong> (edge density + cycles), <strong>Redundancy</strong> (overlapping outputs), <strong>Brittleness</strong> (cascade depth on failure). Tiers: <span style={{ color: C.accent }}>Healthy 0–33</span> / <span style={{ color: C.accentWarm }}>At Risk 34–66</span> / <span style={{ color: C.accentDanger }}>Critical 67–100</span>.</p>
+            <p style={{ marginTop: '6px', color: C.textMuted }}>Review <strong style={{ color: C.textSecondary }}>ST-002: Leverage Points</strong> for the full 12-level hierarchy.</p>
+          </div>}
         </div>
 
         {/* Tab bar */}
