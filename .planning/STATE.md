@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Polish & Deferred Features
 status: planning
-stopped_at: Phase 13 context gathered
-last_updated: "2026-03-23T22:08:33.292Z"
+stopped_at: "13-01: paused at Task 2 human-verify checkpoint"
+last_updated: "2026-03-24T00:09:14.619Z"
 last_activity: 2026-03-23 — v1.2 roadmap created
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -65,6 +65,7 @@ v1.2-specific notes:
 - Phase 15 groups ST006-01 and XCUBE-01 together (both add depth without new cubelets)
 - Phase 16 collapses two small data-file fixes into one plan (syllabus + prerequisite)
 - XCUBE-02 and XCUBE-03 are pure file edits — no artifact changes needed
+- [Phase 13-st-004-enhancements]: skipPredictions = exampleMode || importMode — both example and import paths bypass predictions gate for loop analysis
 
 ### Pending Todos
 
@@ -76,6 +77,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-23T22:08:33.290Z
-Stopped at: Phase 13 context gathered
-Resume file: .planning/phases/13-st-004-enhancements/13-CONTEXT.md
+Last session: 2026-03-24T00:09:08.445Z
+Stopped at: 13-01: paused at Task 2 human-verify checkpoint
+Resume file: None
