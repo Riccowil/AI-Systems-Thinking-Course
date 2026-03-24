@@ -3,12 +3,12 @@ import { useState, useRef, useCallback, useEffect } from "react";
 // Retry storm worked example with 5-6 agent nodes and 2 loops
 const PRELOADED_EXAMPLE = {
   nodes: [
-    { id: "n1", label: "Agent", component_type: "agent", x: 400, y: 100 },
-    { id: "n2", label: "Tool Call", component_type: "tool", x: 650, y: 150 },
-    { id: "n3", label: "Error Handler", component_type: "evaluator", x: 650, y: 320 },
-    { id: "n4", label: "Rate Limiter", component_type: "constraint", x: 400, y: 420 },
-    { id: "n5", label: "Timeout", component_type: "constraint", x: 150, y: 320 },
-    { id: "n6", label: "Context Memory", component_type: "memory", x: 150, y: 150 },
+    { id: "n1", label: "Agent", component_type: "agent", x: 400, y: 100, tokens: 840, latency: 230 },
+    { id: "n2", label: "Tool Call", component_type: "tool", x: 650, y: 150, tokens: 1250, latency: 680 },
+    { id: "n3", label: "Error Handler", component_type: "evaluator", x: 650, y: 320, tokens: 320, latency: 45 },
+    { id: "n4", label: "Rate Limiter", component_type: "constraint", x: 400, y: 420, tokens: 64, latency: 12 },
+    { id: "n5", label: "Timeout", component_type: "constraint", x: 150, y: 320, tokens: 0, latency: 5000 },
+    { id: "n6", label: "Context Memory", component_type: "memory", x: 150, y: 150, tokens: 128, latency: 35 },
   ],
   edges: [
     // Reinforcing loop (retry escalation): Agent -> Tool -> Error -> Agent
@@ -235,6 +235,8 @@ export default function AgentFeedbackLoopBuilder() {
   const [predictions, setPredictions] = useState({});
   const [allPredicted, setAllPredicted] = useState(false);
   const [maxNodeWarning, setMaxNodeWarning] = useState(false);
+  // Overlay feature state
+  const [showOverlay, setShowOverlay] = useState(false);
   // Import feature state
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState("");
@@ -338,7 +340,7 @@ export default function AgentFeedbackLoopBuilder() {
   const clearAll = () => {
     setNodes([]); setEdges([]); setDetectedLoops([]); setConnectFrom(null); setSelectedNode(null);
     setNodeCounter(0); setExampleMode(false); setPredictions({}); setAllPredicted(false);
-    setImportMode(false); setPreviousCanvas(null);
+    setImportMode(false); setPreviousCanvas(null); setShowOverlay(false);
   };
 
   const autoArrange = () => { const arranged = autoArrangeNodes(nodes, edges); setNodes(arranged); };
@@ -373,7 +375,7 @@ export default function AgentFeedbackLoopBuilder() {
     const unique = [], seen = new Set();
     classified.forEach((loop) => { const key = [...loop.nodes].slice(0, -1).sort().join(","); if (!seen.has(key)) { seen.add(key); unique.push(loop); } });
     setDetectedLoops(unique);
-    setImportMode(false); setPreviousCanvas(null);
+    setImportMode(false); setPreviousCanvas(null); setShowOverlay(false);
   };
 
   const handleFileUpload = (e) => {
@@ -400,6 +402,9 @@ export default function AgentFeedbackLoopBuilder() {
 
   // Predictions gate: import mode and example mode both bypass predictions requirement
   const skipPredictions = exampleMode || importMode;
+
+  // Overlay is available only when cost data exists (worked example or imported trace)
+  const overlayEnabled = exampleMode || importMode;
 
   const nodeTypeButtons = [
     { key: "agent", icon: "⬡", label: "Agent" },
@@ -528,6 +533,9 @@ export default function AgentFeedbackLoopBuilder() {
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button onClick={() => setShowImportModal(true)} style={{ background: `${COLORS.balancing}18`, border: `1px solid ${COLORS.balancing}44`, color: COLORS.balancing, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500 }}>Import Trace</button>
+          {overlayEnabled && (
+            <button onClick={() => setShowOverlay((v) => !v)} style={{ background: showOverlay ? `${COLORS.accentWarm}18` : "transparent", border: `1px solid ${showOverlay ? COLORS.accentWarm : COLORS.panelBorder}`, color: showOverlay ? COLORS.accentWarm : COLORS.textSecondary, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500, transition: "all 0.15s" }}>Cost/Latency</button>
+          )}
           {importMode && previousCanvas !== null && (
             <button onClick={handleUndoImport} style={{ background: `${COLORS.accentWarm}12`, border: `1px solid ${COLORS.accentWarm}33`, color: COLORS.accentWarm, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500 }}>Undo Import</button>
           )}
@@ -601,6 +609,14 @@ export default function AgentFeedbackLoopBuilder() {
                 <g key={node.id} onClick={(e) => handleNodeClick(node.id, e)} onDoubleClick={(e) => handleNodeDoubleClick(node.id, e)} onMouseDown={(e) => handleNodeMouseDown(node.id, e)} style={{ cursor: mode === "move" ? "grab" : "pointer" }}>
                   {inAnyLoop && pulseActive && renderPulse(node, spec)}
                   {renderShape(shapeData, spec, isSelected, inAnyLoop)}
+                  {showOverlay && node.tokens != null && (
+                    <g transform={`translate(${node.x}, ${node.y - spec.height / 2 - 16})`}>
+                      <rect x={-30} y={-8} width={62} height={14} rx={3} fill={COLORS.bg} stroke={COLORS.accentWarm} strokeWidth={0.5} opacity={0.92} />
+                      <text x={1} y={1} textAnchor="middle" dominantBaseline="central" fill={COLORS.accentWarm} fontSize={8} fontFamily="'JetBrains Mono', monospace" style={{ pointerEvents: "none" }}>
+                        {node.tokens}t {node.latency >= 1000 ? `${(node.latency / 1000).toFixed(1)}s` : `${node.latency}ms`}
+                      </text>
+                    </g>
+                  )}
                   <text x={node.x} y={node.y} textAnchor="middle" dominantBaseline="central" fill={isSelected ? COLORS.accent : COLORS.textPrimary} fontSize={11} fontWeight={500} fontFamily="'DM Sans', sans-serif" style={{ pointerEvents: "none", userSelect: "none" }}>{node.label.length > 12 ? node.label.slice(0, 12) + "..." : node.label}</text>
                 </g>
               );
@@ -619,6 +635,16 @@ export default function AgentFeedbackLoopBuilder() {
               <div style={{ fontSize: 11, color: COLORS.textMuted, lineHeight: 1.8, maxWidth: 360 }}>Select a node type from the left toolbar<br />Click canvas to place nodes (agents, tools, memory, etc.)<br />Switch to Connect mode to draw causal links<br />Toggle polarity (+/−) to set link direction<br />Close a loop to see if it's reinforcing or balancing<br /><span style={{ color: COLORS.balancing }}>Or click "Import Trace" to explore a real agent run →</span><br /><span style={{ color: COLORS.accentWarm }}>Or load the Retry Storm worked example →</span></div>
             </div>
           )}
+          {showOverlay && overlayEnabled && (() => {
+            const totalTokens = nodes.reduce((s, n) => s + (n.tokens || 0), 0);
+            const totalLatency = Math.max(...nodes.map((n) => n.latency || 0));
+            const estCost = (totalTokens * 0.0000025).toFixed(4);
+            return (
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 28, background: COLORS.panel, borderTop: `1px solid ${COLORS.accentWarm}55`, display: "flex", alignItems: "center", paddingLeft: 12, fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: COLORS.textSecondary, letterSpacing: "0.04em", zIndex: 20 }}>
+                Total: <span style={{ color: COLORS.accentWarm, marginLeft: 4, marginRight: 12 }}>{totalTokens} tokens</span> | Max latency: <span style={{ color: COLORS.accentWarm, marginLeft: 4, marginRight: 12 }}>{totalLatency >= 1000 ? `${(totalLatency / 1000).toFixed(1)}s` : `${totalLatency}ms`}</span> | Est. cost: <span style={{ color: COLORS.accentWarm, marginLeft: 4 }}>~${estCost}</span>
+              </div>
+            );
+          })()}
         </div>
         <div style={{ width: 280, background: COLORS.panel, borderLeft: `1px solid ${COLORS.panelBorder}`, padding: 16, overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ background: `${COLORS.accent}08`, border: `1px solid ${COLORS.accent}22`, borderRadius: 8, overflow: "hidden" }}>
