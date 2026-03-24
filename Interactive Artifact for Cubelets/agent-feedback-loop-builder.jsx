@@ -649,14 +649,38 @@ export default function AgentFeedbackLoopBuilder() {
         <div style={{ width: 280, background: COLORS.panel, borderLeft: `1px solid ${COLORS.panelBorder}`, padding: 16, overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ background: `${COLORS.accent}08`, border: `1px solid ${COLORS.accent}22`, borderRadius: 8, overflow: "hidden" }}>
             <div onClick={() => setPrimerCollapsed(!primerCollapsed)} style={{ padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" }}>
-              <div style={S.heading}>AGENT BASICS</div>
+              <div style={S.heading}>AGENT FEEDBACK LOOPS</div>
               <span style={{ fontSize: 12, color: COLORS.accent, transition: "transform 0.2s", transform: primerCollapsed ? "rotate(0deg)" : "rotate(180deg)" }}>▼</span>
             </div>
             {!primerCollapsed && (
               <div style={{ padding: "0 12px 12px 12px", fontSize: 10, color: COLORS.textSecondary, lineHeight: 1.7, fontFamily: "'DM Sans', sans-serif" }}>
-                <p style={{ margin: "0 0 8px 0" }}><strong style={{ color: COLORS.textPrimary }}>What is an AI agent?</strong><br />An autonomous system that perceives its environment, makes decisions, and takes actions to achieve goals. Unlike chatbots (single request/response), agents loop continuously: observe → decide → act → observe.</p>
-                <p style={{ margin: "0 0 8px 0" }}><strong style={{ color: COLORS.textPrimary }}>Component types:</strong><br /><span style={{ color: COLORS.agentStroke }}>Agent</span> = decision-making orchestrator<br /><span style={{ color: COLORS.toolStroke }}>Tool</span> = functional capability (API, function)<br /><span style={{ color: COLORS.memoryStroke }}>Memory</span> = persistent state storage<br /><span style={{ color: COLORS.evaluatorStroke }}>Evaluator</span> = quality/safety check logic<br /><span style={{ color: COLORS.constraintStroke }}>Constraint</span> = limit/boundary enforcer</p>
-                <p style={{ margin: 0 }}><span style={{ color: COLORS.accent, fontSize: 9 }}>→ Review ST-001: Reinforcing Feedback Loops for loop polarity basics</span></p>
+                <p style={{ margin: "0 0 8px 0" }}>Agent feedback loops emerge when an agent's output influences its subsequent inputs — retries amplify errors (reinforcing), rate limiters dampen overload (balancing). Mapping these loops as Causal Loop Diagrams reveals where interventions have the most leverage.</p>
+                <div style={{ margin: "0 0 8px 0" }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: COLORS.textPrimary, letterSpacing: "0.08em", marginBottom: 4 }}>MEADOWS LEVERAGE LEVELS</div>
+                  {[
+                    { level: "L1", name: "Parameters", example: "Adjust timeout duration, retry count limits" },
+                    { level: "L2", name: "Buffers", example: "Add/resize request queues, token budgets" },
+                    { level: "L5", name: "Feedback Delays", example: "Add circuit breakers, response caching" },
+                    { level: "L6", name: "Feedback Structure", example: "Restructure retry logic, add fallback chains" },
+                    { level: "L10", name: "System Goals", example: "Change agent objective, stopping conditions" },
+                  ].map(({ level, name, example }) => (
+                    <div key={level} style={{ display: "flex", gap: 6, marginBottom: 3, alignItems: "flex-start" }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: COLORS.accent, minWidth: 22, flexShrink: 0 }}>{level}</span>
+                      <span style={{ fontSize: 9, fontWeight: 600, color: COLORS.textPrimary, minWidth: 106, flexShrink: 0 }}>{name}</span>
+                      <span style={{ fontSize: 9, color: COLORS.textSecondary }}>{example}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ margin: "0 0 8px 0" }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: COLORS.textPrimary, letterSpacing: "0.08em", marginBottom: 4 }}>LOOP PATTERNS</div>
+                  <div style={{ marginBottom: 3 }}><span style={{ color: COLORS.accent, fontWeight: 600 }}>Reinforcing:</span> Agent fails → retries → more failures → more retries (retry storm). Polarity: all + links.</div>
+                  <div><span style={{ color: COLORS.balancing, fontWeight: 600 }}>Balancing:</span> Agent overloads → rate limiter triggers → agent slows → load decreases. Polarity: one − link breaks the cycle.</div>
+                </div>
+                <div style={{ margin: "0 0 8px 0" }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: COLORS.textPrimary, letterSpacing: "0.08em", marginBottom: 4 }}>INTERVENTION STRATEGY</div>
+                  <div>Start at L1 (adjust parameters) for quick fixes. Move to L5–L6 (restructure feedback) for systemic change. L10 (change goals) is the highest leverage but requires rethinking what the agent optimises for.</div>
+                </div>
+                <p style={{ margin: 0 }}><span style={{ color: COLORS.accent, fontSize: 9 }}>See ST-001: Feedback Loop Builder for loop polarity basics. See ST-002: Leverage Points for the full 12-level Meadows hierarchy.</span></p>
               </div>
             )}
           </div>
