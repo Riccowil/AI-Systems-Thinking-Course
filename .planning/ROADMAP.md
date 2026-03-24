@@ -124,7 +124,7 @@ Plans:
 | 10. ST-006 Automation Debt | v1.1 | 3/3 | COMPLETE | 2026-03-23 |
 | 11. Integration + Deployment | v1.1 | 2/2 | COMPLETE | 2026-03-23 |
 | 12. Audit Gap Closure | v1.1 | 2/2 | COMPLETE | 2026-03-23 |
-| 13. ST-004 Enhancements | v1.2 | 3/3 | COMPLETE | 2026-03-24 |
+| 13. ST-004 Enhancements | v1.2 | Complete    | 2026-03-24 | 2026-03-24 |
 | 14. ST-005 Enhancements | v1.2 | 0/2 | Not started | - |
 | 15. ST-006 + Pattern Library | v1.2 | 0/2 | Not started | - |
 | 16. Tech Debt Cleanup | v1.2 | 0/1 | Not started | - |
