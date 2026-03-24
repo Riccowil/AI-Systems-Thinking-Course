@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Polish & Deferred Features
-status: planning
-stopped_at: "13-01: complete — ready for plan 02"
-last_updated: "2026-03-24T00:25:00.000Z"
-last_activity: 2026-03-24 — 13-01 trace import verified and complete
+status: verifying
+stopped_at: Completed 13-02-PLAN.md — cost/latency overlay done; ready for 13-03
+last_updated: "2026-03-24T00:37:28.197Z"
+last_activity: 2026-03-24 — 13-02 cost/latency overlay implemented
 progress:
   total_phases: 5
   completed_phases: 0
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 13 — ST-004 Enhancements (in progress)
-Plan: 02 — Cost/latency overlay (next)
-Status: Plan 01 complete (trace import verified in Claude.ai sandbox); ready for Plan 02
-Last activity: 2026-03-24 — 13-01 trace import feature verified and complete
+Plan: 03 — Primer panel expansion (next)
+Status: Plan 02 complete (cost/latency overlay implemented); ready for Plan 03
+Last activity: 2026-03-24 — 13-02 cost/latency overlay implemented
 
-Progress: [██░░░░░░░░] 22% (0/5 phases, 2/9 plans)
+Progress: [██████████] 95% (0/5 phases complete, 20/21 plans)
 
 ## Milestones
 
@@ -66,10 +66,11 @@ v1.2-specific notes:
 - Phase 16 collapses two small data-file fixes into one plan (syllabus + prerequisite)
 - XCUBE-02 and XCUBE-03 are pure file edits — no artifact changes needed
 - [Phase 13-st-004-enhancements]: skipPredictions = exampleMode || importMode — both example and import paths bypass predictions gate for loop analysis
+- [Phase 13-st-004-enhancements]: overlayEnabled derived from exampleMode || importMode — no extra state needed for overlay availability
 
 ### Pending Todos
 
-- Execute 13-02 (cost/latency overlay on imported traces)
+- Execute 13-03 (primer panel expansion)
 
 ### Blockers/Concerns
 
@@ -77,6 +78,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T00:25:00.000Z
-Stopped at: 13-01 complete — ready for 13-02
+Last session: 2026-03-24T00:37:28.195Z
+Stopped at: Completed 13-02-PLAN.md — cost/latency overlay done; ready for 13-03
 Resume file: None
