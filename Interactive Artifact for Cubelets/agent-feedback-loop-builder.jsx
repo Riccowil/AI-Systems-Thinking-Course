@@ -25,6 +25,56 @@ const PRELOADED_EXAMPLE = {
   ],
 };
 
+// Built-in sample traces for the Import+Explore learning path
+const SAMPLE_TRACES = [
+  {
+    name: "Retry Storm",
+    trace: {
+      agent: "RetryAgent",
+      steps: [
+        { tool_call: "call_api", timestamp: 0, tokens: 120 },
+        { tool_call: "parse_response", timestamp: 210, tokens: 45 },
+        { tool_call: "call_api", timestamp: 500, tokens: 135 },
+        { tool_call: "parse_response", timestamp: 720, tokens: 45 },
+        { tool_call: "call_api", timestamp: 1100, tokens: 148 },
+        { tool_call: "parse_response", timestamp: 1330, tokens: 45 },
+        { tool_call: "error_handler", timestamp: 1400, tokens: 62 },
+        { tool_call: "call_api", timestamp: 1700, tokens: 160 },
+        { tool_call: "error_handler", timestamp: 1920, tokens: 68 },
+      ],
+    },
+  },
+  {
+    name: "RAG Pipeline",
+    trace: {
+      agent: "RAGAgent",
+      steps: [
+        { tool_call: "retrieve_documents", timestamp: 0, tokens: 200 },
+        { tool_call: "rerank_results", timestamp: 310, tokens: 88 },
+        { tool_call: "generate_answer", timestamp: 520, tokens: 410 },
+        { tool_call: "retrieve_documents", timestamp: 950, tokens: 215 },
+        { tool_call: "rerank_results", timestamp: 1180, tokens: 92 },
+        { tool_call: "generate_answer", timestamp: 1390, tokens: 388 },
+      ],
+    },
+  },
+  {
+    name: "Multi-tool Agent",
+    trace: {
+      agent: "ResearchAgent",
+      steps: [
+        { tool_call: "search_web", timestamp: 0, tokens: 95 },
+        { tool_call: "extract_data", timestamp: 400, tokens: 180 },
+        { tool_call: "validate_data", timestamp: 680, tokens: 75 },
+        { tool_call: "search_web", timestamp: 900, tokens: 110 },
+        { tool_call: "extract_data", timestamp: 1280, tokens: 195 },
+        { tool_call: "validate_data", timestamp: 1550, tokens: 75 },
+        { tool_call: "store_result", timestamp: 1700, tokens: 55 },
+      ],
+    },
+  },
+];
+
 const COLORS = {
   bg: "#0f1117", canvas: "#161922", gridLine: "#1e2230", node: "#1c2033", nodeBorder: "#2a3050",
   nodeHover: "#242b45", nodeSelected: "#00d4aa", edgePlus: "#00d4aa", edgeMinus: "#ff6b6b",
@@ -125,6 +175,44 @@ function autoArrangeNodes(nodes, edges) {
   return nodes.map((n) => ({ ...n, x: positioned[n.id]?.x ?? n.x, y: positioned[n.id]?.y ?? n.y }));
 }
 
+// Parse a JSON agent trace into CLD nodes and edges
+function parseTrace(jsonString) {
+  const EX = '{"agent":"MyAgent","steps":[{"tool_call":"search_web","timestamp":0,"tokens":128},{"tool_call":"extract_data","timestamp":350,"tokens":200}]}';
+  let data;
+  try { data = JSON.parse(jsonString); } catch { return { error: `Invalid JSON. Expected format:\n${EX}` }; }
+  if (!data.agent || typeof data.agent !== "string") return { error: `Missing "agent" field (must be a string).\n\nExample: ${EX}` };
+  if (!Array.isArray(data.steps) || data.steps.length === 0) return { error: `Missing "steps" field (must be a non-empty array).\n\nExample: ${EX}` };
+  for (let i = 0; i < data.steps.length; i++) {
+    const s = data.steps[i];
+    if (!s.tool_call || typeof s.tool_call !== "string") return { error: `Step ${i}: missing "tool_call" (string).\n\nExample: ${EX}` };
+    if (typeof s.timestamp !== "number") return { error: `Step ${i}: missing "timestamp" (number).\n\nExample: ${EX}` };
+    if (typeof s.tokens !== "number") return { error: `Step ${i}: missing "tokens" (number).\n\nExample: ${EX}` };
+  }
+  // Aggregate per-tool stats
+  const toolStats = {};
+  data.steps.forEach((s) => {
+    if (!toolStats[s.tool_call]) toolStats[s.tool_call] = { tokens: 0, timestamps: [] };
+    toolStats[s.tool_call].tokens += s.tokens;
+    toolStats[s.tool_call].timestamps.push(s.timestamp);
+  });
+  const agentId = "n0";
+  const toolNames = Object.keys(toolStats);
+  const toolIdMap = {};
+  toolNames.forEach((name, i) => { toolIdMap[name] = `n${i + 1}`; });
+  const agentNode = { id: agentId, label: data.agent, component_type: "agent", x: 400, y: 100, tokens: data.steps.reduce((sum, s) => sum + s.tokens, 0), latency: data.steps.length > 1 ? data.steps[data.steps.length - 1].timestamp - data.steps[0].timestamp : 0 };
+  const toolNodes = toolNames.map((name, i) => { const st = toolStats[name]; return { id: `n${i + 1}`, label: name, component_type: "tool", x: 200 + i * 180, y: 280, tokens: st.tokens, latency: Math.max(...st.timestamps) - Math.min(...st.timestamps) }; });
+  // Build edges: agent -> tool, and tool -> agent for non-adjacent repeats (feedback pattern)
+  const edgeSet = new Set(), resultEdges = [];
+  const addEdge = (from, to, polarity, strength) => { const key = `${from}-${to}`; if (!edgeSet.has(key)) { edgeSet.add(key); resultEdges.push({ from, to, polarity, strength }); } };
+  toolNames.forEach((name) => addEdge(agentId, toolIdMap[name], "+", 0.8));
+  const toolLastIdx = {};
+  data.steps.forEach((s, i) => {
+    if (toolLastIdx[s.tool_call] !== undefined && i - toolLastIdx[s.tool_call] > 1) addEdge(toolIdMap[s.tool_call], agentId, "+", 0.75);
+    toolLastIdx[s.tool_call] = i;
+  });
+  return { nodes: [agentNode, ...toolNodes], edges: resultEdges };
+}
+
 export default function AgentFeedbackLoopBuilder() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
@@ -147,6 +235,12 @@ export default function AgentFeedbackLoopBuilder() {
   const [predictions, setPredictions] = useState({});
   const [allPredicted, setAllPredicted] = useState(false);
   const [maxNodeWarning, setMaxNodeWarning] = useState(false);
+  // Import feature state
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importError, setImportError] = useState("");
+  const [importMode, setImportMode] = useState(false);
+  const [previousCanvas, setPreviousCanvas] = useState(null);
   const svgRef = useRef(null);
   const inputRef = useRef(null);
   const prevLoopCountRef = useRef(0);
@@ -238,14 +332,57 @@ export default function AgentFeedbackLoopBuilder() {
   const loadExample = () => {
     setNodes([...PRELOADED_EXAMPLE.nodes]); setEdges([...PRELOADED_EXAMPLE.edges]);
     setNodeCounter(6); setShowTutorial(false); setExampleMode(true);
+    setImportMode(false); setPreviousCanvas(null);
   };
 
   const clearAll = () => {
     setNodes([]); setEdges([]); setDetectedLoops([]); setConnectFrom(null); setSelectedNode(null);
     setNodeCounter(0); setExampleMode(false); setPredictions({}); setAllPredicted(false);
+    setImportMode(false); setPreviousCanvas(null);
   };
 
   const autoArrange = () => { const arranged = autoArrangeNodes(nodes, edges); setNodes(arranged); };
+
+  // Import handlers
+  const handleImport = () => {
+    const result = parseTrace(importText);
+    if (result.error) { setImportError(result.error); return; }
+    setPreviousCanvas({ nodes: [...nodes], edges: [...edges] });
+    const arranged = autoArrangeNodes(result.nodes, result.edges);
+    setNodes(arranged);
+    setEdges(result.edges);
+    const cycles = findCycles(arranged, result.edges);
+    const classified = cycles.map((c) => ({ nodes: c.map((n) => n.node), type: classifyLoop(c), cycle: c, severity: scoreLoopSeverity(c, result.edges) }));
+    const unique = [], seen = new Set();
+    classified.forEach((loop) => { const key = [...loop.nodes].slice(0, -1).sort().join(","); if (!seen.has(key)) { seen.add(key); unique.push(loop); } });
+    setDetectedLoops(unique);
+    setImportMode(true); setExampleMode(false);
+    setShowImportModal(false); setImportError(""); setImportText("");
+    setNodeCounter(result.nodes.length);
+    setShowTutorial(false);
+    setPredictions({}); setAllPredicted(false);
+    setActiveTab('loops');
+  };
+
+  const handleUndoImport = () => {
+    if (!previousCanvas) return;
+    setNodes(previousCanvas.nodes);
+    setEdges(previousCanvas.edges);
+    const cycles = findCycles(previousCanvas.nodes, previousCanvas.edges);
+    const classified = cycles.map((c) => ({ nodes: c.map((n) => n.node), type: classifyLoop(c), cycle: c, severity: scoreLoopSeverity(c, previousCanvas.edges) }));
+    const unique = [], seen = new Set();
+    classified.forEach((loop) => { const key = [...loop.nodes].slice(0, -1).sort().join(","); if (!seen.has(key)) { seen.add(key); unique.push(loop); } });
+    setDetectedLoops(unique);
+    setImportMode(false); setPreviousCanvas(null);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => { setImportText(evt.target.result); };
+    reader.readAsText(file);
+  };
 
   const loopEdgeKeys = new Set();
   detectedLoops.forEach((loop) => { for (let i = 0; i < loop.nodes.length - 1; i++) loopEdgeKeys.add(`${loop.nodes[i]}-${loop.nodes[i + 1]}`); });
@@ -260,6 +397,9 @@ export default function AgentFeedbackLoopBuilder() {
   const handleSubmitPredictions = () => { if (allPredictionsFilled) { setAllPredicted(true); setActiveTab('predictions'); } };
   const handleResetPredictions = () => { setPredictions({}); setAllPredicted(false); };
   const updatePrediction = (loopId, field, value) => { setPredictions(prev => ({ ...prev, [loopId]: { ...prev[loopId], [field]: value } })); };
+
+  // Predictions gate: import mode and example mode both bypass predictions requirement
+  const skipPredictions = exampleMode || importMode;
 
   const nodeTypeButtons = [
     { key: "agent", icon: "⬡", label: "Agent" },
@@ -324,6 +464,60 @@ export default function AgentFeedbackLoopBuilder() {
   return (
     <div style={{ width: "100%", height: "100vh", background: COLORS.bg, fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace", color: COLORS.textPrimary, display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}>
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.7)", backdropFilter: "blur(2px)" }}>
+          <div style={{ width: 500, maxWidth: "90vw", background: COLORS.panel, border: `1px solid ${COLORS.panelBorder}`, borderRadius: 12, padding: 24, boxShadow: "0 16px 48px rgba(0,0,0,0.6)", display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 16, color: COLORS.textPrimary }}>Import Agent Trace</div>
+              <button onClick={() => { setShowImportModal(false); setImportError(""); }} style={{ background: "transparent", border: "none", color: COLORS.textMuted, cursor: "pointer", fontSize: 18, lineHeight: 1 }}>✕</button>
+            </div>
+            <div>
+              <div style={{ fontSize: 9, color: COLORS.textMuted, letterSpacing: "0.08em", marginBottom: 8, textTransform: "uppercase" }}>Load Sample Trace</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {SAMPLE_TRACES.map((sample) => (
+                  <button key={sample.name} onClick={() => setImportText(JSON.stringify(sample.trace, null, 2))}
+                    style={{ flex: 1, padding: "6px 8px", background: `${COLORS.accent}10`, border: `1px solid ${COLORS.accent}33`, borderRadius: 6, color: COLORS.accent, fontSize: 10, fontFamily: "inherit", cursor: "pointer", fontWeight: 500 }}>
+                    {sample.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 9, color: COLORS.textMuted, letterSpacing: "0.08em", marginBottom: 6, textTransform: "uppercase" }}>Paste JSON Trace</div>
+              <textarea
+                value={importText}
+                onChange={(e) => { setImportText(e.target.value); setImportError(""); }}
+                placeholder={'{\n  "agent": "MyAgent",\n  "steps": [\n    { "tool_call": "search_web", "timestamp": 0, "tokens": 128 }\n  ]\n}'}
+                rows={12}
+                style={{ width: "100%", background: COLORS.node, border: `1px solid ${importError ? COLORS.accentDanger : COLORS.nodeBorder}`, borderRadius: 6, color: COLORS.textPrimary, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", padding: "10px 12px", resize: "vertical", outline: "none", boxSizing: "border-box", lineHeight: 1.6 }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: 9, color: COLORS.textMuted, letterSpacing: "0.08em", marginBottom: 6, textTransform: "uppercase" }}>Or Upload .json File</div>
+              <input type="file" accept=".json" onChange={handleFileUpload}
+                style={{ fontSize: 10, color: COLORS.textSecondary, background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit" }} />
+            </div>
+            {importError && (
+              <div style={{ background: `${COLORS.accentDanger}10`, border: `1px solid ${COLORS.accentDanger}33`, borderRadius: 6, padding: "10px 12px", fontSize: 10, color: COLORS.accentDanger, whiteSpace: "pre-wrap", lineHeight: 1.6, fontFamily: "'JetBrains Mono', monospace" }}>
+                {importError}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => { setShowImportModal(false); setImportError(""); setImportText(""); }}
+                style={{ padding: "8px 16px", background: "transparent", border: `1px solid ${COLORS.panelBorder}`, borderRadius: 6, color: COLORS.textSecondary, fontSize: 11, fontFamily: "inherit", cursor: "pointer" }}>
+                Cancel
+              </button>
+              <button onClick={handleImport} disabled={!importText.trim()}
+                style={{ padding: "8px 20px", background: importText.trim() ? COLORS.accent : COLORS.textMuted, border: "none", borderRadius: 6, color: "#000", fontSize: 11, fontFamily: "inherit", fontWeight: 700, cursor: importText.trim() ? "pointer" : "not-allowed", opacity: importText.trim() ? 1 : 0.5 }}>
+                Import
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${COLORS.panelBorder}`, background: COLORS.panel, flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${COLORS.accent}33, ${COLORS.accent}11)`, border: `2px solid ${COLORS.accent}55`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⬡</div>
@@ -333,6 +527,10 @@ export default function AgentFeedbackLoopBuilder() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
+          <button onClick={() => setShowImportModal(true)} style={{ background: `${COLORS.balancing}18`, border: `1px solid ${COLORS.balancing}44`, color: COLORS.balancing, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500 }}>Import Trace</button>
+          {importMode && previousCanvas !== null && (
+            <button onClick={handleUndoImport} style={{ background: `${COLORS.accentWarm}12`, border: `1px solid ${COLORS.accentWarm}33`, color: COLORS.accentWarm, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500 }}>Undo Import</button>
+          )}
           <button onClick={loadExample} style={{ background: `${COLORS.accentWarm}18`, border: `1px solid ${COLORS.accentWarm}44`, color: COLORS.accentWarm, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500 }}>Load Retry Storm Example</button>
           <button onClick={clearAll} style={{ background: `${COLORS.accentDanger}12`, border: `1px solid ${COLORS.accentDanger}33`, color: COLORS.accentDanger, padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 11, fontFamily: "inherit", fontWeight: 500 }}>Clear</button>
         </div>
@@ -366,6 +564,7 @@ export default function AgentFeedbackLoopBuilder() {
         </div>
         <div style={{ flex: 1, position: "relative" }}>
           {maxNodeWarning && (<div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 100, background: COLORS.accentDanger, color: "#fff", padding: "8px 16px", borderRadius: 6, fontSize: 11, fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>Maximum 20 nodes reached</div>)}
+          {importMode && (<div style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 50, background: `${COLORS.balancing}18`, border: `1px solid ${COLORS.balancing}44`, color: COLORS.balancing, padding: "5px 14px", borderRadius: 6, fontSize: 10, fontWeight: 600, letterSpacing: "0.06em" }}>IMPORT MODE — Explore+Analyze</div>)}
           <svg ref={svgRef} width="100%" height="100%" style={{ background: COLORS.canvas, cursor: mode === "add" ? "crosshair" : mode === "move" ? (dragging ? "grabbing" : "grab") : mode === "delete" ? "not-allowed" : "default" }} onClick={handleCanvasClick} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
             <defs>
               <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="0.8" fill={COLORS.gridLine} /></pattern>
@@ -417,7 +616,7 @@ export default function AgentFeedbackLoopBuilder() {
             <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center", pointerEvents: "none" }}>
               <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.15 }}>⬡</div>
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 8 }}>Map Your Agent Architecture</div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted, lineHeight: 1.8, maxWidth: 360 }}>Select a node type from the left toolbar<br />Click canvas to place nodes (agents, tools, memory, etc.)<br />Switch to Connect mode to draw causal links<br />Toggle polarity (+/−) to set link direction<br />Close a loop to see if it's reinforcing or balancing<br /><span style={{ color: COLORS.accentWarm }}>Or load the Retry Storm worked example →</span></div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted, lineHeight: 1.8, maxWidth: 360 }}>Select a node type from the left toolbar<br />Click canvas to place nodes (agents, tools, memory, etc.)<br />Switch to Connect mode to draw causal links<br />Toggle polarity (+/−) to set link direction<br />Close a loop to see if it's reinforcing or balancing<br /><span style={{ color: COLORS.balancing }}>Or click "Import Trace" to explore a real agent run →</span><br /><span style={{ color: COLORS.accentWarm }}>Or load the Retry Storm worked example →</span></div>
             </div>
           )}
         </div>
@@ -446,7 +645,7 @@ export default function AgentFeedbackLoopBuilder() {
               </div>
               {detectedLoops.map((loop, i) => {
                 const loopId = getLoopId(loop, i), severityColor = loop.severity.label === "High" ? COLORS.accentDanger : loop.severity.label === "Medium" ? COLORS.accentWarm : COLORS.accent;
-                const hideAnalysis = !exampleMode && !allPredicted;
+                const hideAnalysis = !skipPredictions && !allPredicted;
                 return (
                   <div key={i} style={S.cardBase(loop.type === "reinforcing" ? COLORS.reinforcing : COLORS.balancing)}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -506,8 +705,8 @@ export default function AgentFeedbackLoopBuilder() {
             </div>
           )}
           {activeTab === 'interventions' && (
-            <div style={{ opacity: (exampleMode || allPredicted) ? 1 : 0.5, transition: 'opacity 0.3s' }}>
-              {(!exampleMode && !allPredicted) ? (<div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>Submit predictions to see interventions</div>) : detectedLoops.length === 0 ? (<div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>Build your agent diagram to detect loops</div>) : (
+            <div style={{ opacity: (skipPredictions || allPredicted) ? 1 : 0.5, transition: 'opacity 0.3s' }}>
+              {(!skipPredictions && !allPredicted) ? (<div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>Submit predictions to see interventions</div>) : detectedLoops.length === 0 ? (<div style={{ padding: 12, fontSize: 10, color: COLORS.textMuted, fontStyle: 'italic' }}>Build your agent diagram to detect loops</div>) : (
                 detectedLoops.map((loop, i) => {
                   const loopId = getLoopId(loop, i), severityLabel = loop.severity.label;
                   const highestLink = loop.cycle.reduce((max, step, idx) => {
@@ -531,7 +730,7 @@ export default function AgentFeedbackLoopBuilder() {
               <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", color: COLORS.accent, marginBottom: 8 }}>POLARITY RULE</div>
               <div style={{ fontSize: 10, color: COLORS.textSecondary, lineHeight: 1.7 }}>Count the <span style={{ color: COLORS.edgeMinus, fontWeight: 600 }}>negative (−)</span> links.<br /><span style={{ color: COLORS.reinforcing }}>Even count</span> (incl. zero) = <b>Reinforcing</b><br /><span style={{ color: COLORS.balancing }}>Odd count</span> = <b>Balancing</b></div>
             </div>
-            <div style={{ borderTop: `1px solid ${COLORS.panelBorder}`, paddingTop: 12, fontSize: 10, color: COLORS.textMuted }}>{nodes.length} components · {edges.length} causal links</div>
+            <div style={{ borderTop: `1px solid ${COLORS.panelBorder}`, paddingTop: 12, fontSize: 10, color: COLORS.textMuted }}>{nodes.length} components · {edges.length} causal links{importMode ? " · imported trace" : ""}</div>
             {reinforcingCount > 0 && exampleMode && (
               <div style={{ background: `linear-gradient(135deg, ${COLORS.reinforcing}08, ${COLORS.accentWarm}08)`, border: `1px solid ${COLORS.reinforcing}22`, borderRadius: 8, padding: 12 }}>
                 <div style={{ fontSize: 16, marginBottom: 6 }}>⚠</div>
