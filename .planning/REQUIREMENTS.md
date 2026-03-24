@@ -11,7 +11,7 @@ Requirements for Polish & Deferred Features milestone. Enhances existing cubelet
 
 - [x] **ST004-01**: Student can import a JSON agent execution trace (schema: agent name, steps with tool calls, timestamps, token counts) and see it auto-mapped as a CLD with feedback loops detected
 - [x] **ST004-02**: Student can toggle a cost/latency overlay on agent feedback loop nodes showing token usage and time per step
-- [ ] **ST004-03**: ST-004 primer panel expanded to match ST-005's depth (Meadows levels, worked examples, progressive disclosure)
+- [x] **ST004-03**: ST-004 primer panel expanded to match ST-005's depth (Meadows levels, worked examples, progressive disclosure)
 
 ### ST-005 Enhancements (Tool Orchestration)
 
@@ -58,7 +58,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | ST004-01 | Phase 13 | Complete |
 | ST004-02 | Phase 13 | Complete |
-| ST004-03 | Phase 13 | Pending |
+| ST004-03 | Phase 13 | Complete |
 | ST005-01 | Phase 14 | Pending |
 | ST005-02 | Phase 14 | Pending |
 | ST006-01 | Phase 15 | Pending |

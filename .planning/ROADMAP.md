@@ -39,7 +39,7 @@ Delivered: 3 cubelets (ST-004, ST-005, ST-006), 9 deliverables, quality gates pa
 
 ## Phase Checklist
 
-- [ ] **Phase 13: ST-004 Enhancements** — Trace import, cost/latency overlay, expanded primer panel
+- [x] **Phase 13: ST-004 Enhancements** — Trace import, cost/latency overlay, expanded primer panel
 - [ ] **Phase 14: ST-005 Enhancements** — Side-by-side stack comparison, vitest stub replacement
 - [ ] **Phase 15: ST-006 + Pattern Library** — Custom scenario builder, cross-cubelet archetype pattern library
 - [ ] **Phase 16: Tech Debt Cleanup** — Syllabus quality_gate update, ST-003 prerequisite fix
@@ -58,9 +58,9 @@ Delivered: 3 cubelets (ST-004, ST-005, ST-006), 9 deliverables, quality gates pa
 **Plans**: 3 plans
 
 Plans:
-- [ ] 13-01: JSON trace import + CLD auto-mapping (ST004-01)
-- [ ] 13-02: Cost/latency overlay toggle (ST004-02)
-- [ ] 13-03: Primer panel expansion to ST-005 depth (ST004-03)
+- [x] 13-01: JSON trace import + CLD auto-mapping (ST004-01)
+- [x] 13-02: Cost/latency overlay toggle (ST004-02)
+- [x] 13-03: Primer panel expansion to ST-005 depth (ST004-03)
 
 ### Phase 14: ST-005 Enhancements
 **Goal**: Students can compare two tool stacks side-by-side, and the test suite has real assertions covering actual component logic
@@ -124,7 +124,7 @@ Plans:
 | 10. ST-006 Automation Debt | v1.1 | 3/3 | COMPLETE | 2026-03-23 |
 | 11. Integration + Deployment | v1.1 | 2/2 | COMPLETE | 2026-03-23 |
 | 12. Audit Gap Closure | v1.1 | 2/2 | COMPLETE | 2026-03-23 |
-| 13. ST-004 Enhancements | 2/3 | In Progress|  | - |
+| 13. ST-004 Enhancements | v1.2 | 3/3 | COMPLETE | 2026-03-24 |
 | 14. ST-005 Enhancements | v1.2 | 0/2 | Not started | - |
 | 15. ST-006 + Pattern Library | v1.2 | 0/2 | Not started | - |
 | 16. Tech Debt Cleanup | v1.2 | 0/1 | Not started | - |
@@ -132,4 +132,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-03-21*
-*Last updated: 2026-03-23 — v1.2 roadmap added (phases 13-17)*
+*Last updated: 2026-03-24 — Phase 13 ST-004 enhancements complete*
